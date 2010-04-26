@@ -8,3 +8,4 @@ $article = $blog->article[1];
 echo "$article[title]\n";
 ?>
 --EXPECTF--
+Já a PHP

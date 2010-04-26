@@ -19,14 +19,22 @@ class SimpleRel {
 	}
 	
 	/** Get table data
-	* @param string table
+	* @param string
+	* @return SimpleRel_Result
+	*/
+	function __get($table) {
+		return new SimpleRel_Result($table, $this, $this->pdo, $this->structure);
+	}
+	
+	/** Get table data
+	* @param string
 	* @param array (["condition"[, array("value")]])
 	* @return SimpleRel_Result
 	*/
-	function __call($name, array $args) {
-		$return = new SimpleRel_Result($name, $this, $this->pdo, $this->structure);
-		if ($args) {
-			call_user_func_array(array($return, 'where'), $args);
+	function __call($table, array $where) {
+		$return = new SimpleRel_Result($table, $this, $this->pdo, $this->structure);
+		if ($where) {
+			call_user_func_array(array($return, 'where'), $where);
 		}
 		return $return;
 	}

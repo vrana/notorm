@@ -1,8 +1,8 @@
 <?php
-class SimpleRel_Result implements Iterator {
+class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 	private $table, $pdo, $simpleRel, $structure, $primary;
 	private $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	private $result, $row;
+	private $rows;
 	
 	/** Create table result
 	* @param string
@@ -100,7 +100,7 @@ class SimpleRel_Result implements Iterator {
 	
 	/** Execute aggregation functions
 	* @param string for example "COUNT(*), MAX(id)"
-	* @return array
+	* @return array using PDO::FETCH_BOTH
 	*/
 	private function aggregation($function) {
 		$query = "SELECT $function\nFROM $this->table";
@@ -113,46 +113,53 @@ class SimpleRel_Result implements Iterator {
 	}
 	
 	private function execute() {
-		$this->result = $this->pdo->prepare($this->__toString());
-		//~ echo $this->result->queryString;
-		//~ print_r($this->parameters);
-		$this->result->execute($this->parameters);
+		if (!isset($this->rows)) {
+			$result = $this->pdo->prepare($this->__toString());
+			//~ echo $result->queryString;
+			//~ print_r($this->parameters);
+			$result->execute($this->parameters);
+			$result->setFetchMode(PDO::FETCH_ASSOC);
+			$this->rows = array();
+			foreach ($result as $row) {
+				$this->rows[$row[$this->primary]] = new SimpleRel_Row($row, $this->primary, $this->table, $this->simpleRel, $this->structure);
+			}
+		}
 	}
 	
-	/** Fetch next row of result
-	* @return SimpleRel_Row
+	/** Fetch first row of result
+	* @return SimpleRel_Row or false if there is no row
 	*/
 	function fetch() {
-		if (!isset($this->result)) {
-			$this->execute();
-		}
-		$this->next();
-		if (!$this->row) {
-			return false;
-		}
-		return $this->current();
+		$this->execute();
+		return reset($this->rows);
 	}
 	
-	// Iterator implementation
+	// IteratorAggregate implementation
 	
-	function rewind() {
-		$this->execute(); // seek is impossible
-		$this->next();
+	function getIterator() {
+		$this->execute();
+		return new ArrayIterator($this->rows);
 	}
 	
-	function current() {
-		return new SimpleRel_Row($this->row, $this->primary, $this->table, $this->simpleRel, $this->structure);
+	// ArrayAccess implementation
+	
+	function offsetExists($key) {
+		$this->execute();
+		return array_key_exists($key, $this->rows);
 	}
 	
-	function valid() {
-		return $this->row;
+	function offsetGet($key) {
+		$this->execute();
+		return $this->rows[$key];
 	}
 	
-	function next() {
-		$this->row = $this->result->fetch(PDO::FETCH_ASSOC);
+	function offsetSet($key, $value) {
+		//! Exception
 	}
 	
-	function key() {
-		return $this->row[$this->primary];
+	function offsetUnset($key) {
+		$this->execute();
+		unset($this->rows[$key]);
 	}
+	
 }

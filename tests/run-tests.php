@@ -8,4 +8,4 @@ foreach (glob("*.phpt") as $filename) {
 		echo "failed $filename ($match[1])\n";
 	}
 }
-echo memory_get_peak_usage() . "\n";
+echo "Memory peak usage: " . memory_get_peak_usage() . " B\n";
