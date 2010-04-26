@@ -8,7 +8,7 @@ class SimpleRel {
 	
 	/** Create database representation
 	* @param PDO
-	* @param SimpleRel_Structure
+	* @param SimpleRel_Structure or null for new SimpleRel_Structure_Convention
 	*/
 	function __construct(PDO $pdo, SimpleRel_Structure $structure = null) {
 		$this->pdo = $pdo;
@@ -23,7 +23,7 @@ class SimpleRel {
 	* @return SimpleRel_Result
 	*/
 	function __get($table) {
-		return new SimpleRel_Result($table, $this, $this->pdo, $this->structure);
+		return new SimpleRel_Result($table, $this, $this->pdo, $this->structure, true);
 	}
 	
 	/** Get table data

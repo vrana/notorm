@@ -1,6 +1,6 @@
 <?php
-class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
-	private $table, $pdo, $simpleRel, $structure, $primary;
+class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
+	private $table, $pdo, $simpleRel, $structure, $single, $primary;
 	private $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	private $rows;
 	
@@ -8,12 +8,14 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 	* @param string
 	* @param PDO
 	* @param SimpleRel_Structure
+	* @param bool single row
 	*/
-	function __construct($table, SimpleRel $simpleRel, PDO $pdo, SimpleRel_Structure $structure) {
+	function __construct($table, SimpleRel $simpleRel, PDO $pdo, SimpleRel_Structure $structure, $single = false) {
 		$this->table = $table;
 		$this->simpleRel = $simpleRel;
 		$this->pdo = $pdo;
 		$this->structure = $structure;
+		$this->single = $single;
 		$this->primary = $structure->getPrimary($table);
 	}
 	
@@ -27,15 +29,15 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 		} else {
 			$return .= "*";
 		}
-		$return .= "\nFROM $this->table";
+		$return .= " FROM $this->table";
 		if ($this->where) {
-			$return .= "\nWHERE " . implode(" AND ", $this->where);
+			$return .= " WHERE " . implode(" AND ", $this->where);
 		}
 		if ($this->order) {
-			$return .= "\nORDER BY " . implode(", ", $this->order);
+			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
 		if ($this->limit) {
-			$return .= "\nLIMIT $this->limit"; //! driver specific
+			$return .= " LIMIT $this->limit"; //! driver specific
 			if (isset($this->offset)) {
 				$return .= " OFFSET $this->offset";
 			}
@@ -88,12 +90,11 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 		return $this;
 	}
 	
-	/** Shortcut for first aggregation("COUNT($column)")
+	/** Shortcut for "COUNT($column)"
 	* @param string
 	* @return int
 	*/
 	function count($column = "*") {
-		// this is not Countable implementation
 		$row = $this->aggregation("COUNT($column)");
 		return $row[0];
 	}
@@ -103,13 +104,13 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 	* @return array using PDO::FETCH_BOTH
 	*/
 	private function aggregation($function) {
-		$query = "SELECT $function\nFROM $this->table";
+		$query = "SELECT $function FROM $this->table";
 		if ($this->where) {
-			$query .= "\nWHERE " . implode(" AND ", $this->where);
+			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
 		$result = $this->pdo->prepare($query);
 		$result->execute($this->parameters);
-		return $result->fetch();
+		return $result->fetch(PDO::FETCH_BOTH);
 	}
 	
 	private function execute() {
@@ -144,13 +145,25 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess {
 	// ArrayAccess implementation
 	
 	function offsetExists($key) {
-		$this->execute();
-		return array_key_exists($key, $this->rows);
+		if ($this->single) {
+			$clone = clone $this;
+			$clone->where("$this->primary = ?", array($key));
+			return $clone->count();
+		} else {
+			$this->execute();
+			return isset($this->rows[$key]);
+		}
 	}
 	
 	function offsetGet($key) {
-		$this->execute();
-		return $this->rows[$key];
+		if ($this->single) {
+			$clone = clone $this;
+			$clone->where("$this->primary = ?", array($key));
+			return $clone->fetch();
+		} else {
+			$this->execute();
+			return $this->rows[$key];
+		}
 	}
 	
 	function offsetSet($key, $value) {

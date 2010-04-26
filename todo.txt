@@ -1,3 +1,4 @@
 save, delete
 escape table names
 autodiscover primary and foreign keys
+multi-column primary key
