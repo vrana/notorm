@@ -60,6 +60,9 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @return SimpleRel_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
+		if ($parameters && !strpbrk($condition, "?:")) {
+			$condition .= " = ?";
+		}
 		$this->where[] = $condition;
 		if (!is_array($parameters)) {
 			$parameters = array($parameters);
