@@ -1,0 +1,3 @@
+save, delete
+escape table names
+autodiscover primary and foreign keys
