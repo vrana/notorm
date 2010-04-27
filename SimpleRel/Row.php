@@ -1,12 +1,14 @@
 <?php
 class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
-	private $row, $primary, $table, $simpleRel, $structure;
+	private $row, $primary, $table, $result, $pdo, $structure;
+	private $rows = array();
 	
-	function __construct(array $row, $primary, $table, SimpleRel $simpleRel, SimpleRel_Structure $structure) {
+	function __construct(array $row, $primary, $table, SimpleRel_Result $result, PDO $pdo, SimpleRel_Structure $structure) {
 		$this->row = $row;
 		$this->primary = $primary;
 		$this->table = $table;
-		$this->simpleRel = $simpleRel;
+		$this->result = $result;
+		$this->pdo = $pdo;
 		$this->structure = $structure;
 	}
 	
@@ -22,10 +24,18 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	* @return SimpleRel_Row
 	*/
 	function __get($name) {
-		$table = $this->structure->getForeignTable($name, $this->table);
 		$column = $this->structure->getForeignColumn($name, $this->table);
-		$where = array($this->structure->getPrimary($name) . " = ?", array($this->row[$column]));
-		return $this->simpleRel->__call($table, $where)->fetch();
+		if (!isset($this->rows[$name])) {
+			$table = $this->structure->getForeignTable($name, $this->table);
+			$keys = array();
+			foreach ($this->result->getRows() as $row) {
+				$keys[$this->pdo->quote($row[$column])] = null;
+			}
+			$in = implode(", ", array_keys($keys[$name]));
+			$this->rows[$name] = new SimpleRel_Result($table, $this->pdo, $this->structure);
+			$this->rows[$name]->where($this->structure->getPrimary($name) . " IN ($in)");
+		}
+		return $this->rows[$name][$this->row[$column]];
 	}
 	
 	/** Get referencing rows
@@ -36,7 +46,9 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	function __call($name, array $args) {
 		$table = $this->structure->getForeignTable($name, $this->table);
 		$column = $this->structure->getForeignColumn($this->table, $table);
-		return $this->simpleRel->__call($table, $args)->where("$column = ?", array($this->row[$this->primary]));
+		$return = new SimpleRel_Result($table, $this->pdo, $this->structure);
+		$return->where("$column = ?", array($this->row[$this->primary]));
+		return $return;
 	}
 	
 	// IteratorAggregate implementation

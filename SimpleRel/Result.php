@@ -1,6 +1,6 @@
 <?php
 class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
-	private $table, $pdo, $simpleRel, $structure, $single, $primary;
+	private $table, $pdo, $structure, $single, $primary;
 	private $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	private $rows;
 	
@@ -10,9 +10,8 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param SimpleRel_Structure
 	* @param bool single row
 	*/
-	function __construct($table, SimpleRel $simpleRel, PDO $pdo, SimpleRel_Structure $structure, $single = false) {
+	function __construct($table, PDO $pdo, SimpleRel_Structure $structure, $single = false) {
 		$this->table = $table;
-		$this->simpleRel = $simpleRel;
 		$this->pdo = $pdo;
 		$this->structure = $structure;
 		$this->single = $single;
@@ -125,17 +124,23 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
 			foreach ($result as $row) {
-				$this->rows[$row[$this->primary]] = new SimpleRel_Row($row, $this->primary, $this->table, $this->simpleRel, $this->structure);
+				$this->rows[$row[$this->primary]] = new SimpleRel_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
 			}
 		}
 	}
 	
-	/** Fetch first row of result
+	/** Fetch next row of result
 	* @return SimpleRel_Row or false if there is no row
 	*/
 	function fetch() {
 		$this->execute();
-		return reset($this->rows);
+		$return = current($this->rows);
+		next($this->rows);
+		return $return;
+	}
+	
+	function getRows() {
+		return $this->rows;
 	}
 	
 	// IteratorAggregate implementation

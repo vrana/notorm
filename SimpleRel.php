@@ -23,7 +23,7 @@ class SimpleRel {
 	* @return SimpleRel_Result
 	*/
 	function __get($table) {
-		return new SimpleRel_Result($table, $this, $this->pdo, $this->structure, true);
+		return new SimpleRel_Result($table, $this->pdo, $this->structure, true);
 	}
 	
 	/** Get table data
@@ -32,7 +32,7 @@ class SimpleRel {
 	* @return SimpleRel_Result
 	*/
 	function __call($table, array $where) {
-		$return = new SimpleRel_Result($table, $this, $this->pdo, $this->structure);
+		$return = new SimpleRel_Result($table, $this->pdo, $this->structure);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);
 		}
