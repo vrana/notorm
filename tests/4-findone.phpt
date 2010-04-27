@@ -4,10 +4,11 @@ Find one item by URL
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-$article = $blog->article("url", array("Já a PHP"))->fetch();
-foreach ($article->article_tag() as $article_tag) {
-	echo $article_tag->tag["name"] . "\n";
+$application = $software->application("title", "Adminer")->fetch();
+foreach ($application->application_tag() as $application_tag) {
+	echo $application_tag->tag["name"] . "\n";
 }
 ?>
 --EXPECTF--
-Osobní
+PHP
+MySQL

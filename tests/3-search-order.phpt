@@ -4,9 +4,12 @@ Search and order items
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-foreach ($blog->article("published <= NOW()")->order("published DESC") as $article) {
-	echo "$article[title]\n";
+foreach ($software->application("web != ?", "")->order("title")->limit(10) as $application) {
+	echo "$application[title]\n";
 }
 ?>
 --EXPECTF--
-Já a PHP
+Adminer
+dibi
+JUSH
+Nette

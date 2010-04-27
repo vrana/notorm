@@ -1,8 +1,9 @@
 <?php
 class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
-	private $table, $pdo, $structure, $single, $primary;
-	private $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	private $rows;
+	protected $table, $pdo, $structure, $primary, $single;
+	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
+	protected $rows;
+	public $referenced = array(), $referencing = array(), $aggregation = array();
 	
 	/** Create table result
 	* @param string
@@ -24,7 +25,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	function __toString() {
 		$return = "SELECT ";
 		if ($this->select) {
-			$return .= "$this->primary, " . implode(", ", $this->select);
+			$return .= implode(", ", $this->select);
 		} else {
 			$return .= "*";
 		}
@@ -59,14 +60,22 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @return SimpleRel_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
-		if ($parameters && !strpbrk($condition, "?:")) {
-			$condition .= " = ?";
+		if (func_num_args() != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
+			if (!is_array($parameters)) { // where("column = ?", 1)
+				$parameters = func_get_args();
+				array_shift($parameters);
+			}
+			$this->parameters = array_merge($this->parameters, $parameters);
+		} elseif (is_null($parameters)) { // where("column", null)
+			$condition .= " IS NULL";
+		} elseif (!is_array($parameters)) { // where("column", 'x')
+			$condition .= " = " . $this->pdo->quote($parameters);
+		} elseif ($parameters) { // where("column", array(1))
+			$condition .= " IN (" . implode(", ", array_map(array($this->pdo, 'quote'), $parameters)) . ")";
+		} else { // where("column", array())
+			$condition = "0 = 1";
 		}
 		$this->where[] = $condition;
-		if (!is_array($parameters)) {
-			$parameters = array($parameters);
-		}
-		$this->parameters = array_merge($this->parameters, $parameters);
 		return $this;
 	}
 	
@@ -98,6 +107,9 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	*/
 	function count($column = "*") {
 		$row = $this->aggregation("COUNT($column)");
+		if (!$row) { // can happen in MultiResult
+			return 0;
+		}
 		return $row[0];
 	}
 	
@@ -105,28 +117,35 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param string for example "COUNT(*), MAX(id)"
 	* @return array using PDO::FETCH_BOTH
 	*/
-	private function aggregation($function) {
+	function aggregation($function) {
 		$query = "SELECT $function FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
 		$result = $this->pdo->prepare($query);
 		$result->execute($this->parameters);
-		return $result->fetch(PDO::FETCH_BOTH);
+		return $result->fetch();
 	}
 	
-	private function execute() {
+	protected function execute() {
 		if (!isset($this->rows)) {
 			$result = $this->pdo->prepare($this->__toString());
-			//~ echo $result->queryString;
+			//~ fwrite(STDERR, "$result->queryString\n");
 			//~ print_r($this->parameters);
 			$result->execute($this->parameters);
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
-			foreach ($result as $row) {
-				$this->rows[$row[$this->primary]] = new SimpleRel_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
+			foreach ($result as $key => $row) {
+				if (isset($row[$this->primary])) {
+					$key = $row[$this->primary];
+				}
+				$this->rows[$key] = new SimpleRel_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
 			}
 		}
+	}
+	
+	function getRows() {
+		return $this->rows;
 	}
 	
 	/** Fetch next row of result
@@ -137,10 +156,6 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 		$return = current($this->rows);
 		next($this->rows);
 		return $return;
-	}
-	
-	function getRows() {
-		return $this->rows;
 	}
 	
 	// IteratorAggregate implementation
@@ -155,7 +170,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	function offsetExists($key) {
 		if ($this->single) {
 			$clone = clone $this;
-			$clone->where("$this->primary = ?", array($key));
+			$clone->where($this->primary, $key);
 			return $clone->count();
 		} else {
 			$this->execute();
@@ -166,7 +181,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	function offsetGet($key) {
 		if ($this->single) {
 			$clone = clone $this;
-			$clone->where("$this->primary = ?", array($key));
+			$clone->where($this->primary, $key);
 			return $clone->fetch();
 		} else {
 			$this->execute();
@@ -175,7 +190,8 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	}
 	
 	function offsetSet($key, $value) {
-		//! Exception
+		$this->execute();
+		$this->rows[$key] = $value;
 	}
 	
 	function offsetUnset($key) {

@@ -1,6 +1,7 @@
 <?php
 include dirname(__FILE__) . "/SimpleRel/Structure.php";
 include dirname(__FILE__) . "/SimpleRel/Result.php";
+include dirname(__FILE__) . "/SimpleRel/MultiResult.php";
 include dirname(__FILE__) . "/SimpleRel/Row.php";
 
 class SimpleRel {
@@ -38,4 +39,5 @@ class SimpleRel {
 		}
 		return $return;
 	}
+	
 }

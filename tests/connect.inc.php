@@ -2,6 +2,6 @@
 error_reporting(E_ALL | E_STRICT);
 include "../SimpleRel.php";
 
-$pdo = new PDO("mysql:host=127.0.0.1;dbname=blog", "ODBC");
+$pdo = new PDO("mysql:host=127.0.0.1;dbname=software", "ODBC");
 //~ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-$blog = new SimpleRel($pdo, new SimpleRel_Structure_Convention("%s_id"));
+$software = new SimpleRel($pdo);

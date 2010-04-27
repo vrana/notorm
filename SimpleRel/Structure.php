@@ -1,5 +1,6 @@
 <?php
 interface SimpleRel_Structure {
+	
 	/** Get primary key of a table in $db->table()
 	* @param string
 	* @return string
@@ -19,6 +20,7 @@ interface SimpleRel_Structure {
 	* @return string
 	*/
 	function getForeignTable($key, $table);
+	
 }
 
 class SimpleRel_Structure_Convention implements SimpleRel_Structure {
@@ -46,6 +48,7 @@ class SimpleRel_Structure_Convention implements SimpleRel_Structure {
 	function getForeignTable($key, $table) {
 		return sprintf($this->foreignTable, $key, $table);
 	}
+	
 }
 
 //! class SimpleRel_Structure_Discovery implements SimpleRel_Structure

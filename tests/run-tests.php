@@ -1,4 +1,5 @@
 <?php
+$start = microtime(true);
 foreach (glob("*.phpt") as $filename) {
 	ob_start();
 	include dirname(__FILE__) . "/$filename";
@@ -8,4 +9,4 @@ foreach (glob("*.phpt") as $filename) {
 		echo "failed $filename ($match[1])\n";
 	}
 }
-echo "Memory peak usage: " . memory_get_peak_usage() . " B\n";
+printf("%.3F s, %d KiB\n", microtime(true) - $start, memory_get_peak_usage() / 1024);

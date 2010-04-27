@@ -4,8 +4,8 @@ Single row detail
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-$article = $blog->article[1];
-echo "$article[title]\n";
+$application = $software->application[1];
+echo "$application[title]\n";
 ?>
 --EXPECTF--
-Já a PHP
+Adminer
