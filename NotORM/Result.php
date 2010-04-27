@@ -1,5 +1,5 @@
 <?php
-class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
+class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	protected $table, $pdo, $structure, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	protected $rows;
@@ -8,10 +8,10 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	/** Create table result
 	* @param string
 	* @param PDO
-	* @param SimpleRel_Structure
+	* @param NotORM_Structure
 	* @param bool single row
 	*/
-	function __construct($table, PDO $pdo, SimpleRel_Structure $structure, $single = false) {
+	function __construct($table, PDO $pdo, NotORM_Structure $structure, $single = false) {
 		$this->table = $table;
 		$this->pdo = $pdo;
 		$this->structure = $structure;
@@ -47,7 +47,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Set select clause, more calls appends to the end
 	* @param string for example "column, MD5(column) AS column_md5"
-	* @return SimpleRel_Result fluent interface
+	* @return NotORM_Result fluent interface
 	*/
 	function select($select) {
 		$this->select[] = $select;
@@ -57,7 +57,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	/** Set where condition, more calls appends with AND
 	* @param string condition possibly containing ? or :name
 	* @param mixed array accepted by PDOStatement::execute or a single value
-	* @return SimpleRel_Result fluent interface
+	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
 		if (func_num_args() != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
@@ -83,7 +83,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Set order clause, more calls appends to the end
 	* @param string for example "column1, column2 DESC"
-	* @return SimpleRel_Result fluent interface
+	* @return NotORM_Result fluent interface
 	*/
 	function order($order) {
 		$this->order[] = $order;
@@ -93,7 +93,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	/** Set limit clause, more calls rewrite old values
 	* @param int
 	* @param int
-	* @return SimpleRel_Result fluent interface
+	* @return NotORM_Result fluent interface
 	*/
 	function limit($limit, $offset = null) {
 		$this->limit = $limit;
@@ -139,7 +139,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
 				}
-				$this->rows[$key] = new SimpleRel_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
+				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
 			}
 		}
 	}
@@ -149,7 +149,7 @@ class SimpleRel_Result implements IteratorAggregate, ArrayAccess, Countable {
 	}
 	
 	/** Fetch next row of result
-	* @return SimpleRel_Row or false if there is no row
+	* @return NotORM_Row or false if there is no row
 	*/
 	function fetch() {
 		$this->execute();

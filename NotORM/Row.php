@@ -1,8 +1,8 @@
 <?php
-class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
+class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	private $row, $primary, $table, $result, $pdo, $structure;
 	
-	function __construct(array $row, $primary, $table, SimpleRel_Result $result, PDO $pdo, SimpleRel_Structure $structure) {
+	function __construct(array $row, $primary, $table, NotORM_Result $result, PDO $pdo, NotORM_Structure $structure) {
 		$this->row = $row;
 		$this->primary = $primary;
 		$this->table = $table;
@@ -20,7 +20,7 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	
 	/** Get referenced row
 	* @param string
-	* @return SimpleRel_Row
+	* @return NotORM_Row
 	*/
 	function __get($name) {
 		$column = $this->structure->getReferencedColumn($name, $this->table);
@@ -31,7 +31,7 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 			foreach ($this->result->getRows() as $row) {
 				$keys[$row[$column]] = null;
 			}
-			$return = new SimpleRel_Result($table, $this->pdo, $this->structure);
+			$return = new NotORM_Result($table, $this->pdo, $this->structure);
 			$return->where($this->structure->getPrimary($table), array_keys($keys));
 		}
 		return $return[$this->row[$column]];
@@ -40,12 +40,13 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	/** Get referencing rows
 	* @param string table name 
 	* @param array (["condition"[, array("value")]])
-	* @return SimpleRel_Result
+	* @return NotORM_Result
 	*/
 	function __call($table, array $args) {
 		$column = $this->structure->getReferencingColumn($this->table, $table);
-		$return = new SimpleRel_MultiResult($table, $this->pdo, $this->structure, $this->result, $column, $this->row[$this->primary]);
+		$return = new NotORM_MultiResult($table, $this->pdo, $this->structure, $this->result, $column, $this->row[$this->primary]);
 		$return->where($column, array_keys($this->result->getRows()));
+		//~ $return->order($column); // to allow multi-column indexes
 		return $return;
 	}
 	

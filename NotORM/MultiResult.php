@@ -1,8 +1,8 @@
 <?php
-class SimpleRel_MultiResult extends SimpleRel_Result {
+class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active, $data;
 	
-	function __construct($table, PDO $pdo, SimpleRel_Structure $structure, $result, $column, $active) {
+	function __construct($table, PDO $pdo, NotORM_Structure $structure, $result, $column, $active) {
 		parent::__construct($table, $pdo, $structure);
 		$this->result = $result;
 		$this->column = $column;

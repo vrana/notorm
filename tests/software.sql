@@ -47,12 +47,13 @@ CREATE TABLE `author` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
   `web` varchar(100) NOT NULL,
+  `born` date DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
-INSERT INTO `author` (`id`, `name`, `web`) VALUES
-(1,	'Jakub Vrána',	'http://www.vrana.cz/'),
-(2,	'David Grudl',	'http://davidgrudl.com/');
+INSERT INTO `author` (`id`, `name`, `web`, `born`) VALUES
+(1,	'Jakub Vrána',	'http://www.vrana.cz/',	NULL),
+(2,	'David Grudl',	'http://davidgrudl.com/',	NULL);
 
 CREATE TABLE `tag` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

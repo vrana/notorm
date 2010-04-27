@@ -1,5 +1,5 @@
 <?php
-interface SimpleRel_Structure {
+interface NotORM_Structure {
 	
 	/** Get primary key of a table in $db->table()
 	* @param string
@@ -30,7 +30,7 @@ interface SimpleRel_Structure {
 	
 }
 
-class SimpleRel_Structure_Convention implements SimpleRel_Structure {
+class NotORM_Structure_Convention implements NotORM_Structure {
 	protected $primary, $referencedColumn, $referencedTable;
 	
 	/** Create conventional structure
@@ -62,7 +62,7 @@ class SimpleRel_Structure_Convention implements SimpleRel_Structure {
 	
 }
 
-class SimpleRel_Structure_Discovery implements SimpleRel_Structure {
+class NotORM_Structure_Discovery implements NotORM_Structure {
 	private $pdo, $driver;
 	
 	/** Create autodisovery structure
