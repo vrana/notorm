@@ -19,7 +19,7 @@ class SimpleRel {
 		$this->structure = $structure;
 	}
 	
-	/** Get table data
+	/** Get table data to use as $db->table[1]
 	* @param string
 	* @return SimpleRel_Result
 	*/

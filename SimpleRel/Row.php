@@ -23,16 +23,16 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	* @return SimpleRel_Row
 	*/
 	function __get($name) {
-		$column = $this->structure->getForeignColumn($name, $this->table);
+		$column = $this->structure->getReferencedColumn($name, $this->table);
 		$return = &$this->result->referenced[$name];
 		if (!isset($return)) {
-			$table = $this->structure->getForeignTable($name, $this->table);
+			$table = $this->structure->getReferencedTable($name, $this->table);
 			$keys = array();
 			foreach ($this->result->getRows() as $row) {
 				$keys[$row[$column]] = null;
 			}
 			$return = new SimpleRel_Result($table, $this->pdo, $this->structure);
-			$return->where($this->structure->getPrimary($name), array_keys($keys));
+			$return->where($this->structure->getPrimary($table), array_keys($keys));
 		}
 		return $return[$this->row[$column]];
 	}
@@ -42,9 +42,8 @@ class SimpleRel_Row implements IteratorAggregate, ArrayAccess {
 	* @param array (["condition"[, array("value")]])
 	* @return SimpleRel_Result
 	*/
-	function __call($name, array $args) {
-		$table = $this->structure->getForeignTable($name, $this->table);
-		$column = $this->structure->getForeignColumn($this->table, $table);
+	function __call($table, array $args) {
+		$column = $this->structure->getReferencingColumn($this->table, $table);
 		$return = new SimpleRel_MultiResult($table, $this->pdo, $this->structure, $this->result, $column, $this->row[$this->primary]);
 		$return->where($column, array_keys($this->result->getRows()));
 		return $return;
