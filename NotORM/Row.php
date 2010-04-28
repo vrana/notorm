@@ -41,12 +41,13 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	}
 	
 	/** Get referencing rows
-	* @param string table name 
+	* @param string table name
 	* @param array (["condition"[, array("value")]])
 	* @return NotORM_Result
 	*/
-	function __call($table, array $args) {
-		$column = $this->structure->getReferencingColumn($this->table, $table);
+	function __call($name, array $args) {
+		$table = $this->structure->getReferencingTable($name, $this->table);
+		$column = $this->structure->getReferencingColumn($table, $this->table);
 		$return = new NotORM_MultiResult($table, $this->pdo, $this->structure, $this->result, $column, $this->row[$this->primary]);
 		$return->where($column, array_keys($this->result->getRows()));
 		//~ $return->order($column); // to allow multi-column indexes

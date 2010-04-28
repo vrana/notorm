@@ -4,27 +4,34 @@
 */
 interface NotORM_Structure {
 	
-	/** Get primary key of a table in $db->table()
+	/** Get primary key of a table in $db->$table()
 	* @param string
 	* @return string
 	*/
 	function getPrimary($table);
 	
-	/** Get column holding foreign key in $row->table()
+	/** Get column holding foreign key in $table[$id]->$name()
 	* @param string
 	* @param string
 	* @return string
 	*/
 	function getReferencingColumn($name, $table);
 	
-	/** Get column holding foreign key in $row->foreign
+	/** Get target table in $table[$id]->$name()
+	* @param string
+	* @param string
+	* @return string
+	*/
+	function getReferencingTable($name, $table);
+	
+	/** Get column holding foreign key in $table[$id]->$name
 	* @param string
 	* @param string
 	* @return string
 	*/
 	function getReferencedColumn($name, $table);
 	
-	/** Get table holding foreign key in $row->foreign
+	/** Get table holding foreign key in $table[$id]->$name
 	* @param string
 	* @param string
 	* @return string
@@ -54,7 +61,11 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencingColumn($name, $table) {
-		return $this->getReferencedColumn($name, $table);
+		return $this->getReferencedColumn($table, $name);
+	}
+	
+	function getReferencingTable($name, $table) {
+		return $name;
 	}
 	
 	function getReferencedColumn($name, $table) {
@@ -99,10 +110,14 @@ class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
 			FROM information_schema.KEY_COLUMN_USAGE
 			WHERE TABLE_SCHEMA = DATABASE()
 			AND REFERENCED_TABLE_SCHEMA = DATABASE()
-			AND TABLE_NAME = " . $this->pdo->quote($table) . "
-			AND REFERENCED_TABLE_NAME = " . $this->pdo->quote($name) . "
-			AND REFERENCED_COLUMN_NAME = " . $this->pdo->quote($this->getPrimary($name)) . "
+			AND TABLE_NAME = " . $this->pdo->quote($name) . "
+			AND REFERENCED_TABLE_NAME = " . $this->pdo->quote($table) . "
+			AND REFERENCED_COLUMN_NAME = " . $this->pdo->quote($this->getPrimary($table)) . "
 		")->fetchColumn(); //! may not reference primary key
+	}
+	
+	function getReferencingTable($name, $table) {
+		return $name;
 	}
 	
 	function getReferencedColumn($name, $table) {
