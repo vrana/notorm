@@ -73,10 +73,12 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$condition .= " IS NULL";
 		} elseif (!is_array($parameters)) { // where("column", 'x')
 			$condition .= " = " . $this->pdo->quote($parameters);
-		} elseif ($parameters) { // where("column", array(1))
-			$condition .= " IN (" . implode(", ", array_map(array($this->pdo, 'quote'), $parameters)) . ")";
-		} else { // where("column", array())
-			$condition = "0 = 1";
+		} else { // where("column", array(1))
+			$in = "NULL";
+			if ($parameters) {
+				$in = implode(", ", array_map(array($this->pdo, 'quote'), $parameters));
+			}
+			$condition .= " IN ($in)";
 		}
 		$this->where[] = $condition;
 		return $this;
