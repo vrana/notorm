@@ -69,6 +69,9 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencedColumn($name, $table) {
+		if ($this->referencedTable != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->referencedTable)) . '$)', $name, $match)) {
+			$name = $match[1];
+		}
 		return sprintf($this->referencedColumn, $name, $table);
 	}
 	
