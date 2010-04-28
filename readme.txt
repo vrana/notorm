@@ -12,9 +12,9 @@ include "NotORM.php";
 $pdo = new PDO("mysql:dbname=software");
 $software = new NotORM($pdo);
 
-foreach ($software->application() as $application) {
-    echo "$application[title]\n";
-    echo $application->author["name"] . "\n"; // get name of the application author
+foreach ($software->application()->order("title") as $application) { // get all applications ordered by title
+    echo "$application[title]\n"; // print application title
+    echo $application->author["name"] . "\n"; // print name of the application author
     foreach ($application->application_tag() as $application_tag) { // get all tags of $application
         echo $application_tag->tag["name"] . "\n"; // print the tag name
     }
