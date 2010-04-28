@@ -14,17 +14,18 @@ CREATE TABLE `application` (
   `author_id` int(11) NOT NULL,
   `title` varchar(50) NOT NULL,
   `web` varchar(100) NOT NULL,
+  `slogan` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `author_id` (`author_id`),
   KEY `title` (`title`),
   CONSTRAINT `application_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `author` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `application` (`id`, `author_id`, `title`, `web`) VALUES
-(1,	1,	'Adminer',	'http://www.adminer.org/'),
-(2,	1,	'JUSH',	'http://jush.sourceforge.net/'),
-(3,	2,	'Nette',	'http://nettephp.com/'),
-(4,	2,	'dibi',	'http://dibiphp.com/');
+INSERT INTO `application` (`id`, `author_id`, `title`, `web`, `slogan`) VALUES
+(1,	11,	'Adminer',	'http://www.adminer.org/',	'Database management in single PHP file'),
+(2,	11,	'JUSH',	'http://jush.sourceforge.net/',	'JavaScript Syntax Highlighter'),
+(3,	12,	'Nette',	'http://nettephp.com/',	'Nette Framework'),
+(4,	12,	'dibi',	'http://dibiphp.com/',	'tiny \'n\' smart database layer');
 
 CREATE TABLE `application_tag` (
   `application_id` int(11) NOT NULL,
@@ -36,12 +37,12 @@ CREATE TABLE `application_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `application_tag` (`application_id`, `tag_id`) VALUES
-(1,	1),
-(3,	1),
-(4,	1),
-(1,	2),
-(4,	2),
-(2,	3);
+(1,	21),
+(3,	21),
+(4,	21),
+(1,	22),
+(4,	22),
+(2,	23);
 
 CREATE TABLE `author` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -49,20 +50,20 @@ CREATE TABLE `author` (
   `web` varchar(100) NOT NULL,
   `born` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `author` (`id`, `name`, `web`, `born`) VALUES
-(1,	'Jakub Vrána',	'http://www.vrana.cz/',	NULL),
-(2,	'David Grudl',	'http://davidgrudl.com/',	NULL);
+(11,	'Jakub Vrána',	'http://www.vrana.cz/',	NULL),
+(12,	'David Grudl',	'http://davidgrudl.com/',	NULL);
 
 CREATE TABLE `tag` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `tag` (`id`, `name`) VALUES
-(1,	'PHP'),
-(2,	'MySQL'),
-(3,	'JavaScript');
+(21,	'PHP'),
+(22,	'MySQL'),
+(23,	'JavaScript');
 
