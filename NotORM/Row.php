@@ -18,7 +18,7 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	* @return string
 	*/
 	function __toString() {
-		return $this->row[$this->primary];
+		return (string) $this->row[$this->primary];
 	}
 	
 	/** Get referenced row

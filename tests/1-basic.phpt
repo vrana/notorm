@@ -12,13 +12,13 @@ foreach ($software->application() as $application) {
 }
 ?>
 --EXPECTF--
-Adminer (Jakub Vrána)
+Adminer (Jakub Vrana)
 	PHP
 	MySQL
-JUSH (Jakub Vrána)
+JUSH (Jakub Vrana)
 	JavaScript
 Nette (David Grudl)
 	PHP
-dibi (David Grudl)
+Dibi (David Grudl)
 	PHP
 	MySQL

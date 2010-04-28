@@ -12,4 +12,4 @@ foreach ($software->application() as $application) {
 Adminer: 2
 JUSH: 1
 Nette: 1
-dibi: 2
+Dibi: 2

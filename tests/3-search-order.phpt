@@ -10,6 +10,6 @@ foreach ($software->application("web != ?", "")->order("title")->limit(10) as $a
 ?>
 --EXPECTF--
 Adminer
-dibi
+Dibi
 JUSH
 Nette
