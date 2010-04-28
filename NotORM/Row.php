@@ -23,7 +23,7 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	
 	/** Get referenced row
 	* @param string
-	* @return NotORM_Row
+	* @return NotORM_Row or null if the row does not exist
 	*/
 	function __get($name) {
 		$column = $this->structure->getReferencedColumn($name, $this->table);
@@ -36,6 +36,9 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 			}
 			$return = new NotORM_Result($table, $this->pdo, $this->structure);
 			$return->where($this->structure->getPrimary($table), array_keys($keys));
+		}
+		if (!isset($return[$this->row[$column]])) {
+			return null;
 		}
 		return $return[$this->row[$column]];
 	}
