@@ -43,17 +43,17 @@ interface NotORM_Structure {
 /** Structure described by some rules
 */
 class NotORM_Structure_Convention implements NotORM_Structure {
-	protected $primary, $referencedColumn, $referencedTable;
+	protected $primary, $foreign, $table;
 	
 	/** Create conventional structure
 	* @param string %s stands for table name
 	* @param string %1$s stands for key used after ->, %2$s for table name
 	* @param string %1$s stands for key used after ->, %2$s for table name
 	*/
-	function __construct($primary = 'id', $referencedColumn = '%s_id', $referencedTable = '%s') {
+	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s') {
 		$this->primary = $primary;
-		$this->referencedColumn = $referencedColumn;
-		$this->referencedTable = $referencedTable;
+		$this->foreign = $foreign;
+		$this->table = $table;
 	}
 	
 	function getPrimary($table) {
@@ -69,14 +69,14 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencedColumn($name, $table) {
-		if ($this->referencedTable != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->referencedTable)) . '$)', $name, $match)) {
+		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
 			$name = $match[1];
 		}
-		return sprintf($this->referencedColumn, $name, $table);
+		return sprintf($this->foreign, $name, $table);
 	}
 	
 	function getReferencedTable($name, $table) {
-		return sprintf($this->referencedTable, $name, $table);
+		return sprintf($this->table, $name, $table);
 	}
 	
 }
