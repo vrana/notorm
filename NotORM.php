@@ -1,9 +1,18 @@
 <?php
+/** NotORM - simple reading data from the database
+* @link http://www.notorm.com/
+* @author Jakub Vrana, http://www.vrana.cz/
+* @copyright 2010 Jakub Vrana
+* @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+*/
+
 include dirname(__FILE__) . "/NotORM/Structure.php";
 include dirname(__FILE__) . "/NotORM/Result.php";
 include dirname(__FILE__) . "/NotORM/MultiResult.php";
 include dirname(__FILE__) . "/NotORM/Row.php";
 
+/** Database representation
+*/
 class NotORM {
 	private $pdo, $structure;
 	

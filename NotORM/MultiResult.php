@@ -1,4 +1,7 @@
 <?php
+
+/** Representation of filtered table grouped by some column
+*/
 class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active, $data;
 	
@@ -31,7 +34,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $aggregation[$this->active];
 	}
 	
-	function execute() {
+	protected function execute() {
 		$referencing = &$this->result->referencing[$this->__toString()];
 		if (!isset($referencing)) {
 			parent::execute();

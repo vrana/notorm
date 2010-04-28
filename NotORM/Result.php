@@ -1,4 +1,7 @@
 <?php
+
+/** Filtered table representation
+*/
 class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	protected $table, $pdo, $structure, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;

@@ -1,4 +1,7 @@
 <?php
+
+/** Information about tables and columns structure
+*/
 interface NotORM_Structure {
 	
 	/** Get primary key of a table in $db->table()
@@ -30,6 +33,8 @@ interface NotORM_Structure {
 	
 }
 
+/** Structure described by some rules
+*/
 class NotORM_Structure_Convention implements NotORM_Structure {
 	protected $primary, $referencedColumn, $referencedTable;
 	
@@ -62,19 +67,17 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	
 }
 
-class NotORM_Structure_Discovery implements NotORM_Structure {
-	private $pdo, $driver;
+/** Structure reading meta-informations from the database
+*/
+class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
+	private $pdo;
 	
 	/** Create autodisovery structure
 	* @param PDO
 	* @param string
 	*/
-	function __construct(PDO $pdo, $driver) {
-		if (strtolower($driver) != "mysql") {
-			throw new PDOException("Only MySQL driver is currently supported.");
-		}
+	function __construct(PDO $pdo) {
 		$this->pdo = $pdo;
-		$this->driver = $driver;
 	}
 	
 	function getPrimary($table) {

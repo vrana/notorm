@@ -1,4 +1,7 @@
 <?php
+
+/** Single row representation
+*/
 class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	private $row, $primary, $table, $result, $pdo, $structure;
 	
