@@ -54,8 +54,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param string for example "column, MD5(column) AS column_md5"
 	* @return NotORM_Result fluent interface
 	*/
-	function select($select) {
-		$this->select[] = $select;
+	function select($columns) {
+		$this->select[] = $columns;
 		return $this;
 	}
 	
@@ -94,8 +94,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param string for example "column1, column2 DESC"
 	* @return NotORM_Result fluent interface
 	*/
-	function order($order) {
-		$this->order[] = $order;
+	function order($columns) {
+		$this->order[] = $columns;
 		return $this;
 	}
 	
@@ -192,7 +192,11 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		if ($this->single) {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
-			return $clone->fetch();
+			$return = $clone->fetch();
+			if (!$return) {
+				return null;
+			}
+			return $return;
 		} else {
 			$this->execute();
 			return $this->rows[$key];
