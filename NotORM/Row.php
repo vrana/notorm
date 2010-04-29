@@ -18,7 +18,7 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	* @return string
 	*/
 	function __toString() {
-		return (string) $this->row[$this->primary];
+		return (string) $this->row[$this->primary]; // (string) - PostgreSQL returns int
 	}
 	
 	/** Get referenced row
@@ -27,20 +27,20 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	*/
 	function __get($name) {
 		$column = $this->structure->getReferencedColumn($name, $this->table);
-		$return = &$this->result->referenced[$name];
-		if (!isset($return)) {
+		$referenced = &$this->result->referenced[$name];
+		if (!isset($referenced)) {
 			$table = $this->structure->getReferencedTable($name, $this->table);
 			$keys = array();
 			foreach ($this->result->getRows() as $row) {
 				$keys[$row[$column]] = null;
 			}
-			$return = new NotORM_Result($table, $this->pdo, $this->structure);
-			$return->where($this->structure->getPrimary($table), array_keys($keys));
+			$referenced = new NotORM_Result($table, $this->pdo, $this->structure);
+			$referenced->where($this->structure->getPrimary($table), array_keys($keys));
 		}
-		if (!isset($return[$this->row[$column]])) {
+		if (!isset($referenced[$this->row[$column]])) { // referenced row may not exist
 			return null;
 		}
-		return $return[$this->row[$column]];
+		return $referenced[$this->row[$column]];
 	}
 	
 	/** Get referencing rows
