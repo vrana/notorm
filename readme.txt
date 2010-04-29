@@ -1,6 +1,6 @@
 NotORM - http://www.notorm.com/
 
-NotORM is a PHP library for simple reading data from the database. The most interesting feature is a very easy work with table relations. The overall performance is also very important and NotORM can actually run faster than a native driver.
+NotORM is a PHP library for simple reading data from the database. The most interesting feature is a very easy work with table relationships. The overall performance is also very important and NotORM can actually run faster than a native driver.
 
 Requirements:
 PHP 5.1+
