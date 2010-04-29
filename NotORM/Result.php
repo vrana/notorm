@@ -63,8 +63,9 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
-		if (func_num_args() != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
-			if (!is_array($parameters)) { // where("column = ?", 1)
+		$args = func_num_args();
+		if ($args != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
+			if ($args != 2 || !is_array($parameters)) { // where("column = ?", 1)
 				$parameters = func_get_args();
 				array_shift($parameters);
 			}
@@ -177,6 +178,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
 			return $clone->count();
+			// can also use array_pop($this->where) instead of clone to save memory
 		} else {
 			$this->execute();
 			return isset($this->rows[$key]);
