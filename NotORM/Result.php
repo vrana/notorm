@@ -5,8 +5,10 @@
 class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	protected $table, $pdo, $structure, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	protected $rows;
-	public $referenced = array(), $referencing = array(), $aggregation = array();
+	protected $rows, $referencing = array(), $aggregation = array();
+	
+	/** @internal used by NotORM_Row */
+	public $referenced = array();
 	
 	/** Create table result
 	* @param string
@@ -59,7 +61,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Set where condition, more calls appends with AND
 	* @param string condition possibly containing ? or :name
-	* @param mixed array accepted by PDOStatement::execute or a single value
+	* @param mixed array accepted by PDOStatement::execute or a scalar value
+	* @param mixed ...
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {

@@ -38,7 +38,7 @@ class NotORM {
 	
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]])
+	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
