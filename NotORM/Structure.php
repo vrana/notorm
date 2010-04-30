@@ -84,19 +84,19 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 /** Structure reading meta-informations from the database
 */
 class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
-	private $pdo;
+	private $connection;
 	
 	/** Create autodisovery structure
 	* @param PDO
 	* @param string
 	*/
-	function __construct(PDO $pdo) {
-		$this->pdo = $pdo;
+	function __construct(PDO $connection) {
+		$this->connection = $connection;
 	}
 	
 	function getPrimary($table) {
 		$return = null;
-		foreach ($this->pdo->query("EXPLAIN $table") as $column) {
+		foreach ($this->connection->query("EXPLAIN $table") as $column) {
 			if ($column["Key"] == "PRI") {
 				if (isset($return)) {
 					return null; // multi-column primary key is not supported
@@ -108,14 +108,14 @@ class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
 	}
 	
 	function getReferencingColumn($name, $table) {
-		return $this->pdo->query("
+		return $this->connection->query("
 			SELECT COLUMN_NAME
 			FROM information_schema.KEY_COLUMN_USAGE
 			WHERE TABLE_SCHEMA = DATABASE()
 			AND REFERENCED_TABLE_SCHEMA = DATABASE()
-			AND TABLE_NAME = " . $this->pdo->quote($name) . "
-			AND REFERENCED_TABLE_NAME = " . $this->pdo->quote($table) . "
-			AND REFERENCED_COLUMN_NAME = " . $this->pdo->quote($this->getPrimary($table)) . "
+			AND TABLE_NAME = " . $this->connection->quote($name) . "
+			AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
+			AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) . "
 		")->fetchColumn(); //! may not reference primary key
 	}
 	
@@ -128,13 +128,13 @@ class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
 	}
 	
 	function getReferencedTable($name, $table) {
-		return $this->pdo->query("
+		return $this->connection->query("
 			SELECT REFERENCED_TABLE_NAME
 			FROM information_schema.KEY_COLUMN_USAGE
 			WHERE TABLE_SCHEMA = DATABASE()
 			AND REFERENCED_TABLE_SCHEMA = DATABASE()
-			AND TABLE_NAME = " . $this->pdo->quote($table) . "
-			AND COLUMN_NAME = " . $this->pdo->quote($name) . "
+			AND TABLE_NAME = " . $this->connection->quote($table) . "
+			AND COLUMN_NAME = " . $this->connection->quote($name) . "
 		")->fetchColumn();
 	}
 	

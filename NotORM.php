@@ -14,14 +14,14 @@ include dirname(__FILE__) . "/NotORM/Row.php";
 /** Database representation
 */
 class NotORM {
-	private $pdo, $structure;
+	private $connection, $structure;
 	
 	/** Create database representation
 	* @param PDO
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
 	*/
-	function __construct(PDO $pdo, NotORM_Structure $structure = null) {
-		$this->pdo = $pdo;
+	function __construct(PDO $connection, NotORM_Structure $structure = null) {
+		$this->connection = $connection;
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;
 		}
@@ -33,7 +33,7 @@ class NotORM {
 	* @return NotORM_Result
 	*/
 	function __get($table) {
-		return new NotORM_Result($table, $this->pdo, $this->structure, true);
+		return new NotORM_Result($table, $this->connection, $this->structure, true);
 	}
 	
 	// __set is not defined to allow storing custom result sets (undocumented)
@@ -44,7 +44,7 @@ class NotORM {
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
-		$return = new NotORM_Result($table, $this->pdo, $this->structure);
+		$return = new NotORM_Result($table, $this->connection, $this->structure);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);
 		}

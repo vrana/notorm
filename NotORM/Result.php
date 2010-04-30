@@ -3,7 +3,7 @@
 /** Filtered table representation
 */
 class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
-	protected $table, $pdo, $structure, $primary, $single;
+	protected $table, $connection, $structure, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	protected $rows, $referencing = array(), $aggregation = array();
 	
@@ -16,9 +16,9 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param NotORM_Structure
 	* @param bool single row
 	*/
-	function __construct($table, PDO $pdo, NotORM_Structure $structure, $single = false) {
+	function __construct($table, PDO $connection, NotORM_Structure $structure, $single = false) {
 		$this->table = $table;
-		$this->pdo = $pdo;
+		$this->connection = $connection;
 		$this->structure = $structure;
 		$this->single = $single;
 		$this->primary = $structure->getPrimary($table);
@@ -83,11 +83,11 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$condition .= " IN ($parameters)";
 			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", 'x')
-			$condition .= " = " . $this->pdo->quote($parameters);
+			$condition .= " = " . $this->connection->quote($parameters);
 		} else { // where("column", array(1))
 			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this->pdo, 'quote'), $parameters));
+				$in = implode(", ", array_map(array($this->connection, 'quote'), $parameters));
 			}
 			$condition .= " IN ($in)";
 		}
@@ -144,7 +144,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
-		$result = $this->pdo->prepare($query);
+		$result = $this->connection->prepare($query);
 		//~ fwrite(STDERR, "$result->queryString\n");
 		$result->execute($this->parameters);
 		return $result->fetch();
@@ -152,7 +152,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	protected function execute() {
 		if (!isset($this->rows)) {
-			$result = $this->pdo->prepare($this->__toString());
+			$result = $this->connection->prepare($this->__toString());
 			//~ fwrite(STDERR, "$result->queryString\n");
 			//~ print_r($this->parameters);
 			$result->execute($this->parameters);
@@ -162,7 +162,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
 				}
-				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->pdo, $this->structure);
+				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->connection, $this->structure);
 			}
 		}
 	}

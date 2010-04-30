@@ -3,14 +3,14 @@
 /** Single row representation
 */
 class NotORM_Row implements IteratorAggregate, ArrayAccess {
-	private $row, $primary, $table, $result, $pdo, $structure;
+	private $row, $primary, $table, $result, $connection, $structure;
 	
-	function __construct(array $row, $primary, $table, NotORM_Result $result, PDO $pdo, NotORM_Structure $structure) {
+	function __construct(array $row, $primary, $table, NotORM_Result $result, PDO $connection, NotORM_Structure $structure) {
 		$this->row = $row;
 		$this->primary = $primary;
 		$this->table = $table;
 		$this->result = $result;
-		$this->pdo = $pdo;
+		$this->connection = $connection;
 		$this->structure = $structure;
 	}
 	
@@ -34,7 +34,7 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 			foreach ($this->result->getRows() as $row) {
 				$keys[$row[$column]] = null;
 			}
-			$referenced = new NotORM_Result($table, $this->pdo, $this->structure);
+			$referenced = new NotORM_Result($table, $this->connection, $this->structure);
 			$referenced->where($this->structure->getPrimary($table), array_keys($keys));
 		}
 		if (!isset($referenced[$this->row[$column]])) { // referenced row may not exist
@@ -51,7 +51,7 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	function __call($name, array $args) {
 		$table = $this->structure->getReferencingTable($name, $this->table);
 		$column = $this->structure->getReferencingColumn($table, $this->table);
-		$return = new NotORM_MultiResult($table, $this->pdo, $this->structure, $this->result, $column, $this->row[$this->primary]);
+		$return = new NotORM_MultiResult($table, $this->connection, $this->structure, $this->result, $column, $this->row[$this->primary]);
 		$return->where($column, array_keys($this->result->getRows()));
 		//~ $return->order($column); // to allow multi-column indexes
 		return $return;
