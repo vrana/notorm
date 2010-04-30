@@ -3,18 +3,13 @@
 /** Representation of filtered table grouped by some column
 */
 class NotORM_MultiResult extends NotORM_Result {
-	private $result, $column, $active, $data;
+	private $result, $column, $active;
 	
 	function __construct($table, PDO $connection, NotORM_Structure $structure, $result, $column, $active) {
 		parent::__construct($table, $connection, $structure);
 		$this->result = $result;
 		$this->column = $column;
 		$this->active = $active;
-	}
-	
-	function count() {
-		$this->execute();
-		return count($this->data);
 	}
 	
 	function aggregation($function) {
@@ -52,35 +47,6 @@ class NotORM_MultiResult extends NotORM_Result {
 		if (!isset($this->data)) {
 			$this->data = array();
 		}
-	}
-	
-	// IteratorAggregate implementation
-	
-	function getIterator() {
-		$this->execute();
-		return new ArrayIterator($this->data);
-	}
-	
-	// ArrayAccess implementation
-	
-	function offsetExists($key) {
-		$this->execute();
-		return isset($this->data[$key]);
-	}
-	
-	function offsetGet($key) {
-		$this->execute();
-		return $this->data[$key];
-	}
-	
-	function offsetSet($key, $value) {
-		$this->execute();
-		$this->data[$key] = $value;
-	}
-	
-	function offsetUnset($key) {
-		$this->execute();
-		unset($this->data[$key]);
 	}
 	
 }

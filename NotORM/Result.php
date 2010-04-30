@@ -5,7 +5,7 @@
 class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	protected $table, $connection, $structure, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	protected $rows, $referencing = array(), $aggregation = array();
+	protected $rows, $data, $referencing = array(), $aggregation = array();
 	
 	/** @internal used by NotORM_Row */
 	public $referenced = array();
@@ -122,7 +122,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	*/
 	function count() {
 		$this->execute();
-		return count($this->rows);
+		return count($this->data);
 	}
 	
 	/** Execute aggregation functions
@@ -154,6 +154,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 				}
 				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->connection, $this->structure);
 			}
+			$this->data = $this->rows;
 		}
 	}
 	
@@ -166,8 +167,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	*/
 	function fetch() {
 		$this->execute();
-		$return = current($this->rows);
-		next($this->rows);
+		$return = current($this->data);
+		next($this->data);
 		return $return;
 	}
 	
@@ -175,7 +176,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	function getIterator() {
 		$this->execute();
-		return new ArrayIterator($this->rows);
+		return new ArrayIterator($this->data);
 	}
 	
 	// ArrayAccess implementation
@@ -188,7 +189,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			// can also use array_pop($this->where) instead of clone to save memory
 		} else {
 			$this->execute();
-			return isset($this->rows[$key]);
+			return isset($this->data[$key]);
 		}
 	}
 	
@@ -203,18 +204,18 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			return $return;
 		} else {
 			$this->execute();
-			return $this->rows[$key];
+			return $this->data[$key];
 		}
 	}
 	
 	function offsetSet($key, $value) {
 		$this->execute();
-		$this->rows[$key] = $value;
+		$this->data[$key] = $value;
 	}
 	
 	function offsetUnset($key) {
 		$this->execute();
-		unset($this->rows[$key]);
+		unset($this->data[$key]);
 	}
 	
 }
