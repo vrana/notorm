@@ -41,7 +41,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
-		if ($this->limit) {
+		if (isset($this->limit)) {
 			$return .= " LIMIT $this->limit"; //! driver specific
 			if (isset($this->offset)) {
 				$return .= " OFFSET $this->offset";
@@ -122,6 +122,12 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @return int
 	*/
 	function count($column = "*") {
+		if (isset($this->limit)) {
+			$this->execute();
+		}
+		if (isset($this->rows)) {
+			return count($this->rows);
+		}
 		$row = $this->aggregation("COUNT($column)");
 		if (!$row) { // can happen in MultiResult
 			return 0;
@@ -139,6 +145,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
 		$result = $this->pdo->prepare($query);
+		//~ fwrite(STDERR, "$result->queryString\n");
 		$result->execute($this->parameters);
 		return $result->fetch();
 	}
