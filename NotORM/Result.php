@@ -117,22 +117,12 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		return $this;
 	}
 	
-	/** Shortcut for "COUNT($column)"
-	* @param string
+	/** Count number of rows
 	* @return int
 	*/
-	function count($column = "*") {
-		if (isset($this->limit)) {
-			$this->execute();
-		}
-		if (isset($this->rows)) {
-			return count($this->rows);
-		}
-		$row = $this->aggregation("COUNT($column)");
-		if (!$row) { // can happen in MultiResult
-			return 0;
-		}
-		return $row[0];
+	function count() {
+		$this->execute();
+		return count($this->rows);
 	}
 	
 	/** Execute aggregation functions

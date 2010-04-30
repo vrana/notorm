@@ -12,6 +12,11 @@ class NotORM_MultiResult extends NotORM_Result {
 		$this->active = $active;
 	}
 	
+	function count() {
+		$this->execute();
+		return count($this->data);
+	}
+	
 	function aggregation($function) {
 		$query = "SELECT $function, $this->column FROM $this->table";
 		if ($this->where) {
