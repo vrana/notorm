@@ -83,7 +83,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 
 /** Structure reading meta-informations from the database
 */
-class NotORM_Structure_Discovery_MySQL implements NotORM_Structure {
+class NotORM_Structure_Discovery implements NotORM_Structure {
 	private $connection;
 	
 	/** Create autodisovery structure
