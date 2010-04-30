@@ -87,19 +87,33 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	private $connection;
 	
 	/** Create autodisovery structure
-	* @param PDO
-	* @param string
+	* @param PDO|DibiConnection
 	*/
-	function __construct(PDO $connection) {
+	function __construct($connection) {
+		$exception = "Argument 1 passed to NotORM_Structure_Discovery::__construct() must be an instance of PDO or DibiConnection";
+		if (!is_object($connection)) {
+			throw new InvalidArgumentException("$exception, " . gettype($connection) . " given");
+		}
+		if (!($connection instanceof PDO || $connection instanceof DibiConnection)) {
+			throw new InvalidArgumentException("$exception, instance of " . get_class($connection) . " given");
+		}
 		$this->connection = $connection;
 	}
 	
 	function getPrimary($table) {
-		$return = null;
+		if ($this->connection instanceof DibiConnection) {
+			foreach ($this->connection->getDriver()->getIndexes($table) as $index) {
+				if ($index['primary'] && count($index['columns']) == 1) {
+					return $index['columns'][0];
+				}
+			}
+			return false;
+		}
+		$return = false;
 		foreach ($this->connection->query("EXPLAIN $table") as $column) {
 			if ($column["Key"] == "PRI") {
 				if (isset($return)) {
-					return null; // multi-column primary key is not supported
+					return false; // multi-column primary key is not supported
 				}
 				$return = $column["Field"];
 			}
@@ -108,6 +122,18 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	}
 	
 	function getReferencingColumn($name, $table) {
+		if ($this->connection instanceof DibiConnection) {
+			$primary = $this->getPrimary($table);
+			foreach ($this->connection->getDriver()->getForeignKeys($name) as $foreign) {
+				if ($foreign["table"] == $table) {
+					$key = array_search($primary, $foreign["foreign"]);
+					if ($key !== false) {
+						return $foreign["local"][$key];
+					}
+				}
+			}
+			return false;
+		}
 		return $this->connection->query("
 			SELECT COLUMN_NAME
 			FROM information_schema.KEY_COLUMN_USAGE
@@ -128,6 +154,15 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	}
 	
 	function getReferencedTable($name, $table) {
+		if ($this->connection instanceof DibiConnection) {
+			foreach ($this->connection->getDriver()->getForeignKeys($table) as $foreign) {
+				$key = array_search($name, $foreign["local"]);
+				if ($key !== false) {
+					return $foreign["table"];
+				}
+			}
+			return false;
+		}
 		return $this->connection->query("
 			SELECT REFERENCED_TABLE_NAME
 			FROM information_schema.KEY_COLUMN_USAGE
