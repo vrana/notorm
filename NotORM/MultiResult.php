@@ -5,7 +5,7 @@
 class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active;
 	
-	function __construct($table, PDO $connection, NotORM_Structure $structure, $result, $column, $active) {
+	function __construct($table, $connection, NotORM_Structure $structure, $result, $column, $active) {
 		parent::__construct($table, $connection, $structure);
 		$this->result = $result;
 		$this->column = $column;
@@ -21,10 +21,10 @@ class NotORM_MultiResult extends NotORM_Result {
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
-			$result = $this->connection->prepare($query);
-			//~ fwrite(STDERR, "$result->queryString\n");
-			$result->execute($this->parameters);
-			foreach ($result as $row) {
+			foreach ($this->query($query) as $row) {
+				if ($this->connection instanceof DibiConnection) {
+					$row = (array) $row + array_values((array) $row); // to allow list($min, $max)
+				}
 				$aggregation[$row[$this->column]] = $row;
 			}
 		}

@@ -12,11 +12,11 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Create table result
 	* @param string
-	* @param PDO
+	* @param PDO|DibiConnection
 	* @param NotORM_Structure
 	* @param bool single row
 	*/
-	function __construct($table, PDO $connection, NotORM_Structure $structure, $single = false) {
+	function __construct($table, $connection, NotORM_Structure $structure, $single = false) {
 		$this->table = $table;
 		$this->connection = $connection;
 		$this->structure = $structure;
@@ -67,7 +67,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	*/
 	function where($condition, $parameters = array()) {
 		$args = func_num_args();
-		if ($args != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
+		if ($args != 2 || strpbrk($condition, "?:%")) { // where("column = ? OR column = ?", array(1, 2))
 			if ($args != 2 || !is_array($parameters)) { // where("column = ?", 1)
 				$parameters = func_get_args();
 				array_shift($parameters);
@@ -83,11 +83,11 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 			$condition .= " IN ($parameters)";
 			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", 'x')
-			$condition .= " = " . $this->connection->quote($parameters);
+			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1))
 			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this->connection, 'quote'), $parameters));
+				$in = implode(", ", array_map(array($this, 'quote'), $parameters));
 			}
 			$condition .= " IN ($in)";
 		}
@@ -127,26 +127,43 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Execute aggregation functions
 	* @param string for example "COUNT(*), MAX(id)"
-	* @return array using PDO::FETCH_BOTH
+	* @return array with numerical and string keys
 	*/
 	function aggregation($function) {
 		$query = "SELECT $function FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
-		$result = $this->connection->prepare($query);
-		//~ fwrite(STDERR, "$result->queryString\n");
-		$result->execute($this->parameters);
-		return $result->fetch();
+		$return = $this->query($query)->fetch();
+		if ($this->connection instanceof DibiConnection && $return) {
+			$return = (array) $return + array_values((array) $return); // to allow list($min, $max)
+		}
+		return $return;
+	}
+	
+	protected function query($query) {
+		//~ fwrite(STDERR, "$query\n");
+		if ($this->connection instanceof DibiConnection) {
+			return $this->connection->query($query, $this->parameters);
+		}
+		$return = $this->connection->prepare($query);
+		$return->execute($this->parameters);
+		return $return;
+	}
+	
+	protected function quote($string) {
+		if ($this->connection instanceof DibiConnection) {
+			return $this->connection->getDriver()->escape($string, dibi::TEXT);
+		}
+		return $this->connection->quote($string);
 	}
 	
 	protected function execute() {
 		if (!isset($this->rows)) {
-			$result = $this->connection->prepare($this->__toString());
-			//~ fwrite(STDERR, "$result->queryString\n");
-			//~ print_r($this->parameters);
-			$result->execute($this->parameters);
-			$result->setFetchMode(PDO::FETCH_ASSOC);
+			$result = $this->query($this->__toString());
+			if ($this->connection instanceof PDO) {
+				$result->setFetchMode(PDO::FETCH_ASSOC);
+			}
 			$this->rows = array();
 			foreach ($result as $key => $row) {
 				if (isset($row[$this->primary])) {

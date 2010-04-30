@@ -17,10 +17,17 @@ class NotORM {
 	private $connection, $structure;
 	
 	/** Create database representation
-	* @param PDO
+	* @param PDO|DibiConnection
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
 	*/
-	function __construct(PDO $connection, NotORM_Structure $structure = null) {
+	function __construct($connection, NotORM_Structure $structure = null) {
+		$exception = "Argument 1 passed to NotORM::__construct() must be an instance of PDO or DibiConnection";
+		if (!is_object($connection)) {
+			throw new InvalidArgumentException("$exception, " . gettype($connection) . " given");
+		}
+		if (!($connection instanceof PDO || $connection instanceof DibiConnection)) {
+			throw new InvalidArgumentException("$exception, instance of " . get_class($connection) . " given");
+		}
 		$this->connection = $connection;
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;

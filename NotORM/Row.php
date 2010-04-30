@@ -5,7 +5,7 @@
 class NotORM_Row implements IteratorAggregate, ArrayAccess {
 	private $row, $primary, $table, $result, $connection, $structure;
 	
-	function __construct(array $row, $primary, $table, NotORM_Result $result, PDO $connection, NotORM_Structure $structure) {
+	function __construct($row, $primary, $table, NotORM_Result $result, $connection, NotORM_Structure $structure) {
 		$this->row = $row;
 		$this->primary = $primary;
 		$this->table = $table;
