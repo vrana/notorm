@@ -36,6 +36,8 @@ class NotORM {
 		return new NotORM_Result($table, $this->pdo, $this->structure, true);
 	}
 	
+	// __set is not defined to allow storing custom result sets (undocumented)
+	
 	/** Get table data
 	* @param string
 	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
