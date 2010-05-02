@@ -35,17 +35,19 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	protected function execute() {
-		$referencing = &$this->result->referencing[$this->__toString()];
-		if (!isset($referencing)) {
-			parent::execute();
-			$referencing = array();
-			foreach ($this->rows as $key => $row) {
-				$referencing[$row[$this->column]][$key] = $row;
-			}
-		}
-		$this->data = &$referencing[$this->active];
 		if (!isset($this->data)) {
-			$this->data = array();
+			$referencing = &$this->result->referencing[$this->__toString()];
+			if (!isset($referencing)) {
+				parent::execute();
+				$referencing = array();
+				foreach ($this->rows as $key => $row) {
+					$referencing[$row[$this->column]][$key] = $row;
+				}
+			}
+			$this->data = &$referencing[$this->active];
+			if (!isset($this->data)) {
+				$this->data = array();
+			}
 		}
 	}
 	
