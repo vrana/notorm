@@ -43,6 +43,16 @@ class NotORM_Row implements IteratorAggregate, ArrayAccess {
 		return $referenced[$this->row[$column]];
 	}
 	
+	/** Test if referenced row exists
+	* @param string
+	* @return bool
+	*/
+	function __isset($name) {
+		return ($this->__get($name) !== null);
+	}
+	
+	// __set is not defined to allow storing custom references (undocumented)
+	
 	/** Get referencing rows
 	* @param string table name
 	* @param array (["condition"[, array("value")]])
