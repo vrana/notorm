@@ -5,8 +5,8 @@
 class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active;
 	
-	function __construct($table, PDO $connection, NotORM_Structure $structure, $result, $column, $active) {
-		parent::__construct($table, $connection, $structure);
+	function __construct($table, $result, $column, $active) {
+		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
 		$this->active = $active;
@@ -21,10 +21,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
-			$result = $this->connection->prepare($query);
-			//~ fwrite(STDERR, "$result->queryString\n");
-			$result->execute($this->parameters);
-			foreach ($result as $row) {
+			foreach ($this->query($query, $this->parameters) as $row) {
 				$aggregation[$row[$this->column]] = $row;
 			}
 		}

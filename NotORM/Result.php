@@ -2,26 +2,31 @@
 
 /** Filtered table representation
 */
-class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
-	protected $table, $connection, $structure, $primary, $single;
+class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
+	protected $table, $primary, $single;
 	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	protected $rows, $data, $referencing = array(), $aggregation = array();
-	
-	/** @internal used by NotORM_Row */
-	public $referenced = array();
+	protected $data, $referencing = array(), $aggregation = array(), $accessed = array(), $access = array();
 	
 	/** Create table result
 	* @param string
-	* @param PDO
-	* @param NotORM_Structure
+	* @param NotORM
 	* @param bool single row
 	*/
-	function __construct($table, PDO $connection, NotORM_Structure $structure, $single = false) {
+	function __construct($table, NotORM $notORM, $single = false) {
 		$this->table = $table;
-		$this->connection = $connection;
-		$this->structure = $structure;
+		$this->notORM = $notORM;
 		$this->single = $single;
-		$this->primary = $structure->getPrimary($table);
+		$this->primary = $notORM->structure->getPrimary($table);
+		if ($notORM->cache) {
+			$this->accessed = $notORM->cache->load($this->fromWhere());
+			$this->access = $this->accessed;
+		}
+	}
+	
+	function __destruct() {
+		if ($this->notORM->cache && !$this->select) {
+			$this->notORM->cache->save($this->fromWhere(), $this->access);
+		}
 	}
 	
 	/** Get SQL query
@@ -31,13 +36,12 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		$return = "SELECT ";
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
+		} elseif ($this->accessed) {
+			$return .= implode(", ", array_keys($this->accessed));
 		} else {
 			$return .= "*";
 		}
-		$return .= " FROM $this->table";
-		if ($this->where) {
-			$return .= " WHERE " . implode(" AND ", $this->where);
-		}
+		$return .= " FROM " . $this->fromWhere();
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
@@ -47,6 +51,21 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 				$return .= " OFFSET $this->offset";
 			}
 		}
+		return $return;
+	}
+	
+	private function fromWhere() {
+		$return = $this->table;
+		if ($this->where) {
+			$return .= " WHERE " . implode(" AND ", $this->where);
+		}
+		return $return;
+	}
+	
+	protected function query($query) {
+		//~ fwrite(STDERR, "$query\n");
+		$return = $this->notORM->connection->prepare($query);
+		$return->execute($this->parameters);
 		return $return;
 	}
 	
@@ -78,16 +97,17 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$select = $parameters->select;
 			if (!$select) {
-				$parameters->select = array($this->structure->getPrimary($parameters->table)); // can also use clone
+				$parameters->select = array($this->notORM->structure->getPrimary($parameters->table)); // can also use clone
 			}
 			$condition .= " IN ($parameters)";
 			$parameters->select = $select;
-		} elseif (!is_array($parameters)) { // where("column", 'x')
-			$condition .= " = " . $this->connection->quote($parameters);
+		} elseif (!is_array($parameters)) { // where("column", "x")
+			$condition .= " = ?"; // binding to allow cache
+			$this->parameters[] = $parameters;
 		} else { // where("column", array(1))
 			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this->connection, 'quote'), $parameters));
+				$in = implode(", ", array_map(array($this->notORM->connection, 'quote'), $parameters));
 			}
 			$condition .= " IN ($in)";
 		}
@@ -134,32 +154,29 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
-		$result = $this->connection->prepare($query);
-		//~ fwrite(STDERR, "$result->queryString\n");
-		$result->execute($this->parameters);
-		return $result->fetch();
+		return $this->query($query)->fetch();
 	}
 	
+	/** Execute built query
+	* @param bool
+	* @return null
+	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
-			$result = $this->connection->prepare($this->__toString());
-			//~ fwrite(STDERR, "$result->queryString\n");
-			//~ print_r($this->parameters);
-			$result->execute($this->parameters);
+			$result = $this->query($this->__toString());
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
 			foreach ($result as $key => $row) {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
+					if (isset($this->access)) {
+						$this->access[$this->primary] = true;
+					}
 				}
-				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->connection, $this->structure);
+				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this);
 			}
 			$this->data = $this->rows;
 		}
-	}
-	
-	function getRows() {
-		return $this->rows;
 	}
 	
 	/** Fetch next row of result
@@ -172,11 +189,41 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		return $return;
 	}
 	
-	// IteratorAggregate implementation
+	protected function access($key) {
+		if (!isset($key)) {
+			$this->access = null;
+		} elseif (isset($this->access)) {
+			$this->access[$key] = true;
+		}
+		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
+			$this->accessed = array();
+			$this->rows = null;
+			return true;
+		}
+		return false;
+	}
 	
-	function getIterator() {
+	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
+	
+	function rewind() {
 		$this->execute();
-		return new ArrayIterator($this->data);
+		reset($this->data);
+	}
+	
+	function current() {
+		return current($this->data);
+	}
+	
+	function key() {
+		return key($this->data);
+	}
+	
+	function next() {
+		next($this->data);
+	}
+	
+	function valid() {
+		return $this->current();
 	}
 	
 	// ArrayAccess implementation
