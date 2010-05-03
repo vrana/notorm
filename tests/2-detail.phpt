@@ -5,7 +5,13 @@ Single row detail
 include_once dirname(__FILE__) . "/connect.inc.php";
 
 $application = $software->application[1];
-echo "$application[title]\n";
+foreach ($application as $key => $val) {
+	echo "$key: $val\n";
+}
 ?>
 --EXPECTF--
-Adminer
+id: 1
+author_id: 11
+title: Adminer
+web: http://www.adminer.org/
+slogan: Database management in single PHP file
