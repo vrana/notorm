@@ -91,6 +91,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	* @param string
 	*/
 	function __construct(PDO $connection) {
+		//! test supported drivers by PDO::ATTR_DRIVER_NAME
 		$this->connection = $connection;
 	}
 	
