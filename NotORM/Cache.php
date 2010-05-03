@@ -6,16 +6,16 @@ interface NotORM_Cache {
 	
 	/** Load stored data
 	* @param string
-	* @return array
+	* @return array|null
 	*/
 	function load($key);
 	
 	/** Save data
 	* @param string
-	* @param array
+	* @param array|null
 	* @return null
 	*/
-	function save($key, array $data);
+	function save($key, $data);
 	
 }
 
@@ -30,7 +30,7 @@ class NotORM_Cache_Session implements NotORM_Cache {
 		return $_SESSION["NotORM"][$key];
 	}
 	
-	function save($key, array $data) {
+	function save($key, $data) {
 		$_SESSION["NotORM"][$key] = $data;
 	}
 	
