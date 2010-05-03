@@ -97,6 +97,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		if (!($connection instanceof PDO || $connection instanceof DibiConnection)) {
 			throw new InvalidArgumentException("$exception, instance of " . get_class($connection) . " given");
 		}
+		//! test supported drivers by PDO::ATTR_DRIVER_NAME
 		$this->connection = $connection;
 	}
 	
