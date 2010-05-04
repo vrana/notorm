@@ -20,7 +20,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	function __destruct() {
-		if ($this->notORM->cache && !$this->select) {
+		if ($this->notORM->cache && !$this->select && isset($this->rows)) {
 			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $this->access);
 		}
 	}
@@ -54,7 +54,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function query($query) {
-		//~ fwrite(STDERR, "$query\n");
+		//~ fwrite(STDERR, "$query;\n");
 		$return = $this->notORM->connection->prepare($query);
 		$return->execute($this->parameters);
 		return $return;
