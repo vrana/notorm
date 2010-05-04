@@ -4,7 +4,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $table, $primary, $single;
-	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed = array(), $access = array();
 	
 	/** Create table result
@@ -17,15 +17,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->notORM = $notORM;
 		$this->single = $single;
 		$this->primary = $notORM->structure->getPrimary($table);
-		if ($notORM->cache) {
-			$this->accessed = $notORM->cache->load($this->fromWhere());
-			$this->access = $this->accessed;
-		}
 	}
 	
 	function __destruct() {
 		if ($this->notORM->cache && !$this->select) {
-			$this->notORM->cache->save($this->fromWhere(), $this->access);
+			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $this->access);
 		}
 	}
 	
@@ -41,7 +37,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} else {
 			$return .= "*";
 		}
-		$return .= " FROM " . $this->fromWhere();
+		$return .= " FROM $this->table";
+		if ($this->where) {
+			$return .= " WHERE (" . implode(") AND (", $this->where) . ")";
+		}
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
@@ -50,14 +49,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (isset($this->offset)) {
 				$return .= " OFFSET $this->offset";
 			}
-		}
-		return $return;
-	}
-	
-	private function fromWhere() {
-		$return = $this->table;
-		if ($this->where) {
-			$return .= " WHERE " . implode(" AND ", $this->where);
 		}
 		return $return;
 	}
@@ -85,6 +76,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
+		$this->conditions[] = $condition;
 		$args = func_num_args();
 		if ($args != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
 			if ($args != 2 || !is_array($parameters)) { // where("column = ?", 1)
@@ -102,8 +94,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$condition .= " IN ($parameters)";
 			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", "x")
-			$condition .= " = ?"; // binding to allow cache
-			$this->parameters[] = $parameters;
+			$condition .= " = " . $this->notORM->connection->quote($parameters);
 		} else { // where("column", array(1))
 			$in = "NULL";
 			if ($parameters) {
@@ -163,6 +154,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
+			if ($this->notORM->cache && isset($this->accessed)) {
+				$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
+				$this->access = $this->accessed;
+			}
 			$result = $this->query($this->__toString());
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
@@ -196,7 +191,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->access[$key] = true;
 		}
 		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
-			$this->accessed = array();
+			$this->accessed = null;
 			$this->rows = null;
 			return true;
 		}
