@@ -129,8 +129,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param string for example "COUNT(*), MAX(id)"
 	* @return array with numerical and string keys
 	*/
-	function aggregation($function) {
-		$query = "SELECT $function FROM $this->table";
+	function aggregation($functions) {
+		$query = "SELECT $functions FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
