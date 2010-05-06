@@ -47,12 +47,7 @@ class NotORM_Cache_File implements NotORM_Cache {
 	}
 	
 	function __destruct() {
-		// file_put_contents() is not atomic
-		$fp = fopen($this->filename, "a");
-		flock($fp, LOCK_EX);
-		ftruncate($fp, 0);
-		fwrite($fp, serialize($this->data));
-		fclose($fp);
+		file_put_contents($this->filename, serialize($this->data), LOCK_EX);
 	}
 	
 	function load($key) {
