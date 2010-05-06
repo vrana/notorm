@@ -25,19 +25,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
-	/** Get SQL query
-	* @return string
-	*/
-	function __toString() {
-		$return = "SELECT ";
-		if ($this->select) {
-			$return .= implode(", ", $this->select);
-		} elseif ($this->accessed) {
-			$return .= implode(", ", array_keys($this->accessed));
-		} else {
-			$return .= "*";
-		}
-		$return .= " FROM $this->table";
+	protected function whereString() {
+		$return = "";
 		if ($this->where) {
 			$return .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
@@ -53,6 +42,21 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/** Get SQL query
+	* @return string
+	*/
+	function __toString() {
+		$return = "SELECT ";
+		if ($this->select) {
+			$return .= implode(", ", $this->select);
+		} elseif ($this->accessed) {
+			$return .= implode(", ", array_keys($this->accessed));
+		} else {
+			$return .= "*";
+		}
+		return "$return FROM $this->table" . $this->whereString();
+	}
+	
 	protected function query($query) {
 		//~ fwrite(STDERR, "$query;\n");
 		$return = $this->notORM->connection->prepare($query);
@@ -60,6 +64,62 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return false;
 		}
 		return $return;
+	}
+	
+	/** Insert row in a table
+	* @param array ($column => $value)
+	* @return string auto increment value or false in case of an error
+	*/
+	function insert(array $data) {
+		//! driver specific empty $data
+		$values = array();
+		$parameters = $this->parameters;
+		$this->parameters = array();
+		foreach ($data as $val) {
+			if (is_array($val)) { // SQL code - for example "NOW()"
+				$values[] = $val[0];
+			//! } elseif ($val instanceof NotORM_Result) {
+			} else {
+				$values[] = "?";
+				$this->parameters[] = $val;
+			}
+		}
+		if (!$this->query("INSERT INTO $this->table (" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", $values) . ")")) {
+			return false;
+		}
+		$this->parameters = $parameters;
+		return $this->notORM->connection->lastInsertId();
+	}
+	
+	/** Update all rows in result set
+	* @param array ($column => $value)
+	* @return int number of affected rows or false in case of an error
+	*/
+	function update(array $data) {
+		if (!$data) {
+			return 0;
+		}
+		$values = array();
+		foreach ($data as $key => $val) {
+			// doesn't use binding because $this->parameters can be filled by ? or :name
+			$values[] = "$key = " . (!isset($val) ? "NULL" : (is_array($val) ? $val[0] : $this->notORM->connection->quote($val)));
+		}
+		$return = $this->query("UPDATE $this->table SET " . implode(", ", $values) . $this->whereString());
+		if (!$return) {
+			return false;
+		}
+		return $return->rowCount();
+	}
+	
+	/** Delete all rows in result set
+	* @return int number of affected rows or false in case of an error
+	*/
+	function delete() {
+		$return = $this->query("DELETE FROM $this->table" . $this->whereString());
+		if (!$return) {
+			return false;
+		}
+		return $return->rowCount();
 	}
 	
 	/** Set select clause, more calls appends to the end
