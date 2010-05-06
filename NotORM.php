@@ -58,8 +58,8 @@ class NotORM extends NotORM_Abstract {
 	function __call($table, array $where) {
 		$return = new NotORM_Result($table, $this);
 		if ($where) {
-			if (is_array($where[0])) {
-				return $return->insert($where[0]); // $db->$table($data) is a shortcut for $db->$table()->insert($data)
+			if (is_array($where[0])) { // $db->$table($data) is a shortcut for $db->$table()->insert($data)
+				return call_user_func_array(array($return, 'insert'), $where);
 			}
 			call_user_func_array(array($return, 'where'), $where);
 		}

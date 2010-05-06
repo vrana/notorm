@@ -77,7 +77,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->parameters = array();
 		foreach ($data as $val) {
 			if (is_array($val)) { // SQL code - for example "NOW()"
-				$values[] = $val[0];
+				$values[] = implode("", $val);
 			//! } elseif ($val instanceof NotORM_Result) {
 			} else {
 				$values[] = "?";
@@ -102,7 +102,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$values = array();
 		foreach ($data as $key => $val) {
 			// doesn't use binding because $this->parameters can be filled by ? or :name
-			$values[] = "$key = " . (!isset($val) ? "NULL" : (is_array($val) ? $val[0] : $this->notORM->connection->quote($val)));
+			$values[] = "$key = " . (!isset($val) ? "NULL" : (is_array($val) ? implode("", $val) : $this->notORM->connection->quote($val)));
 		}
 		$return = $this->query("UPDATE $this->table SET " . implode(", ", $values) . $this->whereString());
 		if (!$return) {
