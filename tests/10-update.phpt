@@ -12,14 +12,14 @@ $software->application(array(
 	"web" => "",
 	"slogan" => "The best humane Web text generator",
 ));
-echo $software->application[$id]["title"] . "\n";
+$application = $software->application[$id];
+echo $application["title"] . "\n";
 
-echo $software->application("id", $id)->update(array(
-	"web" => "http://texy.info/",
-)) . " row updated.\n";
+$application["web"] = "http://texy.info/";
+echo $application->update() . " row updated.\n";
 echo $software->application[$id]["web"] . "\n";
 
-echo $software->application("id", $id)->delete() . " row deleted.\n";
+echo $application->delete() . " row deleted.\n";
 echo count($software->application("id", $id)) . " rows found.\n";
 ?>
 --EXPECTF--
