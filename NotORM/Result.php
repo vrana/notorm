@@ -56,7 +56,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected function query($query) {
 		//~ fwrite(STDERR, "$query;\n");
 		$return = $this->notORM->connection->prepare($query);
-		$return->execute($this->parameters);
+		if (!$return->execute($this->parameters)) {
+			return false;
+		}
 		return $return;
 	}
 	
