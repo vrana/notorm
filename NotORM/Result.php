@@ -5,7 +5,7 @@
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $table, $primary, $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	protected $data, $referencing = array(), $aggregation = array(), $accessed = array(), $access = array();
+	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access;
 	
 	/** Create table result
 	* @param string
@@ -154,7 +154,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
-			if ($this->notORM->cache && isset($this->accessed)) {
+			if ($this->notORM->cache && !is_string($this->accessed)) {
 				$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 				$this->access = $this->accessed;
 			}
@@ -164,7 +164,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			foreach ($result as $key => $row) {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
-					if (isset($this->access)) {
+					if (!is_string($this->access)) {
 						$this->access[$this->primary] = true;
 					}
 				}
@@ -186,12 +186,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function access($key) {
 		if (!isset($key)) {
-			$this->access = null;
-		} elseif (isset($this->access)) {
+			$this->access = '';
+		} elseif (!is_string($this->access)) {
 			$this->access[$key] = true;
 		}
 		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
-			$this->accessed = null;
+			$this->accessed = '';
 			$this->rows = null;
 			return true;
 		}

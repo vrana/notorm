@@ -6,7 +6,7 @@ interface NotORM_Cache {
 	
 	/** Load stored data
 	* @param string
-	* @return mixed
+	* @return mixed or null if not found
 	*/
 	function load($key);
 	
@@ -24,8 +24,8 @@ interface NotORM_Cache {
 class NotORM_Cache_Session implements NotORM_Cache {
 	
 	function load($key) {
-		if (!isset($_SESSION["NotORM"]) || !array_key_exists($key, $_SESSION["NotORM"])) {
-			return array();
+		if (!isset($_SESSION["NotORM"][$key])) {
+			return null;
 		}
 		return $_SESSION["NotORM"][$key];
 	}
@@ -56,8 +56,8 @@ class NotORM_Cache_File implements NotORM_Cache {
 	}
 	
 	function load($key) {
-		if (!$this->data || !array_key_exists($key, $this->data)) {
-			return array();
+		if (!$this->data || !isset($this->data[$key])) {
+			return null;
 		}
 		return $this->data[$key];
 	}
@@ -82,7 +82,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 		$result->execute(array($key));
 		$return = $result->fetchColumn();
 		if (!$return) {
-			return array();
+			return null;
 		}
 		return unserialize($return);
 	}
@@ -120,7 +120,7 @@ class NotORM_Cache_Memcache implements NotORM_Cache {
 	function load($key) {
 		$return = $this->memcache->get("NotORM.$key");
 		if ($return === false) {
-			return array();
+			return null;
 		}
 		return $return;
 	}
@@ -138,7 +138,7 @@ class NotORM_Cache_APC implements NotORM_Cache {
 	function load($key) {
 		$return = apc_fetch("NotORM.$key", $success);
 		if (!$success) {
-			return array();
+			return null;
 		}
 		return $return;
 	}
