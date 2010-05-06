@@ -52,14 +52,18 @@ class NotORM extends NotORM_Abstract {
 	
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array()) passed to NotORM_Result::insert()
+	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
 		$return = new NotORM_Result($table, $this);
 		if ($where) {
-			if (is_array($where[0])) { // $db->$table($data) is a shortcut for $db->$table()->insert($data)
-				return call_user_func_array(array($return, 'insert'), $where);
+			$data = $where[0];
+			if ($data instanceof Traversable) {
+				$data = iterator_to_array($data); // insert() accepts only arrays
+			}
+			if (is_array($data)) { // $db->$table($array) is a shortcut for $db->$table()->insert($array)
+				return $return->insert($data);
 			}
 			call_user_func_array(array($return, 'where'), $where);
 		}
