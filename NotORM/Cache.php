@@ -39,19 +39,15 @@ class NotORM_Cache_Session implements NotORM_Cache {
 /** Cache using file
 */
 class NotORM_Cache_File implements NotORM_Cache {
-	private $filename, $data;
+	private $filename, $data = array();
 	
 	function __construct($filename) {
 		$this->filename = $filename;
 		$this->data = unserialize(@file_get_contents($filename)); // @ - file can not exist
 	}
 	
-	function __destruct() {
-		file_put_contents($this->filename, serialize($this->data), LOCK_EX);
-	}
-	
 	function load($key) {
-		if (!$this->data || !isset($this->data[$key])) {
+		if (!isset($this->data[$key])) {
 			return null;
 		}
 		return $this->data[$key];
@@ -59,6 +55,7 @@ class NotORM_Cache_File implements NotORM_Cache {
 	
 	function save($key, $data) {
 		$this->data[$key] = $data;
+		file_put_contents($this->filename, serialize($this->data), LOCK_EX);
 	}
 	
 }
