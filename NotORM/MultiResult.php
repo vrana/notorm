@@ -12,12 +12,15 @@ class NotORM_MultiResult extends NotORM_Result {
 		$this->active = $active;
 	}
 	
-	function group($functions) {
+	function group($functions, $having = "") {
 		$query = "SELECT $functions, $this->column FROM $this->table"; // $this->column is last because result is used with list()
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
 		$query .= " GROUP BY $this->column";
+		if ($having != "") {
+			$query .= " HAVING $having";
+		}
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();

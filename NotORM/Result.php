@@ -138,12 +138,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Execute aggregation functions
 	* @param string for example "COUNT(*), MAX(id)"
+	* @param string
 	* @return array using PDO::FETCH_BOTH
 	*/
-	function group($functions) {
+	function group($functions, $having = "") {
 		$query = "SELECT $functions FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
+		}
+		if ($having != "") {
+			$query .= " HAVING $having";
 		}
 		return $this->query($query)->fetch();
 	}
