@@ -48,10 +48,22 @@ class NotORM_MultiResult extends NotORM_Result {
 		if (!isset($this->data)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
+				$limit = $this->limit;
+				if ($this->limit) {
+					$this->limit = null;
+				}
 				parent::execute();
+				$this->limit = $limit;
 				$referencing = array();
+				$offset = array();
 				foreach ($this->rows as $key => $row) {
-					$referencing[$row[$this->column]][$key] = $row;
+					$ref = &$referencing[$row[$this->column]];
+					$skip = &$offset[$row[$this->column]];
+					if (!isset($limit) || (count($ref) < $limit && $skip >= $this->offset)) {
+						$ref[$key] = $row;
+					}
+					$skip++;
+					unset($ref, $skip);
 				}
 			}
 			$this->data = &$referencing[$this->active];
