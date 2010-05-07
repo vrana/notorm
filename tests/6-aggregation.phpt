@@ -4,12 +4,16 @@ Aggregation functions
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
+list($count) = $software->application()->group("COUNT(*)");
+echo "$count applications\n";
 foreach ($software->application() as $application) {
-	echo "$application[title]: " . count($application->application_tag()) . "\n";
+	list($count) = $application->application_tag()->group("COUNT(*)");
+	echo "$application[title]: $count tag(s)\n";
 }
 ?>
 --EXPECTF--
-Adminer: 2
-JUSH: 1
-Nette: 1
-Dibi: 2
+4 applications
+Adminer: 2 tag(s)
+JUSH: 1 tag(s)
+Nette: 1 tag(s)
+Dibi: 2 tag(s)

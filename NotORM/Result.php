@@ -95,8 +95,6 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 		return $this;
 	}
 	
-	//! group by, having
-	
 	/** Set order clause, more calls appends to the end
 	* @param string for example "column1, column2 DESC"
 	* @return NotORM_Result fluent interface
@@ -129,7 +127,7 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	* @param string for example "COUNT(*), MAX(id)"
 	* @return array with numerical and string keys
 	*/
-	function aggregation($functions) {
+	function group($functions) {
 		$query = "SELECT $functions FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
