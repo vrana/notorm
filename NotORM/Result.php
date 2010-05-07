@@ -3,7 +3,7 @@
 /** Filtered table representation
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
-	protected $table, $primary, $single;
+	protected $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access;
 	
@@ -172,7 +172,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 						$this->access[$this->primary] = true;
 					}
 				}
-				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this);
+				$this->rows[$key] = new NotORM_Row($row, $this);
 			}
 			$this->data = $this->rows;
 		}

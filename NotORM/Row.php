@@ -3,12 +3,10 @@
 /** Single row representation
 */
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
-	private $row, $primary, $table, $result;
+	private $row, $result;
 	
-	function __construct(array $row, $primary, $table, NotORM_Result $result) {
+	function __construct(array $row, NotORM_Result $result) {
 		$this->row = $row;
-		$this->primary = $primary;
-		$this->table = $table;
 		$this->result = $result;
 	}
 	
@@ -16,7 +14,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return string
 	*/
 	function __toString() {
-		return (string) $this[$this->primary]; // (string) - PostgreSQL returns int
+		return (string) $this[$this->result->primary]; // (string) - PostgreSQL returns int
 	}
 	
 	/** Get referenced row
@@ -24,10 +22,10 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return NotORM_Row or null if the row does not exist
 	*/
 	function __get($name) {
-		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->table);
+		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
-			$table = $this->result->notORM->structure->getReferencedTable($name, $this->table);
+			$table = $this->result->notORM->structure->getReferencedTable($name, $this->result->table);
 			$keys = array();
 			foreach ($this->result->rows as $row) {
 				$keys[$row[$column]] = null;
@@ -57,9 +55,9 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return NotORM_Result
 	*/
 	function __call($name, array $args) {
-		$table = $this->result->notORM->structure->getReferencingTable($name, $this->table);
-		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->table);
-		$return = new NotORM_MultiResult($table, $this->result, $column, $this[$this->primary]);
+		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
+		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
+		$return = new NotORM_MultiResult($table, $this->result, $column, $this[$this->result->primary]);
 		$return->where($column, array_keys($this->result->rows));
 		//~ $return->order($column); // to allow multi-column indexes
 		return $return;
@@ -67,7 +65,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	
 	protected function access($key) {
 		if ($this->result->notORM->cache && $this->result->access($key)) {
-			$this->row = $this->result[$this->row[$this->primary]];
+			$this->row = $this->result[$this->row[$this->result->primary]];
 		}
 	}
 	

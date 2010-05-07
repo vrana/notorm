@@ -12,9 +12,10 @@ include dirname(__FILE__) . "/NotORM/Result.php";
 include dirname(__FILE__) . "/NotORM/MultiResult.php";
 include dirname(__FILE__) . "/NotORM/Row.php";
 
+// friend visibility emulation
 abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
-	protected $notORM, $rows, $referenced = array();
+	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
 	protected function access($key) {
 	}
