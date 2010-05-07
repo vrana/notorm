@@ -125,12 +125,16 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 	
 	/** Execute aggregation functions
 	* @param string for example "COUNT(*), MAX(id)"
+	* @param string
 	* @return array with numerical and string keys
 	*/
-	function group($functions) {
+	function group($functions, $having = "") {
 		$query = "SELECT $functions FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
+		}
+		if ($having != "") {
+			$query .= " HAVING $having";
 		}
 		$return = $this->query($query)->fetch();
 		if ($this->connection instanceof DibiConnection && $return) {
