@@ -73,11 +73,22 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		));
 	}
 	
+	/** Disable persistence
+	* @return NotORM_Result fluent interface
+	*/
+	function freeze() {
+		$this->freeze = true;
+		return $this;
+	}
+	
 	/** Insert row in a table
 	* @param array ($column => $value)
 	* @return string auto increment value or false in case of an error
 	*/
 	function insert(array $data) {
+		if ($this->freeze) {
+			return false;
+		}
 		//! driver specific empty $data
 		// requiers empty $this->parameters
 		if (!$this->query("INSERT INTO $this->table (" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")")) {
@@ -91,6 +102,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return int number of affected rows or false in case of an error
 	*/
 	function update(array $data) {
+		if ($this->freeze) {
+			return false;
+		}
 		if (!$data) {
 			return 0;
 		}
@@ -110,6 +124,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return int number of affected rows or false in case of an error
 	*/
 	function delete() {
+		if ($this->freeze) {
+			return false;
+		}
 		$return = $this->query("DELETE FROM $this->table" . $this->whereString());
 		if (!$return) {
 			return false;
