@@ -12,6 +12,13 @@ class NotORM_MultiResult extends NotORM_Result {
 		$this->active = $active;
 	}
 	
+	function order($columns) {
+		if (!$this->order) {
+			$this->order[] = $this->column;
+		}
+		return parent::order($columns);
+	}
+	
 	function group($functions, $having = "") {
 		$query = "SELECT $functions, $this->column FROM $this->table"; // $this->column is last because result is used with list()
 		if ($this->where) {
