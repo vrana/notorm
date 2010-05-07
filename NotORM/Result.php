@@ -131,7 +131,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function group($functions, $having = "") {
 		$query = "SELECT $functions FROM $this->table";
 		if ($this->where) {
-			$query .= " WHERE " . implode(" AND ", $this->where);
+			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
 		if ($having != "") {
 			$query .= " HAVING $having";
