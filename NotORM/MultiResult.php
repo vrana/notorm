@@ -12,8 +12,8 @@ class NotORM_MultiResult extends NotORM_Result {
 		$this->active = $active;
 	}
 	
-	function aggregation($functions) {
-		$query = "SELECT $this->column, $functions FROM $this->table";
+	function group($functions) {
+		$query = "SELECT $functions, $this->column FROM $this->table"; // $this->column is last because result is used with list()
 		if ($this->where) {
 			$query .= " WHERE " . implode(" AND ", $this->where);
 		}
