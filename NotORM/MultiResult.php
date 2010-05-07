@@ -12,6 +12,22 @@ class NotORM_MultiResult extends NotORM_Result {
 		$this->active = $active;
 	}
 	
+	function update(array $data) {
+		$where = $this->where;
+		$this->where[0] = "$this->column = " . $this->result->notORM->connection->quote($this->active);
+		$return = parent::update($data);
+		$this->where = $where;
+		return $return;
+	}
+	
+	function delete() {
+		$where = $this->where;
+		$this->where[0] = "$this->column = " . $this->result->notORM->connection->quote($this->active);
+		$return = parent::delete();
+		$this->where = $where;
+		return $return;
+	}
+	
 	function order($columns) {
 		if (!$this->order) {
 			$this->order[] = $this->column;
