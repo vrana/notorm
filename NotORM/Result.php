@@ -2,10 +2,10 @@
 
 /** Filtered table representation
 */
-class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
-	protected $table, $connection, $structure, $primary, $single;
-	protected $select = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
-	protected $rows, $data, $referencing = array(), $aggregation = array();
+class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
+	protected $single;
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
+	protected $data, $referencing = array(), $aggregation = array();
 	
 	/** @internal used by NotORM_Row */
 	public $referenced = array();
@@ -171,7 +171,8 @@ class NotORM_Result implements IteratorAggregate, ArrayAccess, Countable {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
 				}
-				$this->rows[$key] = new NotORM_Row($row, $this->primary, $this->table, $this, $this->connection, $this->structure);
+			}
+				$this->rows[$key] = new NotORM_Row($row, $this);
 			}
 			$this->data = $this->rows;
 		}
