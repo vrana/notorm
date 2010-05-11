@@ -77,10 +77,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$select = $parameters->select;
-			if (!$select) {
 				$parameters->select = array($this->structure->getPrimary($parameters->table)); // can also use clone
+			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
+				$condition .= " IN ($parameters)";
+			} else {
+				$in = array();
+				foreach ($parameters as $id => $row) {
+					$in[] = $this->notORM->connection->quote($id);
 			}
-			$condition .= " IN ($parameters)";
+				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
+			}
 			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", 'x')
 			$condition .= " = " . $this->quote($parameters);
