@@ -4,13 +4,13 @@ NotORM is a PHP library for simple reading data from the database. The most inte
 
 Requirements:
 PHP 5.1+
-any database supported by PDO (tested with MySQL, SQLite, PostgreSQL, MS SQL)
+any database supported by PDO (tested with MySQL, SQLite, PostgreSQL, MS SQL, Oracle)
 
 Usage:
 <?php
 include "NotORM.php";
-$pdo = new PDO("mysql:dbname=software");
-$software = new NotORM($pdo);
+$connection = new PDO("mysql:dbname=software");
+$software = new NotORM($connection);
 
 foreach ($software->application()->order("title") as $application) { // get all applications ordered by title
     echo "$application[title]\n"; // print application title
