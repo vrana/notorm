@@ -24,7 +24,7 @@ CREATE TABLE application (
   author_id int NOT NULL,
   title varchar(50) NOT NULL,
   web varchar(100) NOT NULL,
-  slogan text NOT NULL,
+  slogan varchar(100) NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT application_ibfk_1 FOREIGN KEY (author_id) REFERENCES author (id)
 );

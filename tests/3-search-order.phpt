@@ -4,7 +4,7 @@ Search and order items
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-foreach ($software->application("web != %s", "")->order("title") as $application) {
+foreach ($software->application("web LIKE %s", "http://%")->order("title") as $application) {
 	echo "$application[title]\n";
 }
 ?>
