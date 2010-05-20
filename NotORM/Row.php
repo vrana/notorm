@@ -5,11 +5,9 @@
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
 	private $row, $result;
 	
-	function __construct(array $row, NotORM_Result $result) {
+	function __construct(DibiRow $row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
-		$this->connection = $connection;
-		$this->structure = $structure;
 	}
 	
 	/** Get primary key value
@@ -29,16 +27,16 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		if (!isset($referenced)) {
 			$table = $this->result->notORM->structure->getReferencedTable($name, $this->result->table);
 			$keys = array();
-			foreach ($this->result->getRows() as $row) {
+			foreach ($this->result->rows as $row) {
 				$keys[$row[$column]] = null;
 			}
-			$referenced = new NotORM_Result($table, $this->connection, $this->structure);
-			$referenced->where($this->structure->getPrimary($table), array_keys($keys));
+			$referenced = new NotORM_Result($table, $this->result->notORM);
+			$referenced->where($this->result->notORM->structure->getPrimary($table), array_keys($keys));
 		}
-		if (!isset($referenced[$this->row[$column]])) { // referenced row may not exist
+		if (!isset($referenced[$this[$column]])) { // referenced row may not exist
 			return null;
 		}
-		return $referenced[$this->row[$column]];
+		return $referenced[$this[$column]];
 	}
 	
 	/** Test if referenced row exists

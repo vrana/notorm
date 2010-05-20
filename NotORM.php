@@ -13,31 +13,20 @@ include dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
-	protected $connection, $structure, $cache;
+	protected $connection, $structure;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
-	
-	protected function access($key) {
-	}
 	
 }
 
 /** Database representation
 */
-class NotORM {
-	private $connection, $structure;
+class NotORM extends NotORM_Abstract {
 	
 	/** Create database representation
-	* @param PDO|DibiConnection
+	* @param DibiConnection
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
 	*/
-	function __construct($connection, NotORM_Structure $structure = null) {
-		$exception = "Argument 1 passed to NotORM::__construct() must be an instance of PDO or DibiConnection";
-		if (!is_object($connection)) {
-			throw new InvalidArgumentException("$exception, " . gettype($connection) . " given");
-		}
-		if (!($connection instanceof PDO || $connection instanceof DibiConnection)) {
-			throw new InvalidArgumentException("$exception, instance of " . get_class($connection) . " given");
-		}
+	function __construct(DibiConnection $connection, NotORM_Structure $structure = null) {
 		$this->connection = $connection;
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;
@@ -50,7 +39,7 @@ class NotORM {
 	* @return NotORM_Result
 	*/
 	function __get($table) {
-		return new NotORM_Result($table, $this->connection, $this->structure, true);
+		return new NotORM_Result($table, $this, true);
 	}
 	
 	// __set is not defined to allow storing custom result sets (undocumented)
@@ -61,7 +50,7 @@ class NotORM {
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
-		$return = new NotORM_Result($table, $this->connection, $this->structure);
+		$return = new NotORM_Result($table, $this);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);
 		}

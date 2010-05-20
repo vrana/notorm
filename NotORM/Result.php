@@ -7,21 +7,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
 	protected $data, $referencing = array(), $aggregation = array();
 	
-	/** @internal used by NotORM_Row */
-	public $referenced = array();
-	
 	/** Create table result
 	* @param string
-	* @param PDO|DibiConnection
-	* @param NotORM_Structure
+	* @param NotORM
 	* @param bool single row
 	*/
-	function __construct($table, $connection, NotORM_Structure $structure, $single = false) {
+	function __construct($table, NotORM $notORM, $single = false) {
 		$this->table = $table;
-		$this->connection = $connection;
-		$this->structure = $structure;
+		$this->notORM = $notORM;
 		$this->single = $single;
-		$this->primary = $structure->getPrimary($table);
+		$this->primary = $notORM->structure->getPrimary($table);
 	}
 	
 	/** Get SQL query
@@ -36,7 +31,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$return .= " FROM $this->table";
 		if ($this->where) {
-			$return .= " WHERE " . implode(" AND ", $this->where);
+			$return .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
@@ -50,6 +45,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	protected function query($query) {
+		//~ fwrite(STDERR, "$query;\n");
+		$args = $this->parameters;
+		array_unshift($args, $query);
+		return call_user_func_array(array($this->notORM->connection, 'query'), $args);
+	}
+	
+	protected function quote($string) {
+		return $this->notORM->connection->getDriver()->escape($string, dibi::TEXT);
+	}
+	
 	/** Set select clause, more calls appends to the end
 	* @param string for example "column, MD5(column) AS column_md5"
 	* @return NotORM_Result fluent interface
@@ -61,34 +67,33 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Set where condition, more calls appends with AND
 	* @param string condition possibly containing ? or :name
-	* @param mixed array accepted by PDOStatement::execute or a scalar value
+	* @param mixed accepted by DibiConnection::query
 	* @param mixed ...
 	* @return NotORM_Result fluent interface
 	*/
-	function where($condition, $parameters = array()) {
+	function where($condition, $parameters = null) {
+		$this->conditions[] = $condition;
 		$args = func_num_args();
-		if ($args != 2 || strpbrk($condition, "?:%")) { // where("column = ? OR column = ?", array(1, 2))
-			if ($args != 2 || !is_array($parameters)) { // where("column = ?", 1)
-				$parameters = func_get_args();
-				array_shift($parameters);
-			}
+		if ($args != 2 || strpbrk($condition, "%")) { // where("column = %s OR column = %s", 1, 2)
+			$parameters = func_get_args();
+			array_shift($parameters);
 			$this->parameters = array_merge($this->parameters, $parameters);
 		} elseif (is_null($parameters)) { // where("column", null)
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$select = $parameters->select;
-				$parameters->select = array($this->structure->getPrimary($parameters->table)); // can also use clone
-			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
+			$parameters->select = array($this->notORM->structure->getPrimary($parameters->table)); // can also use clone
+			if (!in_array(strtolower($this->notORM->connection->getConfig("driver")), array("mysql", "mysqli"))) {
 				$condition .= " IN ($parameters)";
 			} else {
 				$in = array();
 				foreach ($parameters as $id => $row) {
-					$in[] = $this->notORM->connection->quote($id);
-			}
+					$in[] = $this->quote($id);
+				}
 				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
 			}
 			$parameters->select = $select;
-		} elseif (!is_array($parameters)) { // where("column", 'x')
+		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1))
 			$in = "NULL";
@@ -132,7 +137,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	/** Execute aggregation functions
 	* @param string for example "COUNT(*), MAX(id)"
 	* @param string
-	* @return array with numerical and string keys
+	* @return array numerical and string keys
 	*/
 	function group($functions, $having = "") {
 		$query = "SELECT $functions FROM $this->table";
@@ -143,49 +148,28 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$query .= " HAVING $having";
 		}
 		$return = $this->query($query)->fetch();
-		if ($this->connection instanceof DibiConnection && $return) {
+		if ($return) {
 			$return = (array) $return + array_values((array) $return); // to allow list($min, $max)
 		}
 		return $return;
 	}
 	
-	protected function query($query) {
-		//~ fwrite(STDERR, "$query\n");
-		if ($this->connection instanceof DibiConnection) {
-			return $this->connection->query($query, $this->parameters);
-		}
-		$return = $this->connection->prepare($query);
-		$return->execute($this->parameters);
-		return $return;
-	}
-	
-	protected function quote($string) {
-		if ($this->connection instanceof DibiConnection) {
-			return $this->connection->getDriver()->escape($string, dibi::TEXT);
-		}
-		return $this->connection->quote($string);
-	}
-	
+	/** Execute built query
+	* @param bool
+	* @return null
+	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
 			$result = $this->query($this->__toString());
-			if ($this->connection instanceof PDO) {
-				$result->setFetchMode(PDO::FETCH_ASSOC);
-			}
 			$this->rows = array();
 			foreach ($result as $key => $row) {
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
 				}
-			}
 				$this->rows[$key] = new NotORM_Row($row, $this);
 			}
 			$this->data = $this->rows;
 		}
-	}
-	
-	function getRows() {
-		return $this->rows;
 	}
 	
 	/** Fetch next row of result
@@ -198,11 +182,27 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
-	// IteratorAggregate implementation
+	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
 	
-	function getIterator() {
+	function rewind() {
 		$this->execute();
-		return new ArrayIterator($this->data);
+		reset($this->data);
+	}
+	
+	function current() {
+		return current($this->data);
+	}
+	
+	function key() {
+		return key($this->data);
+	}
+	
+	function next() {
+		next($this->data);
+	}
+	
+	function valid() {
+		return $this->current();
 	}
 	
 	// ArrayAccess implementation

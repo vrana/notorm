@@ -1,3 +1,4 @@
 save, delete
 escape table names
 multi-column primary key
+defer NotORM_Row creation to save memory
