@@ -12,7 +12,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @param NotORM
 	* @param bool single row
 	*/
-	function __construct($table, NotORM $notORM, $single = false) {
+	protected function __construct($table, NotORM $notORM, $single = false) {
 		$this->table = $table;
 		$this->notORM = $notORM;
 		$this->single = $single;
