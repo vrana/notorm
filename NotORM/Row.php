@@ -5,7 +5,7 @@
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
 	private $row, $result;
 	
-	function __construct(DibiRow $row, NotORM_Result $result) {
+	protected function __construct(DibiRow $row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
 	}

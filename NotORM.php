@@ -16,6 +16,7 @@ abstract class NotORM_Abstract {
 	protected $connection, $structure;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
+	abstract protected function __construct();
 }
 
 /** Database representation
