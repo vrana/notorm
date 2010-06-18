@@ -5,7 +5,7 @@
 class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active;
 	
-	function __construct($table, NotORM_Result $result, $column, $active) { // not abstract because it is called from Row
+	function __construct($table, NotORM_Result $result, $column, $active) { // not protected because it is called from Row
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
