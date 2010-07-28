@@ -3,7 +3,7 @@
 /** Single row representation
 */
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
-	private $row, $result;
+	protected $row, $result;
 	
 	protected function __construct(array $row, NotORM_Result $result) {
 		$this->row = $row;
