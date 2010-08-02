@@ -8,7 +8,7 @@ $id = 5; // auto_increment is disabled in demo
 $software->application(array(
 	"id" => $id,
 	"author_id" => $software->author[12],
-	"title" => "Texy",
+	"title" => new NotORM_Literal("'Texy'"),
 	"web" => "",
 	"slogan" => "The best humane Web text generator",
 ));

@@ -68,7 +68,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function quote($val) {
 		return (!isset($val) ? "NULL"
-			: (is_array($val) ? implode("", $val) // SQL code - for example "NOW()"
+			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
 			: $this->notORM->connection->quote($val)
 		));
 	}
