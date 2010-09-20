@@ -82,16 +82,24 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Insert row in a table
-	* @param array ($column => $value)
+	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
 	* @return string auto increment value or false in case of an error
 	*/
-	function insert(array $data) {
+	function insert($data) {
 		if ($this->freeze) {
 			return false;
 		}
-		//! driver specific empty $data
+		if ($data instanceof NotORM_Result) {
+			$data = (string) $data;
+		} elseif ($data instanceof Traversable) {
+			$data = iterator_to_array($data);
+		}
+		if (is_array($data)) {
+			//! driver specific empty $data
+			$data = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
+		}
 		// requiers empty $this->parameters
-		if (!$this->query("INSERT INTO $this->table (" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")")) {
+		if (!$this->query("INSERT INTO $this->table $data")) {
 			return false;
 		}
 		return $this->notORM->connection->lastInsertId();

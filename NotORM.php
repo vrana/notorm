@@ -62,10 +62,7 @@ class NotORM extends NotORM_Abstract {
 		$return = new NotORM_Result($table, $this);
 		if ($where) {
 			$data = $where[0];
-			if ($data instanceof Traversable) {
-				$data = iterator_to_array($data); // insert() accepts only arrays
-			}
-			if (is_array($data)) { // $db->$table($array) is a shortcut for $db->$table()->insert($array)
+			if (is_array($data) || $data instanceof Traversable) { // $db->$table($array) is a shortcut for $db->$table()->insert($array)
 				return $return->insert($data);
 			}
 			call_user_func_array(array($return, 'where'), $where);
