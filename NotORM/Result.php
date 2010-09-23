@@ -27,14 +27,19 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function whereString() {
 		$return = "";
-		if ($this->where) {
-			$return .= " WHERE (" . implode(") AND (", $this->where) . ")";
+		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$where = $this->where;
+		if (isset($this->limit) && $driver == "oci") {
+			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
+		}
+		if ($where) {
+			$return .= " WHERE (" . implode(") AND (", $where) . ")";
 		}
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
-		if (isset($this->limit)) {
-			$return .= " LIMIT $this->limit"; //! driver specific
+		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
+			$return .= " LIMIT $this->limit";
 			if (isset($this->offset)) {
 				$return .= " OFFSET $this->offset";
 			}
@@ -42,11 +47,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	protected function topString() {
+		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
+			return " TOP ($this->limit)"; //! offset is not supported
+		}
+		return "";
+	}
+	
 	/** Get SQL query
 	* @return string
 	*/
 	function __toString() {
-		$return = "SELECT ";
+		$return = "SELECT" . $this->topString() . " ";
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
 		} elseif ($this->accessed) {
@@ -121,7 +133,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			// doesn't use binding because $this->parameters can be filled by ? or :name
 			$values[] = "$key = " . $this->quote($val);
 		}
-		$return = $this->query("UPDATE $this->table SET " . implode(", ", $values) . $this->whereString());
+		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString());
 		if (!$return) {
 			return false;
 		}
@@ -135,7 +147,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->freeze) {
 			return false;
 		}
-		$return = $this->query("DELETE FROM $this->table" . $this->whereString());
+		$return = $this->query("DELETE" . $this->topString() . " FROM $this->table" . $this->whereString());
 		if (!$return) {
 			return false;
 		}
