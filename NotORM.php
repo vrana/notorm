@@ -16,7 +16,12 @@ include dirname(__FILE__) . "/NotORM/Row.php";
 // friend visibility emulation
 abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
-	protected $notORM, $table, $primary, $rows, $referenced = array(), $freeze = false;
+	protected $notORM, $table, $primary, $rows, $referenced = array();
+	
+	/** Disable persistence
+	* @access public write-only
+	*/
+	protected $freeze = false;
 	
 	abstract protected function __construct();
 	
@@ -50,8 +55,15 @@ class NotORM extends NotORM_Abstract {
 	function __get($table) {
 		return new NotORM_Result($table, $this, true);
 	}
-	
-	// __set is not defined to allow storing custom result sets (undocumented)
+
+	/** Set write-only properties
+	* @return null
+	*/
+	function __set($name, $value) {
+		if ($name == "freeze") {
+			$this->$name = $value;
+		}
+	}
 	
 	/** Get table data
 	* @param string

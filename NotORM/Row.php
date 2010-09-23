@@ -32,9 +32,6 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 			}
 			$referenced = new NotORM_Result($table, $this->result->notORM);
 			$referenced->where($this->result->notORM->structure->getPrimary($table), array_keys($keys));
-			if ($this->result->freeze) {
-				$referenced->freeze();
-			}
 		}
 		if (!isset($referenced[$this[$column]])) { // referenced row may not exist
 			return null;
@@ -64,9 +61,6 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		$return->where($column, array_keys($this->result->rows));
 		if ($args) {
 			call_user_func_array(array($return, 'where'), $args);
-		}
-		if ($this->result->freeze) {
-			$return->freeze();
 		}
 		return $return;
 	}
