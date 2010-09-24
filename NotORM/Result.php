@@ -70,7 +70,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function query($query) {
-		//~ fwrite(STDERR, "$query;\n");
+		if ($this->notORM->debug) {
+			if (is_callable($this->notORM->debug)) {
+				call_user_func($this->notORM->debug, $query, $this->parameters);
+			} else {
+				fwrite(STDERR, "-- $query;\n");
+			}
+		}
 		$return = $this->notORM->connection->prepare($query);
 		if (!$return->execute($this->parameters)) {
 			return false;

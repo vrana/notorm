@@ -15,13 +15,26 @@ include dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
-	protected $connection, $structure, $cache, $rowClass = 'NotORM_Row';
+	protected $connection, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
+	/** Enable debuging queries
+	* @var mixed true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
+	* @access public write-only
+	*/
+	protected $debug = false;
+	
 	/** Disable persistence
+	* @var bool
 	* @access public write-only
 	*/
 	protected $freeze = false;
+	
+	/** Class used for created objects
+	* @var string
+	* @access public write-only
+	*/
+	protected $rowClass = 'NotORM_Row';
 	
 	abstract protected function __construct();
 	
@@ -60,7 +73,7 @@ class NotORM extends NotORM_Abstract {
 	* @return null
 	*/
 	function __set($name, $value) {
-		if ($name == "freeze" || $name == "rowClass") {
+		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {
 			$this->$name = $value;
 		}
 	}
