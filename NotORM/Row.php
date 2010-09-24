@@ -3,6 +3,7 @@
 /** Single row representation
 */
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
+	private $modified = array();
 	protected $row, $result;
 	
 	protected function __construct(array $row, NotORM_Result $result) {
@@ -52,7 +53,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	/** Get referencing rows
 	* @param string table name
 	* @param array (["condition"[, array("value")]])
-	* @return NotORM_Result
+	* @return NotORM_MultiResult
 	*/
 	function __call($name, array $args) {
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
@@ -63,6 +64,26 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 			call_user_func_array(array($return, 'where'), $args);
 		}
 		return $return;
+	}
+	
+	/** Update row
+	* @param array or null for all modified values
+	* @return int number of affected rows or false in case of an error
+	*/
+	function update($data = null) {
+		// update is an SQL keyword
+		if (!isset($data)) {
+			$data = $this->modified;
+		}
+		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->update($data);
+	}
+	
+	/** Delete row
+	* @return int number of affected rows or false in case of an error
+	*/
+	function delete() {
+		// delete is an SQL keyword
+		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->delete();
 	}
 	
 	protected function access($key) {
@@ -92,10 +113,12 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	
 	function offsetSet($key, $value) {
 		$this->row[$key] = $value;
+		$this->modified[$key] = $value;
 	}
 	
 	function offsetUnset($key) {
 		unset($this->row[$key]);
+		unset($this->modified[$key]);
 	}
 	
 }

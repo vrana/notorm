@@ -8,6 +8,7 @@
 
 include dirname(__FILE__) . "/NotORM/Structure.php";
 include dirname(__FILE__) . "/NotORM/Cache.php";
+include dirname(__FILE__) . "/NotORM/Literal.php";
 include dirname(__FILE__) . "/NotORM/Result.php";
 include dirname(__FILE__) . "/NotORM/MultiResult.php";
 include dirname(__FILE__) . "/NotORM/Row.php";
@@ -16,6 +17,11 @@ include dirname(__FILE__) . "/NotORM/Row.php";
 abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache, $rowClass;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
+	
+	/** Disable persistence
+	* @access public write-only
+	*/
+	protected $freeze = false;
 	
 	abstract protected function __construct();
 	
@@ -51,16 +57,27 @@ class NotORM extends NotORM_Abstract {
 		return new NotORM_Result($table, $this, true);
 	}
 	
-	// __set is not defined to allow storing custom result sets (undocumented)
+	/** Set write-only properties
+	* @return null
+	*/
+	function __set($name, $value) {
+		if ($name == "freeze") {
+			$this->$name = $value;
+		}
+	}
 	
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
+	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
 		$return = new NotORM_Result($table, $this);
 		if ($where) {
+			$data = $where[0];
+			if (is_array($data) || $data instanceof Traversable) { // $db->$table($array) is a shortcut for $db->$table()->insert($array)
+				return $return->insert($data);
+			}
 			call_user_func_array(array($return, 'where'), $where);
 		}
 		return $return;

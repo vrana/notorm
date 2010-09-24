@@ -25,11 +25,40 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
+	protected function whereString() {
+		$return = "";
+		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$where = $this->where;
+		if (isset($this->limit) && $driver == "oci") {
+			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
+		}
+		if ($where) {
+			$return .= " WHERE (" . implode(") AND (", $where) . ")";
+		}
+		if ($this->order) {
+			$return .= " ORDER BY " . implode(", ", $this->order);
+		}
+		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
+			$return .= " LIMIT $this->limit";
+			if (isset($this->offset)) {
+				$return .= " OFFSET $this->offset";
+			}
+		}
+		return $return;
+	}
+	
+	protected function topString() {
+		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
+			return " TOP ($this->limit)"; //! offset is not supported
+		}
+		return "";
+	}
+	
 	/** Get SQL query
 	* @return string
 	*/
 	function __toString() {
-		$return = "SELECT ";
+		$return = "SELECT" . $this->topString() . " ";
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
 		} elseif ($this->accessed) {
@@ -37,20 +66,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} else {
 			$return .= "*";
 		}
-		$return .= " FROM $this->table";
-		if ($this->where) {
-			$return .= " WHERE (" . implode(") AND (", $this->where) . ")";
-		}
-		if ($this->order) {
-			$return .= " ORDER BY " . implode(", ", $this->order);
-		}
-		if (isset($this->limit)) {
-			$return .= " LIMIT $this->limit"; //! driver specific
-			if (isset($this->offset)) {
-				$return .= " OFFSET $this->offset";
-			}
-		}
-		return $return;
+		return "$return FROM $this->table" . $this->whereString();
 	}
 	
 	protected function query($query) {
@@ -60,6 +76,74 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return false;
 		}
 		return $return;
+	}
+	
+	protected function quote($val) {
+		return (!isset($val) ? "NULL"
+			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
+			: $this->notORM->connection->quote($val)
+		));
+	}
+	
+	/** Insert row in a table
+	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
+	* @return string auto increment value or false in case of an error
+	*/
+	function insert($data) {
+		if ($this->notORM->freeze) {
+			return false;
+		}
+		if ($data instanceof NotORM_Result) {
+			$data = (string) $data;
+		} elseif ($data instanceof Traversable) {
+			$data = iterator_to_array($data);
+		}
+		if (is_array($data)) {
+			//! driver specific empty $data
+			$data = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
+		}
+		// requiers empty $this->parameters
+		if (!$this->query("INSERT INTO $this->table $data")) {
+			return false;
+		}
+		return $this->notORM->connection->lastInsertId();
+	}
+	
+	/** Update all rows in result set
+	* @param array ($column => $value)
+	* @return int number of affected rows or false in case of an error
+	*/
+	function update(array $data) {
+		if ($this->notORM->freeze) {
+			return false;
+		}
+		if (!$data) {
+			return 0;
+		}
+		$values = array();
+		foreach ($data as $key => $val) {
+			// doesn't use binding because $this->parameters can be filled by ? or :name
+			$values[] = "$key = " . $this->quote($val);
+		}
+		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString());
+		if (!$return) {
+			return false;
+		}
+		return $return->rowCount();
+	}
+	
+	/** Delete all rows in result set
+	* @return int number of affected rows or false in case of an error
+	*/
+	function delete() {
+		if ($this->notORM->freeze) {
+			return false;
+		}
+		$return = $this->query("DELETE" . $this->topString() . " FROM $this->table" . $this->whereString());
+		if (!$return) {
+			return false;
+		}
+		return $return->rowCount();
 	}
 	
 	/** Set select clause, more calls appends to the end
