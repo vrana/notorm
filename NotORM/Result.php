@@ -152,7 +152,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return->rowCount();
 	}
 	
-	/** Set select clause, more calls appends to the end
+	/** Add select clause, more calls appends to the end
 	* @param string for example "column, MD5(column) AS column_md5"
 	* @return NotORM_Result fluent interface
 	*/
@@ -161,7 +161,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this;
 	}
 	
-	/** Set where condition, more calls appends with AND
+	/** Add where condition, more calls appends with AND
 	* @param string condition possibly containing ? or :name
 	* @param mixed array accepted by PDOStatement::execute or a scalar value
 	* @param mixed ...
@@ -204,7 +204,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this;
 	}
 	
-	/** Set order clause, more calls appends to the end
+	/** Add order clause, more calls appends to the end
 	* @param string for example "column1, column2 DESC"
 	* @return NotORM_Result fluent interface
 	*/
@@ -249,7 +249,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Execute built query
-	* @param bool
 	* @return null
 	*/
 	protected function execute() {
