@@ -323,7 +323,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	// ArrayAccess implementation
 	
 	function offsetExists($key) {
-		if ($this->single) {
+		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
 			return $clone->count();
@@ -335,7 +335,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	function offsetGet($key) {
-		if ($this->single) {
+		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
 			$return = $clone->fetch();
