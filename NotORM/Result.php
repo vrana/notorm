@@ -4,7 +4,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null;
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access;
 	
 	/** Create table result
@@ -34,6 +34,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		if ($where) {
 			$return .= " WHERE (" . implode(") AND (", $where) . ")";
+		}
+		if ($this->group) {
+			$return .= " GROUP BY $this->group";
+		}
+		if ($this->having) {
+			$return .= " HAVING $this->having";
 		}
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
@@ -224,28 +230,65 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this;
 	}
 	
-	/** Count number of rows
-	* @return int
+	/** Set group clause, more calls rewrite old values
+	* @param string
+	* @param string
+	* @return NotORM_Result fluent interface
 	*/
-	function count() {
-		$this->execute();
-		return count($this->data);
+	function group($group, $having = "") {
+		$this->group = $group;
+		$this->having = $having;
+		return $this;
 	}
 	
-	/** Execute aggregation functions
-	* @param string for example "COUNT(*), MAX(id)"
+	/** Execute aggregation function
 	* @param string
-	* @return array using PDO::FETCH_BOTH
+	* @return int
 	*/
-	function group($functions, $having = "") {
-		$query = "SELECT $functions FROM $this->table";
+	function aggregation($function) {
+		$query = "SELECT $function FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
-		if ($having != "") {
-			$query .= " HAVING $having";
+		foreach ($this->query($query)->fetch() as $val) {
+			return $val;
 		}
-		return $this->query($query)->fetch();
+	}
+	
+	/** Count number of rows
+	* @param string
+	* @return int
+	*/
+	function count($column = "") {
+		if (!$column) {
+			$this->execute();
+			return count($this->data);
+		}
+		return $this->aggregation("COUNT($column)");
+	}
+	
+	/** Return minimum value from a column
+	* @param string
+	* @return int
+	*/
+	function min($column) {
+		return $this->aggregation("MIN($column)");
+	}
+	
+	/** Return maximum value from a column
+	* @param string
+	* @return int
+	*/
+	function max($column) {
+		return $this->aggregation("MAX($column)");
+	}
+	
+	/** Return sum of values in a column
+	* @param string
+	* @return int
+	*/
+	function sum($column) {
+		return $this->aggregation("SUM($column)");
 	}
 	
 	/** Execute built query

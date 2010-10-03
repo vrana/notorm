@@ -4,10 +4,10 @@ Aggregation functions
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-list($count) = $software->application()->group("COUNT(*)");
+$count = $software->application()->count("*");
 echo "$count applications\n";
 foreach ($software->application() as $application) {
-	list($count) = $application->application_tag()->group("COUNT(*)");
+	$count = $application->application_tag()->count("*");
 	echo "$application[title]: $count tag(s)\n";
 }
 ?>

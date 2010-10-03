@@ -35,15 +35,12 @@ class NotORM_MultiResult extends NotORM_Result {
 		return parent::order($columns);
 	}
 	
-	function group($functions, $having = "") {
-		$query = "SELECT $functions, $this->column FROM $this->table"; // $this->column is last because result is used with list()
+	function aggregation($function) {
+		$query = "SELECT $function, $this->column FROM $this->table"; // $this->column is last because result is used with list()
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
 		$query .= " GROUP BY $this->column";
-		if ($having != "") {
-			$query .= " HAVING $having";
-		}
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
@@ -51,10 +48,9 @@ class NotORM_MultiResult extends NotORM_Result {
 				$aggregation[$row[$this->column]] = $row;
 			}
 		}
-		if (!isset($aggregation[$this->active])) {
-			return array();
+		foreach ($aggregation[$this->active] as $val) {
+			return $val;
 		}
-		return $aggregation[$this->active];
 	}
 	
 	protected function execute() {
