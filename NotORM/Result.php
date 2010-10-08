@@ -326,6 +326,19 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/** Fetch all rows as associative array
+	* @param string
+	* @param string
+	* @return array
+	*/
+	function fetchPairs($key, $value) {
+		$return = array();
+		foreach ($this as $row) {
+			$return[$row[$key]] = $row[$value];
+		}
+		return $return;
+	}
+	
 	protected function access($key) {
 		if (!isset($key)) {
 			$this->access = '';
