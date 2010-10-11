@@ -6,12 +6,12 @@
 * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
 */
 
-include dirname(__FILE__) . "/NotORM/Structure.php";
-include dirname(__FILE__) . "/NotORM/Cache.php";
-include dirname(__FILE__) . "/NotORM/Literal.php";
-include dirname(__FILE__) . "/NotORM/Result.php";
-include dirname(__FILE__) . "/NotORM/MultiResult.php";
-include dirname(__FILE__) . "/NotORM/Row.php";
+include_once dirname(__FILE__) . "/NotORM/Structure.php";
+include_once dirname(__FILE__) . "/NotORM/Cache.php";
+include_once dirname(__FILE__) . "/NotORM/Literal.php";
+include_once dirname(__FILE__) . "/NotORM/Result.php";
+include_once dirname(__FILE__) . "/NotORM/MultiResult.php";
+include_once dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
