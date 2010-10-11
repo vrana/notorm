@@ -4,7 +4,7 @@
 */
 class NotORM_Literal {
 	/** @var string */
-	public $value;
+	public $value = '';
 	
 	/** Create literal value
 	* @param string

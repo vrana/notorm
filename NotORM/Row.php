@@ -101,21 +101,37 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	
 	// ArrayAccess implementation
 	
+	/** Test if column exists
+	* @param string column name
+	* @return bool
+	*/
 	function offsetExists($key) {
 		$this->access($key);
 		return array_key_exists($key, $this->row);
 	}
 	
+	/** Get value of column
+	* @param string column name
+	* @return string
+	*/
 	function offsetGet($key) {
 		$this->access($key);
 		return $this->row[$key];
 	}
 	
+	/** Store value in column
+	* @param string column name
+	* @return null
+	*/
 	function offsetSet($key, $value) {
 		$this->row[$key] = $value;
 		$this->modified[$key] = $value;
 	}
 	
+	/** Remove column from data
+	* @param string column name
+	* @return null
+	*/
 	function offsetUnset($key) {
 		unset($this->row[$key]);
 		unset($this->modified[$key]);

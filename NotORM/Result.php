@@ -360,10 +360,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		reset($this->data);
 	}
 	
+	/** @return NotORM_Row */
 	function current() {
 		return current($this->data);
 	}
 	
+	/** @return string row ID */
 	function key() {
 		return key($this->data);
 	}
@@ -378,6 +380,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	// ArrayAccess implementation
 	
+	/** Test if row exists
+	* @param string row ID
+	* @return bool
+	*/
 	function offsetExists($key) {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
@@ -390,6 +396,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
+	/** Get specified row
+	* @param string row ID
+	* @return NotORM_Row or null if there is no such row
+	*/
 	function offsetGet($key) {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
@@ -405,11 +415,20 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
+	/** Mimic row
+	* @param string row ID
+	* @param NotORM_Row
+	* @return null
+	*/
 	function offsetSet($key, $value) {
 		$this->execute();
 		$this->data[$key] = $value;
 	}
 	
+	/** Remove row from result set
+	* @param string row ID
+	* @return null
+	*/
 	function offsetUnset($key) {
 		$this->execute();
 		unset($this->data[$key]);
