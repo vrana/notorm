@@ -187,18 +187,20 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif (is_null($parameters)) { // where("column", null)
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
-			$select = $parameters->select;
-			$parameters->select = array($this->notORM->structure->getPrimary($parameters->table)); // can also use clone
+			$clone = clone $parameters;
+			if (!$clone->select) {
+				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
+			}
 			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
-				$condition .= " IN ($parameters)";
+				$condition .= " IN ($clone)";
 			} else {
 				$in = array();
-				foreach ($parameters as $id => $row) {
-					$in[] = $this->notORM->connection->quote($id);
+				foreach ($clone as $row) {
+					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
+					$in[] = (count($row) == 1 ? "($val)" : $val);
 				}
 				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
 			}
-			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1))
