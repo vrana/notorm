@@ -198,11 +198,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 			$parameters->select = $select;
 		} elseif (!is_array($parameters)) { // where("column", "x")
-			$condition .= " = " . $this->notORM->connection->quote($parameters);
+			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1))
 			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this->notORM->connection, 'quote'), $parameters));
+				$in = implode(", ", array_map(array($this, 'quote'), $parameters));
 			}
 			$condition .= " IN ($in)";
 		}
