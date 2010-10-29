@@ -124,19 +124,21 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	}
 	
 	function getReferencingColumn($name, $table) {
-		$return = &$this->structure["referencing"][$name][$table];
-		if (!isset($return)) {
-			$return = $this->connection->query("
-				SELECT COLUMN_NAME
+		$name = strtolower($name);
+		$return = &$this->structure["referencing"][$table];
+		if (!isset($return[$name])) {
+			foreach ($this->connection->query("
+				SELECT TABLE_NAME, COLUMN_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
-				AND TABLE_NAME = " . $this->connection->quote($name) . "
 				AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
-				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) . "
-			")->fetchColumn(); //! may not reference primary key
+				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) //! may not reference primary key
+			) as $row) {
+				$return[strtolower($row[0])] = $row[1];
+			}
 		}
-		return $return;
+		return $return[$name];
 	}
 	
 	function getReferencingTable($name, $table) {
@@ -148,18 +150,20 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	}
 	
 	function getReferencedTable($name, $table) {
-		$return = &$this->structure["referenced"][$table][$name];
-		if (!isset($return)) {
-			$return = $this->connection->query("
-				SELECT REFERENCED_TABLE_NAME
+		$name = strtolower($name);
+		$return = &$this->structure["referenced"][$table];
+		if (!isset($return[$name])) {
+			foreach ($this->connection->query("
+				SELECT COLUMN_NAME, REFERENCED_TABLE_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND TABLE_NAME = " . $this->connection->quote($table) . "
-				AND COLUMN_NAME = " . $this->connection->quote($name) . "
-			")->fetchColumn();
+			") as $row) {
+				$return[strtolower($row[0])] = $row[1];
+			}
 		}
-		return $return;
+		return $return[$name];
 	}
 	
 }
