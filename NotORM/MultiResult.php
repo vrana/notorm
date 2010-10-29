@@ -37,7 +37,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function aggregation($function) {
-		$query = "SELECT $function, $this->column FROM $this->table"; // $this->column is last because result is used with list()
+		$query = "SELECT $function, $this->column FROM $this->table";
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
