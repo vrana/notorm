@@ -22,26 +22,28 @@ INSERT INTO tag (id, name) VALUES (23, 'JavaScript');
 CREATE TABLE application (
   id int NOT NULL,
   author_id int NOT NULL,
+  maintainer_id int,
   title varchar(50) NOT NULL,
   web varchar(100) NOT NULL,
   slogan varchar(100) NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT application_ibfk_1 FOREIGN KEY (author_id) REFERENCES author (id)
+  CONSTRAINT application_author FOREIGN KEY (author_id) REFERENCES author (id),
+  CONSTRAINT application_maintainer FOREIGN KEY (maintainer_id) REFERENCES author (id)
 );
 
 CREATE INDEX application_title ON application (title);
 
-INSERT INTO application (id, author_id, title, web, slogan) VALUES (1, 11, 'Adminer', 'http://www.adminer.org/', 'Database management in single PHP file');
-INSERT INTO application (id, author_id, title, web, slogan) VALUES (2, 11, 'JUSH', 'http://jush.sourceforge.net/', 'JavaScript Syntax Highlighter');
-INSERT INTO application (id, author_id, title, web, slogan) VALUES (3, 12, 'Nette', 'http://nettephp.com/', 'Nette Framework for PHP 5');
-INSERT INTO application (id, author_id, title, web, slogan) VALUES (4, 12, 'Dibi', 'http://dibiphp.com/', 'Database Abstraction Library for PHP 5');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (1, 11, 11, 'Adminer', 'http://www.adminer.org/', 'Database management in single PHP file');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (2, 11, NULL, 'JUSH', 'http://jush.sourceforge.net/', 'JavaScript Syntax Highlighter');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (3, 12, 12, 'Nette', 'http://nettephp.com/', 'Nette Framework for PHP 5');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (4, 12, 12, 'Dibi', 'http://dibiphp.com/', 'Database Abstraction Library for PHP 5');
 
 CREATE TABLE application_tag (
   application_id int NOT NULL,
   tag_id int NOT NULL,
-  PRIMARY KEY (application_id,tag_id),
-  CONSTRAINT application_tag_ibfk_3 FOREIGN KEY (tag_id) REFERENCES tag (id),
-  CONSTRAINT application_tag_ibfk_2 FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE
+  PRIMARY KEY (application_id, tag_id),
+  CONSTRAINT application_tag_tag FOREIGN KEY (tag_id) REFERENCES tag (id),
+  CONSTRAINT application_tag_application FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE
 );
 
 INSERT INTO application_tag (application_id, tag_id) VALUES (1, 21);
