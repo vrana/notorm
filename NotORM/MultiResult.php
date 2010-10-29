@@ -55,7 +55,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	protected function execute() {
-		if (!isset($this->data)) {
+		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
 				$limit = $this->limit;
