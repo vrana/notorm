@@ -235,15 +235,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @param string
 	* @return NotORM_Result fluent interface
 	*/
-	function group($group, $having = "") {
-		$this->group = $group;
+	function group($columns, $having = "") {
+		$this->group = $columns;
 		$this->having = $having;
 		return $this;
 	}
 	
 	/** Execute aggregation function
 	* @param string
-	* @return int
+	* @return string
 	*/
 	function aggregation($function) {
 		$query = "SELECT $function FROM $this->table";
@@ -333,6 +333,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function fetchPairs($key, $value) {
 		$return = array();
+		// no $clone->select = array($key, $value) to allow efficient caching with repetitive calls with different parameters
 		foreach ($this as $row) {
 			$return[$row[$key]] = $row[$value];
 		}
