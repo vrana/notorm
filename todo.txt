@@ -1,3 +1,4 @@
 escape table names
 multi-column primary key
+Discovery for other drivers
 defer NotORM_Row creation to save memory
