@@ -163,6 +163,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function select($columns) {
+		$this->data = null;
 		$this->select[] = $columns;
 		return $this;
 	}
@@ -174,6 +175,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
+		$this->data = null;
 		$this->conditions[] = $condition;
 		$args = func_num_args();
 		if ($args != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
@@ -215,6 +217,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function order($columns) {
+		$this->data = null;
 		$this->order[] = $columns;
 		return $this;
 	}
@@ -225,6 +228,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function limit($limit, $offset = null) {
+		$this->data = null;
 		$this->limit = $limit;
 		$this->offset = $offset;
 		return $this;
@@ -236,6 +240,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function group($columns, $having = "") {
+		$this->data = null;
 		$this->group = $columns;
 		$this->having = $having;
 		return $this;
@@ -295,7 +300,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return null
 	*/
 	protected function execute() {
-		if (!isset($this->rows)) {
+		if (!isset($this->data)) {
 			if ($this->notORM->cache && !is_string($this->accessed)) {
 				$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 				$this->access = $this->accessed;
