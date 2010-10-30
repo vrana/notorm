@@ -77,12 +77,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$where = $this->whereString();
 		$join = array();
-		preg_match_all('(\\b(?!' . preg_quote($this->table) . ')(\\w+)\\.)i', implode(",", $this->select) . $where, $matches);
+		preg_match_all('~\\b(\\w+)\\.~i', implode(",", $this->select) . $where, $matches);
 		foreach ($matches[1] as $name) {
-			$table = $this->notORM->structure->getReferencedTable($name, $this->table);
-			$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
-			$primary = $this->notORM->structure->getPrimary($table);
-			$join[$name] = " LEFT JOIN $table AS $name ON $this->table.$column = $name.$primary";
+			if ($name != $this->table) {
+				$table = $this->notORM->structure->getReferencedTable($name, $this->table);
+				$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
+				$primary = $this->notORM->structure->getPrimary($table);
+				$join[$name] = " LEFT JOIN $table AS $name ON $this->table.$column = $name.$primary";
+			}
 		}
 		return "$return FROM $this->table" . implode($join) . $where;
 	}
