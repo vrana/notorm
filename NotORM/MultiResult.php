@@ -24,7 +24,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function update(array $data) {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->result->notORM->connection->quote($this->active);
+		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
 		$return = parent::update($data);
 		$this->where = $where;
 		return $return;
@@ -32,7 +32,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function delete() {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->result->notORM->connection->quote($this->active);
+		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
 		$return = parent::delete();
 		$this->where = $where;
 		return $return;
