@@ -12,6 +12,7 @@ foreach ($application as $key => $val) {
 --EXPECTF--
 id: 1
 author_id: 11
+maintainer_id: 11
 title: Adminer
 web: http://www.adminer.org/
 slogan: Database management in single PHP file
