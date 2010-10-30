@@ -25,7 +25,7 @@ $applications->fetch();
 echo "$applications\n"; // next time, get only title, author_id and slogan
 ?>
 --EXPECTF--
-SELECT * FROM application
-SELECT id, title, author_id FROM application
-SELECT * FROM application
-SELECT id, title, author_id, slogan FROM application
+SELECT application.* FROM application
+SELECT application.id, application.title, application.author_id FROM application
+SELECT application.* FROM application
+SELECT application.id, application.title, application.author_id, application.slogan FROM application

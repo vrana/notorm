@@ -71,11 +71,20 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
 		} elseif ($this->accessed) {
-			$return .= implode(", ", array_keys($this->accessed));
+			$return .= "$this->table." . implode(", $this->table.", array_keys($this->accessed));
 		} else {
-			$return .= "*";
+			$return .= "$this->table.*";
 		}
-		return "$return FROM $this->table" . $this->whereString();
+		$where = $this->whereString();
+		$join = array();
+		preg_match_all('(\\b(?!' . preg_quote($this->table) . ')(\\w+)\\.)i', implode(",", $this->select) . $where, $matches);
+		foreach ($matches[1] as $name) {
+			$table = $this->notORM->structure->getReferencedTable($name, $this->table);
+			$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
+			$primary = $this->notORM->structure->getPrimary($table);
+			$join[$name] = " LEFT JOIN $table AS $name ON $this->table.$column = $name.$primary";
+		}
+		return "$return FROM $this->table" . implode($join) . $where;
 	}
 	
 	protected function query($query) {
@@ -140,6 +149,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			// doesn't use binding because $this->parameters can be filled by ? or :name
 			$values[] = "$key = " . $this->quote($val);
 		}
+		// joins in UPDATE are supported only in MySQL
 		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString());
 		if (!$return) {
 			return false;
