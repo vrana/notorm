@@ -5,8 +5,8 @@
 class NotORM_MultiResult extends NotORM_Result {
 	private $result, $column, $active;
 	
-	/** @access protected */
-	function __construct($table, NotORM_Result $result, $column, $active) { // not protected because it is called from Row
+	/** @access protected must be public because it is called from Row */
+	function __construct($table, NotORM_Result $result, $column, $active) {
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
@@ -40,7 +40,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function order($columns) {
 		if (!$this->order) { // improve index utilization
-			$this->order[] = $this->column;
+			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
 		return parent::order($columns);
 	}
