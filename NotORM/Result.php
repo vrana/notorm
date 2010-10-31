@@ -68,6 +68,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function __toString() {
 		$return = "SELECT" . $this->topString() . " ";
+		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
+			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
+			$this->access = $this->accessed;
+		}
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
 		} elseif ($this->accessed) {
@@ -318,10 +322,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
-			if ($this->notORM->cache && !is_string($this->accessed)) {
-				$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
-				$this->access = $this->accessed;
-			}
 			$result = $this->query($this->__toString());
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
