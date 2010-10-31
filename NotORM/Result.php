@@ -216,7 +216,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$in = array();
 				foreach ($clone as $row) {
 					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
-					$in[] = (count($row) == 1 ? "($val)" : $val);
+					$in[] = (count($row) == 1 ? $val : "($val)");
 				}
 				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
 			}
