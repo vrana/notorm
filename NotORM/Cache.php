@@ -54,8 +54,10 @@ class NotORM_Cache_File implements NotORM_Cache {
 	}
 	
 	function save($key, $data) {
-		$this->data[$key] = $data;
-		file_put_contents($this->filename, serialize($this->data), LOCK_EX);
+		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
+			$this->data[$key] = $data;
+			file_put_contents($this->filename, serialize($this->data), LOCK_EX);
+		}
 	}
 	
 }
@@ -78,8 +80,10 @@ class NotORM_Cache_Include implements NotORM_Cache {
 	}
 	
 	function save($key, $data) {
-		$this->data[$key] = $data;
-		file_put_contents($this->filename, '<?php return ' . var_export($this->data, true) . ';', LOCK_EX);
+		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
+			$this->data[$key] = $data;
+			file_put_contents($this->filename, '<?php return ' . var_export($this->data, true) . ';', LOCK_EX);
+		}
 	}
 	
 }
