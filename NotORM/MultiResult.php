@@ -65,14 +65,14 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	protected function execute() {
 		if (!isset($this->rows)) {
+			$limit = $this->limit;
+			if ($this->limit) {
+				$this->limit = null;
+			}
+			parent::execute();
+			$this->limit = $limit;
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
-				$limit = $this->limit;
-				if ($this->limit) {
-					$this->limit = null;
-				}
-				parent::execute();
-				$this->limit = $limit;
 				$referencing = array();
 				$offset = array();
 				foreach ($this->rows as $key => $row) {
