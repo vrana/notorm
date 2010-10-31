@@ -60,6 +60,30 @@ class NotORM_Cache_File implements NotORM_Cache {
 	
 }
 
+/** Cache using PHP include
+*/
+class NotORM_Cache_Include implements NotORM_Cache {
+	private $filename, $data = array();
+	
+	function __construct($filename) {
+		$this->filename = $filename;
+		$this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path
+	}
+	
+	function load($key) {
+		if (!isset($this->data[$key])) {
+			return null;
+		}
+		return $this->data[$key];
+	}
+	
+	function save($key, $data) {
+		$this->data[$key] = $data;
+		file_put_contents($this->filename, '<?php return ' . var_export($this->data, true) . ';', LOCK_EX);
+	}
+	
+}
+
 /** Cache storing data to the "notorm" table in database
 */
 class NotORM_Cache_Database implements NotORM_Cache {
