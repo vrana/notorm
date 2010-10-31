@@ -79,7 +79,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$join = array();
 		preg_match_all('~\\b(\\w+)\\.~i', implode(",", $this->select) . $where, $matches);
 		foreach ($matches[1] as $name) {
-			if ($name != $this->table) {
+			if ($name != $this->table) { // case-sensitive
 				$table = $this->notORM->structure->getReferencedTable($name, $this->table);
 				$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
 				$primary = $this->notORM->structure->getPrimary($table);
