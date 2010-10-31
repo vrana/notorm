@@ -5,7 +5,7 @@
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
-	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access;
+	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
 	/** Create table result
 	* @param string
@@ -380,25 +380,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	function rewind() {
 		$this->execute();
-		reset($this->data);
+		$this->keys = array_keys($this->data);
+		reset($this->keys);
 	}
 	
 	/** @return NotORM_Row */
 	function current() {
-		return current($this->data);
+		return $this->data[current($this->keys)];
 	}
 	
 	/** @return string row ID */
 	function key() {
-		return key($this->data);
+		return current($this->keys);
 	}
 	
 	function next() {
-		next($this->data);
+		next($this->keys);
 	}
 	
 	function valid() {
-		return $this->current();
+		return current($this->keys) !== false;
 	}
 	
 	// ArrayAccess implementation
