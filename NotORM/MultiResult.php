@@ -38,6 +38,13 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $return;
 	}
 	
+	function select($columns) {
+		if (!$this->select) {
+			$this->select[] = "$this->table.$this->column";
+		}
+		return parent::select($columns);
+	}
+	
 	function order($columns) {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
