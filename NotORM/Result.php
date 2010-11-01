@@ -68,20 +68,25 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function __toString() {
 		$return = "SELECT" . $this->topString() . " ";
+		$join = array();
+		foreach (array(
+			"where" => implode(",", $this->where),
+			"rest" => implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order)
+		) as $key => $val) {
+			preg_match_all('~\\b(\\w+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
+			foreach ($matches as $match) {
+				$name = $match[1];
+				if ($name != $this->table) { // case-sensitive
+					$table = $this->notORM->structure->getReferencedTable($name, $this->table);
+					$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
+					$primary = $this->notORM->structure->getPrimary($table);
+					$join[$name] = " " . (!isset($join[$name]) && $key == "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
+				}
+			}
+		}
 		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
-		}
-		$where = $this->whereString();
-		$join = array();
-		preg_match_all('~\\b(\\w+)\\.~i', implode(",", $this->select) . $where, $matches);
-		foreach ($matches[1] as $name) {
-			if ($name != $this->table) { // case-sensitive
-				$table = $this->notORM->structure->getReferencedTable($name, $this->table);
-				$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
-				$primary = $this->notORM->structure->getPrimary($table);
-				$join[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
-			}
 		}
 		if ($this->select) {
 			$return .= implode(", ", $this->select);
@@ -90,7 +95,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} else {
 			$return .= ($join ? "$this->table." : "") . "*";
 		}
-		return "$return FROM $this->table" . implode($join) . $where;
+		return "$return FROM $this->table" . implode($join) . $this->whereString();
 	}
 	
 	protected function query($query) {
