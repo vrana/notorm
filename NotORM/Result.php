@@ -72,13 +72,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
 		}
-		if ($this->select) {
-			$return .= implode(", ", $this->select);
-		} elseif ($this->accessed) {
-			$return .= "$this->table." . implode(", $this->table.", array_keys($this->accessed));
-		} else {
-			$return .= "$this->table.*";
-		}
 		$where = $this->whereString();
 		$join = array();
 		preg_match_all('~\\b(\\w+)\\.~i', implode(",", $this->select) . $where, $matches);
@@ -87,8 +80,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$table = $this->notORM->structure->getReferencedTable($name, $this->table);
 				$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
 				$primary = $this->notORM->structure->getPrimary($table);
-				$join[$name] = " LEFT JOIN $table AS $name ON $this->table.$column = $name.$primary";
+				$join[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
 			}
+		}
+		if ($this->select) {
+			$return .= implode(", ", $this->select);
+		} elseif ($this->accessed) {
+			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
+		} else {
+			$return .= ($join ? "$this->table." : "") . "*";
 		}
 		return "$return FROM $this->table" . implode($join) . $where;
 	}
