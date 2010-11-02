@@ -43,7 +43,7 @@ class NotORM_Cache_File implements NotORM_Cache {
 	
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = unserialize(@file_get_contents($filename)); // @ - file can not exist
+		$this->data = unserialize(@file_get_contents($filename)); // @ - file may not exist
 	}
 	
 	function load($key) {
@@ -69,7 +69,10 @@ class NotORM_Cache_Include implements NotORM_Cache {
 	
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path
+		$this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path //! silently falls with syntax error and fails with unreadable file
+		if (!is_array($this->data)) { // empty file returns 1
+			$this->data = array();
+		}
 	}
 	
 	function load($key) {
