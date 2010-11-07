@@ -199,11 +199,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
+		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
+			foreach ($condition as $key => $val) {
+				$this->where($key, $val);
+			}
+			return $this;
+		}
 		$this->__destruct();
 		$this->conditions[] = $condition;
 		$args = func_num_args();
-		if ($args != 2 || strpbrk($condition, "?:")) { // where("column = ? OR column = ?", array(1, 2))
-			if ($args != 2 || !is_array($parameters)) { // where("column = ?", 1)
+		if ($args != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
+			if ($args != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
 				$parameters = func_get_args();
 				array_shift($parameters);
 			}
@@ -227,7 +233,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
-		} else { // where("column", array(1))
+		} else { // where("column", array(1, 2))
 			$in = "NULL";
 			if ($parameters) {
 				$in = implode(", ", array_map(array($this, 'quote'), $parameters));
