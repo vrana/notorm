@@ -87,6 +87,8 @@ class NotORM_MultiResult extends NotORM_Result {
 					$skip = &$offset[$row[$this->column]];
 					if (!isset($limit) || (count($ref) < $limit && $skip >= $this->offset)) {
 						$ref[$key] = $row;
+					} else {
+						unset($this->rows[$key]);
 					}
 					$skip++;
 					unset($ref, $skip);
