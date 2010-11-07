@@ -18,22 +18,8 @@ abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
-	/** Enable debuging queries
-	* @var mixed true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
-	* @access public write-only
-	*/
 	protected $debug = false;
-	
-	/** Disable persistence
-	* @var bool
-	* @access public write-only
-	*/
 	protected $freeze = false;
-	
-	/** Class used for created objects
-	* @var string
-	* @access public write-only
-	*/
 	protected $rowClass = 'NotORM_Row';
 	
 	abstract protected function __construct();
@@ -44,6 +30,9 @@ abstract class NotORM_Abstract {
 }
 
 /** Database representation
+* @property-write mixed $debug = false Enable debuging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
+* @property-write bool $freeze = false Disable persistence
+* @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 */
 class NotORM extends NotORM_Abstract {
 	
