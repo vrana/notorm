@@ -5,7 +5,7 @@ Insert, update, delete
 include_once dirname(__FILE__) . "/connect.inc.php";
 
 $id = 5; // auto_increment is disabled in demo
-$software->application(array(
+$software->application()->insert(array(
 	"id" => $id,
 	"author_id" => $software->author[12],
 	"title" => new NotORM_Literal("'Texy'"),

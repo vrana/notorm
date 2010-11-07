@@ -75,10 +75,6 @@ class NotORM extends NotORM_Abstract {
 	function __call($table, array $where) {
 		$return = new NotORM_Result($table, $this);
 		if ($where) {
-			$data = $where[0];
-			if (is_array($data) || $data instanceof Traversable) { // $db->$table($array) is a shortcut for $db->$table()->insert($array)
-				return $return->insert($data);
-			}
 			call_user_func_array(array($return, 'where'), $where);
 		}
 		return $return;
