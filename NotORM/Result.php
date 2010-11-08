@@ -334,16 +334,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected function execute() {
 		if (!isset($this->rows)) {
 			$result = $this->query($this->__toString());
-			$result->setFetchMode(PDO::FETCH_ASSOC);
 			$this->rows = array();
-			foreach ($result as $key => $row) {
-				if (isset($row[$this->primary])) {
-					$key = $row[$this->primary];
-					if (!is_string($this->access)) {
-						$this->access[$this->primary] = true;
+			if ($result) {
+				$result->setFetchMode(PDO::FETCH_ASSOC);
+				foreach ($result as $key => $row) {
+					if (isset($row[$this->primary])) {
+						$key = $row[$this->primary];
+						if (!is_string($this->access)) {
+							$this->access[$this->primary] = true;
+						}
 					}
+					$this->rows[$key] = new $this->notORM->rowClass($row, $this);
 				}
-				$this->rows[$key] = new $this->notORM->rowClass($row, $this);
 			}
 			$this->data = $this->rows;
 		}
