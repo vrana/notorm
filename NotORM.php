@@ -6,6 +6,7 @@
 * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
 */
 
+include_once dirname(__FILE__) . "/NotORM/Storage.php";
 include_once dirname(__FILE__) . "/NotORM/Structure.php";
 include_once dirname(__FILE__) . "/NotORM/Cache.php";
 include_once dirname(__FILE__) . "/NotORM/Literal.php";
@@ -37,11 +38,14 @@ abstract class NotORM_Abstract {
 class NotORM extends NotORM_Abstract {
 	
 	/** Create database representation
-	* @param PDO
+	* @param NotORM_Storage or PDO for BC
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
 	* @param NotORM_Cache or null for no cache
 	*/
-	function __construct(PDO $connection, NotORM_Structure $structure = null, NotORM_Cache $cache = null) {
+	function __construct($connection, NotORM_Structure $structure = null, NotORM_Cache $cache = null) {
+		if (!$connection instanceof NotORM_Storage) {
+			$connection = new NotORM_Storage_PDO($connection);
+		}
 		$this->connection = $connection;
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;
