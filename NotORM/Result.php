@@ -30,7 +30,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function whereString() {
 		$return = "";
-		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$driver = $this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME);
 		$where = $this->where;
 		if (isset($this->limit) && $driver == "oci") {
 			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
@@ -57,7 +57,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function topString() {
-		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
+		if (isset($this->limit) && $this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
@@ -106,7 +106,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				fwrite(STDERR, "-- $query;\n");
 			}
 		}
-		$return = $this->notORM->connection->prepare($query);
+		$return = $this->notORM->storage->prepare($query);
 		if (!$return->execute($this->parameters)) {
 			return false;
 		}
@@ -116,13 +116,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected function quote($val) {
 		return (!isset($val) ? "NULL"
 			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
-			: $this->notORM->connection->quote($val)
+			: $this->notORM->storage->quote($val)
 		));
 	}
 	
 	/** Insert row in a table
 	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
-	* @return string auto increment value or false in case of an error
+	* @return string assigned ID or false in case of an error
 	*/
 	function insert($data) {
 		if ($this->notORM->freeze) {
@@ -141,7 +141,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!$this->query("INSERT INTO $this->table $data")) {
 			return false;
 		}
-		return $this->notORM->connection->lastInsertId();
+		return $this->notORM->storage->lastInsertId();
 	}
 	
 	/** Update all rows in result set
@@ -221,7 +221,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!$clone->select) {
 				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
 			}
-			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
+			if ($this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
 				$condition .= " IN ($clone)";
 			} else {
 				$in = array();
