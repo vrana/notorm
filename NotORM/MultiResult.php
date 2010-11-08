@@ -61,7 +61,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
-			foreach ($this->query($query, $this->parameters) as $row) {
+			foreach ($this->notORM->storage->query($query, $this->parameters) as $row) {
 				$aggregation[$row[$this->column]] = $row;
 			}
 		}

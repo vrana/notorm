@@ -98,28 +98,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return "$return FROM $this->table" . implode($join) . $this->whereString();
 	}
 	
-	protected function query($query) {
-		if ($this->notORM->debug) {
-			if (is_callable($this->notORM->debug)) {
-				call_user_func($this->notORM->debug, $query, $this->parameters);
-			} else {
-				fwrite(STDERR, "-- $query;\n");
-			}
-		}
-		$return = $this->notORM->storage->prepare($query);
-		if (!$return->execute($this->parameters)) {
-			return false;
-		}
-		return $return;
-	}
-	
-	protected function quote($val) {
-		return (!isset($val) ? "NULL"
-			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
-			: $this->notORM->storage->quote($val)
-		));
-	}
-	
 	/** Insert row in a table
 	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
 	* @return string assigned ID or false in case of an error
@@ -128,20 +106,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		if ($data instanceof NotORM_Result) {
-			$data = (string) $data;
-		} elseif ($data instanceof Traversable) {
-			$data = iterator_to_array($data);
-		}
-		if (is_array($data)) {
-			//! driver specific empty $data
-			$data = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
-		}
-		// requiers empty $this->parameters
-		if (!$this->query("INSERT INTO $this->table $data")) {
-			return false;
-		}
-		return $this->notORM->storage->lastInsertId();
+		return $this->notORM->storage->insert($this->table, $data);
 	}
 	
 	/** Update all rows in result set
@@ -155,17 +120,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!$data) {
 			return 0;
 		}
-		$values = array();
-		foreach ($data as $key => $val) {
-			// doesn't use binding because $this->parameters can be filled by ? or :name
-			$values[] = "$key = " . $this->quote($val);
-		}
-		// joins in UPDATE are supported only in MySQL
-		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString());
-		if (!$return) {
-			return false;
-		}
-		return $return->rowCount();
+		return $this->notORM->storage->update($this->table, $data, $this->where, $this->parameters); //! may use primary key to respect ORDER and LIMIT
 	}
 	
 	/** Delete all rows in result set
@@ -175,11 +130,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		$return = $this->query("DELETE" . $this->topString() . " FROM $this->table" . $this->whereString());
-		if (!$return) {
-			return false;
-		}
-		return $return->rowCount();
+		return $this->notORM->storage->delete($this->table, $this->where, $this->parameters);
 	}
 	
 	/** Add select clause, more calls appends to the end
@@ -226,17 +177,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			} else {
 				$in = array();
 				foreach ($clone as $row) {
-					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
+					$val = implode(", ", array_map(array($this->notORM->storage, 'quote'), iterator_to_array($row)));
 					$in[] = (count($row) == 1 ? $val : "($val)");
 				}
 				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
 			}
 		} elseif (!is_array($parameters)) { // where("column", "x")
-			$condition .= " = " . $this->quote($parameters);
+			$condition .= " = " . $this->notORM->storage->quote($parameters);
 		} else { // where("column", array(1, 2))
 			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this, 'quote'), $parameters));
+				$in = implode(", ", array_map(array($this->notORM->storage, 'quote'), $parameters));
 			}
 			$condition .= " IN ($in)";
 		}
@@ -287,8 +238,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
-		foreach ($this->query($query)->fetch() as $val) {
-			return $val;
+		foreach ($this->notORM->storage->query($query, $this->parameters) as $row) {
+			foreach ($row as $val) {
+				return $val;
+			}
 		}
 	}
 	
@@ -333,10 +286,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
-			$result = $this->query($this->__toString());
+			$result = $this->notORM->storage->query($this->__toString(), $this->parameters);
 			$this->rows = array();
 			if ($result) {
-				$result->setFetchMode(PDO::FETCH_ASSOC);
 				foreach ($result as $key => $row) {
 					if (isset($row[$this->primary])) {
 						$key = $row[$this->primary];

@@ -19,7 +19,6 @@ abstract class NotORM_Abstract {
 	protected $storage, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
-	protected $debug = false;
 	protected $freeze = false;
 	protected $rowClass = 'NotORM_Row';
 	
@@ -31,7 +30,6 @@ abstract class NotORM_Abstract {
 }
 
 /** Database representation
-* @property-write mixed $debug = false Enable debuging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
 * @property-write bool $freeze = false Disable persistence
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 */
@@ -66,7 +64,7 @@ class NotORM extends NotORM_Abstract {
 	* @return null
 	*/
 	function __set($name, $value) {
-		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {
+		if ($name == "freeze" || $name == "rowClass") {
 			$this->$name = $value;
 		}
 	}
