@@ -4,7 +4,7 @@
 */
 class NotORM_Literal {
 	/** @var string */
-	public $value = '';
+	protected $value = '';
 	
 	/** Create literal value
 	* @param string
@@ -12,4 +12,12 @@ class NotORM_Literal {
 	function __construct($value) {
 		$this->value = $value;
 	}
+	
+	/** Get literal value
+	* @return string
+	*/
+	function __toString() {
+		return $this->value;
+	}
+	
 }

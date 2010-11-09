@@ -28,49 +28,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->rows = null;
 	}
 	
-	protected function whereString() {
-		$return = "";
-		$driver = $this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME);
-		$where = $this->where;
-		if (isset($this->limit) && $driver == "oci") {
-			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
-		}
-		if ($where) {
-			$return .= " WHERE (" . implode(") AND (", $where) . ")";
-		}
-		if ($this->group) {
-			$return .= " GROUP BY $this->group";
-		}
-		if ($this->having) {
-			$return .= " HAVING $this->having";
-		}
-		if ($this->order) {
-			$return .= " ORDER BY " . implode(", ", $this->order);
-		}
-		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
-			$return .= " LIMIT $this->limit";
-			if (isset($this->offset)) {
-				$return .= " OFFSET $this->offset";
-			}
-		}
-		return $return;
-	}
-	
-	protected function topString() {
-		if (isset($this->limit) && $this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
-			return " TOP ($this->limit)"; //! offset is not supported
-		}
-		return "";
-	}
-	
 	/** Get SQL query
 	* @return string
 	*/
 	function __toString() {
-		$return = "SELECT" . $this->topString() . " ";
 		$join = array();
 		foreach (array(
-			"where" => implode(",", $this->where),
+			"where" => implode(",", array_map('reset', $this->where)),
 			"rest" => implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order)
 		) as $key => $val) {
 			preg_match_all('~\\b(\\w+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
@@ -88,14 +52,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
 		}
+		$prefix = ($join ? "$this->table." : "");
+		$columns = "$prefix*";
 		if ($this->select) {
-			$return .= implode(", ", $this->select);
+			$columns = implode(", ", $this->select);
 		} elseif ($this->accessed) {
-			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
-		} else {
-			$return .= ($join ? "$this->table." : "") . "*";
+			$columns = $prefix . implode(", $prefix", array_keys($this->accessed));
 		}
-		return "$return FROM $this->table" . implode($join) . $this->whereString();
+		return $this->notORM->storage->select($columns, $this->table . implode($join), $this->where, $this->group, $this->having, $this->order, $this->limit, $this->offset);
 	}
 	
 	/** Insert row in a table
@@ -120,7 +84,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!$data) {
 			return 0;
 		}
-		return $this->notORM->storage->update($this->table, $data, $this->where, $this->parameters); //! may use primary key to respect ORDER and LIMIT
+		return $this->notORM->storage->update($this->table, $data, $this->where, $this->parameters, $this->order, $this->limit, $this->offset); // HAVING is not supported
 	}
 	
 	/** Delete all rows in result set
@@ -130,7 +94,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		return $this->notORM->storage->delete($this->table, $this->where, $this->parameters);
+		return $this->notORM->storage->delete($this->table, $this->where, $this->parameters, $this->order, $this->limit, $this->offset);
 	}
 	
 	/** Add select clause, more calls appends to the end
@@ -158,6 +122,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$this->__destruct();
 		$this->conditions[] = $condition;
+		$where = array($condition, $parameters);
 		$args = func_num_args();
 		if ($args != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
 			if ($args != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
@@ -165,33 +130,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				array_shift($parameters);
 			}
 			$this->parameters = array_merge($this->parameters, $parameters);
-		} elseif (is_null($parameters)) { // where("column", null)
-			$condition .= " IS NULL";
+			unset($where[1]);
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$clone = clone $parameters;
 			if (!$clone->select) {
 				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
 			}
-			if ($this->notORM->storage->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
-				$condition .= " IN ($clone)";
-			} else {
-				$in = array();
-				foreach ($clone as $row) {
-					$val = implode(", ", array_map(array($this->notORM->storage, 'quote'), iterator_to_array($row)));
-					$in[] = (count($row) == 1 ? $val : "($val)");
-				}
-				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
-			}
-		} elseif (!is_array($parameters)) { // where("column", "x")
-			$condition .= " = " . $this->notORM->storage->quote($parameters);
-		} else { // where("column", array(1, 2))
-			$in = "NULL";
-			if ($parameters) {
-				$in = implode(", ", array_map(array($this->notORM->storage, 'quote'), $parameters));
-			}
-			$condition .= " IN ($in)";
+			$where[1] = $clone;
 		}
-		$this->where[] = $condition;
+		$this->where[] = $where;
 		return $this;
 	}
 	
@@ -234,10 +181,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return string
 	*/
 	function aggregation($function) {
-		$query = "SELECT $function FROM $this->table";
-		if ($this->where) {
-			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
-		}
+		$query = $this->notORM->storage->select($function, $this->table, $this->where);
 		foreach ($this->notORM->storage->query($query, $this->parameters) as $row) {
 			foreach ($row as $val) {
 				return $val;

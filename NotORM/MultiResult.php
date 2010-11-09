@@ -24,7 +24,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function update(array $data) {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->notORM->storage->quote($this->active);
+		$this->where[0] = array($this->column, $this->active);
 		$return = parent::update($data);
 		$this->where = $where;
 		return $return;
@@ -32,7 +32,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function delete() {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->notORM->storage->quote($this->active);
+		$this->where[0] = array($this->column, $this->active);
 		$return = parent::delete();
 		$this->where = $where;
 		return $return;
@@ -53,21 +53,19 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function aggregation($function) {
-		$query = "SELECT $function, $this->column FROM $this->table";
-		if ($this->where) {
-			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
-		}
-		$query .= " GROUP BY $this->column";
+		$query = $this->notORM->storage->select("$this->column, $function", $this->table, $this->where, $this->column);
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
 			foreach ($this->notORM->storage->query($query, $this->parameters) as $row) {
-				$aggregation[$row[$this->column]] = $row;
+				list($column, $value) = array_values($row);
+				$aggregation[$column] = $value;
 			}
 		}
-		foreach ($aggregation[$this->active] as $val) {
-			return $val;
+		if (!isset($aggregation[$this->active])) {
+			return null;
 		}
+		return $aggregation[$this->active];
 	}
 	
 	protected function execute() {
