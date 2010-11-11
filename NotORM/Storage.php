@@ -167,7 +167,7 @@ class NotORM_Storage_PDO implements NotORM_Storage {
 	}
 	
 	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null) {
-		return "SELECT $columns FROM $table" . $this->whereString($where, $group, $having, $order, $limit, $offset);
+		return "SELECT" . $this->topString($limit) . " $columns FROM $table" . $this->whereString($where, $group, $having, $order, $limit, $offset);
 	}
 	
 	function insert($table, $data) {
