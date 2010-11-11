@@ -56,6 +56,8 @@ interface NotORM_Storage {
 	
 }
 
+
+
 /** Storage using PDO
 */
 class NotORM_Storage_PDO implements NotORM_Storage {
@@ -206,6 +208,56 @@ class NotORM_Storage_PDO implements NotORM_Storage {
 			return false;
 		}
 		return $return->rowCount();
+	}
+	
+}
+
+
+
+/** Query cache with automatic invalidation
+*/
+class NotORM_Storage_PDO_Cache extends NotORM_Storage_PDO {
+	protected $cache;
+	protected $queries = array();
+	
+	function __construct(PDO $pdo, $debug = false, NotORM_Cache $cache) {
+		$this->cache = $cache;
+		$this->queries = $cache->load("queries");
+		parent::__construct($pdo, $debug);
+	}
+	
+	function __destruct() {
+		$this->cache->save("queries", $this->queries);
+	}
+	
+	function query($query, array $parameters = array()) {
+		if (preg_match('~^SELECT\\s.+?\\sFROM\\s+(\\S+)~i', $query, $match)) { //! simplification //! no invalidation for joined tables
+			$table = $match[1];
+			$return = &$this->queries[$table][$query][serialize($parameters)];
+			if (!isset($return)) {
+				$return = parent::query($query, $parameters);
+				if ($return instanceof Traversable) {
+					$return = iterator_to_array($return);
+				}
+			}
+			return $return;
+		}
+		return parent::query($query, $parameters);
+	}
+	
+	function insert($table, $data) {
+		unset($this->queries[$table]);
+		return parent::insert($table, $data);
+	}
+	
+	function update($table, array $data, array $where, array $parameters = array(), $order = "", $limit = null, $offset = null) {
+		unset($this->queries[$table]);
+		return parent::update($table, $data, $where, $parameters, $order, $limit, $offset);
+	}
+	
+	function delete($table, array $where, array $parameters = array(), $order = "", $limit = null, $offset = null) {
+		unset($this->queries[$table]);
+		return parent::delete($table, $where, $parameters, $order, $limit, $offset);
 	}
 	
 }
