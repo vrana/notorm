@@ -30,13 +30,14 @@ abstract class NotORM_Abstract {
 }
 
 /** Database representation
+* @property-write mixed $debug = false Passed to storage (backward compatibility)
 * @property-write bool $freeze = false Disable persistence
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 */
 class NotORM extends NotORM_Abstract {
 	
 	/** Create database representation
-	* @param NotORM_Storage or PDO for BC
+	* @param NotORM_Storage or PDO for backward compatibility
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
 	* @param NotORM_Cache or null for no cache
 	*/
@@ -66,6 +67,8 @@ class NotORM extends NotORM_Abstract {
 	function __set($name, $value) {
 		if ($name == "freeze" || $name == "rowClass") {
 			$this->$name = $value;
+		} elseif ($name == "debug") {
+			$this->storage->$name = $value;
 		}
 	}
 	
