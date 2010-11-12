@@ -262,3 +262,73 @@ class NotORM_Storage_PDO_Cache extends NotORM_Storage_PDO {
 	}
 	
 }
+
+
+
+/** Storage using DibiConnection
+*/
+class NotORM_Storage_Dibi implements NotORM_Storage {
+	protected $connection;
+	
+	function __construct(DibiConnection $connection) {
+		$this->connection = $connection;
+	}
+	
+	function query($query, array $parameters = array()) {
+		array_unshift($parameters, $query);
+		return $this->connection->query($parameters);
+	}
+	
+	protected function whereString(array $args, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null) {
+		if ($where) {
+			$args[0] .= " WHERE %and";
+			$args[] = $where;
+		}
+		$return = $this->connection->translate($args);
+		if ($group) {
+			$return .= " GROUP BY $group";
+		}
+		if ($having) {
+			$return .= " HAVING $having";
+		}
+		if ($order) {
+			$return .= " ORDER BY " . implode(", ", $order);
+		}
+		if (isset($limit)) {
+			$this->connection->getDriver()->applyLimit($return, $limit, $offset);
+		}
+		return $return;
+	}
+	
+	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null, $lock = null) {
+		$return = $this->whereString(array("SELECT $columns FROM $table"), $where, $group, $having, $order, $limit, $offset);
+		if (isset($lock)) {
+			$return .= ($lock ? " FOR UPDATE" : " LOCK IN SHARE MODE");
+		}
+		return $return;
+	}
+	
+	function insert($table, $data) {
+		if (!$this->connection->query("INSERT INTO $table", $data)) {
+			return false;
+		}
+		return $this->connection->getInsertId();
+	}
+	
+	function update($table, array $data, array $where, array $parameters = array(), $order = "", $limit = null, $offset = null) {
+		$query = $this->whereString(array("UPDATE $table SET", $data), $where, "", "", $order, $limit, $offset);
+		if (!$this->query($query, $parameters)) {
+			return false;
+		}
+		return $this->connection->getAffectedRows();
+	}
+	
+	function delete($table, array $where, array $parameters = array(), $order = "", $limit = null, $offset = null) {
+		$query = $this->whereString(array("DELETE FROM $table"), $where, "", "", $order, $limit, $offset);
+		if (!$this->query($query, $parameters)) {
+			return false;
+		}
+		return $this->connection->getAffectedRows();
+	}
+	
+}

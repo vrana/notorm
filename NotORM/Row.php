@@ -6,7 +6,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	private $modified = array();
 	protected $row, $result;
 	
-	protected function __construct(array $row, NotORM_Result $result) {
+	protected function __construct($row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
 	}
@@ -107,7 +107,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	*/
 	function offsetExists($key) {
 		$this->access($key);
-		return array_key_exists($key, $this->row);
+		return array_key_exists($key, (array) $this->row);
 	}
 	
 	/** Get value of column
