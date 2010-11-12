@@ -20,9 +20,10 @@ interface NotORM_Storage {
 	* @param array
 	* @param int
 	* @param int
+	* @param bool
 	* @return string
 	*/
-	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null);
+	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null, $lock = null);
 	
 	/** Insert data to storage
 	* @param string table name
@@ -168,8 +169,8 @@ class NotORM_Storage_PDO implements NotORM_Storage {
 		return $return;
 	}
 	
-	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null) {
-		return "SELECT" . $this->topString($limit) . " $columns FROM $table" . $this->whereString($where, $group, $having, $order, $limit, $offset);
+	function select($columns, $table, array $where = array(), $group = "", $having = "", array $order = array(), $limit = null, $offset = null, $lock = null) {
+		return "SELECT" . $this->topString($limit) . " $columns FROM $table" . $this->whereString($where, $group, $having, $order, $limit, $offset) . (!isset($lock) ? "" : ($lock ? " FOR UPDATE" : " LOCK IN SHARE MODE"));
 	}
 	
 	function insert($table, $data) {

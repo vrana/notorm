@@ -4,7 +4,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
 	/** Create table result
@@ -59,7 +59,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif ($this->accessed) {
 			$columns = $prefix . implode(", $prefix", array_keys($this->accessed));
 		}
-		return $this->notORM->storage->select($columns, $this->table . implode($join), $this->where, $this->group, $this->having, $this->order, $this->limit, $this->offset);
+		return $this->notORM->storage->select($columns, $this->table . implode($join), $this->where, $this->group, $this->having, $this->order, $this->limit, $this->offset, $this->lock);
 	}
 	
 	/** Insert row in a table
@@ -173,6 +173,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->__destruct();
 		$this->group = $columns;
 		$this->having = $having;
+		return $this;
+	}
+	
+	/** Acquire lock
+	* @param bool true for write, false for read, null to disable
+	* @return NotORM_Result fluent interface
+	*/
+	function lock($exclusive = true) {
+		$this->lock = $exclusive;
 		return $this;
 	}
 	
