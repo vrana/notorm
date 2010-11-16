@@ -59,7 +59,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
 		$return = new NotORM_MultiResult($table, $this->result, $column, $this[$this->result->primary]);
-		$return->where("$table.$column", array_keys($this->result->rows));
+		$return->where("$table.$column", array_keys((array) $this->result->rows)); // (array) - is null after insert
 		if ($args) {
 			call_user_func_array(array($return, 'where'), $args);
 		}

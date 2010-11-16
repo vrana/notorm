@@ -5,13 +5,16 @@ Insert, update, delete
 include_once dirname(__FILE__) . "/connect.inc.php";
 
 $id = 5; // auto_increment is disabled in demo
-$software->application()->insert(array(
+$application = $software->application()->insert(array(
 	"id" => $id,
 	"author_id" => $software->author[12],
 	"title" => new NotORM_Literal("'Texy'"),
 	"web" => "",
 	"slogan" => "The best humane Web text generator",
 ));
+$application->application_tag()->insert(array("tag_id" => 21));
+
+// retrieve the really stored value
 $application = $software->application[$id];
 echo $application["title"] . "\n";
 

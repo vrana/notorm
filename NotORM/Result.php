@@ -122,7 +122,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Insert row in a table
 	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
-	* @return string auto increment value or false in case of an error
+	* @return NotORM_Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert($data) {
 		if ($this->notORM->freeze) {
@@ -133,15 +133,24 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif ($data instanceof Traversable) {
 			$data = iterator_to_array($data);
 		}
+		$values = $data;
 		if (is_array($data)) {
 			//! driver specific empty $data
-			$data = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
+			$values = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
 		}
 		// requiers empty $this->parameters
-		if (!$this->query("INSERT INTO $this->table $data")) {
+		$return = $this->query("INSERT INTO $this->table $values");
+		if (!$return) {
 			return false;
 		}
-		return $this->notORM->connection->lastInsertId();
+		$this->rows = null;
+		if (!is_array($data)) {
+			return $return->rowCount();
+		}
+		if (!isset($data[$this->primary]) && ($id = $this->notORM->connection->lastInsertId())) {
+			$data[$this->primary] = $id;
+		}
+		return new NotORM_Row($data, $this);
 	}
 	
 	/** Update all rows in result set
