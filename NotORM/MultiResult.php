@@ -22,6 +22,13 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $this;
 	}
 	
+	function insert($data) {
+		if (is_array($data) || $data instanceof ArrayAccess) {
+			$data[$this->column] = $this->active;
+		}
+		return parent::insert($data);
+	}
+	
 	function update(array $data) {
 		$where = $this->where;
 		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
