@@ -395,14 +395,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Fetch all rows as associative array
 	* @param string
-	* @param string
+	* @param string column name used for an array value or an empty string for the whole row
 	* @return array
 	*/
-	function fetchPairs($key, $value) {
+	function fetchPairs($key, $value = '') {
 		$return = array();
 		// no $clone->select = array($key, $value) to allow efficient caching with repetitive calls with different parameters
 		foreach ($this as $row) {
-			$return[$row[$key]] = $row[$value];
+			$return[$row[$key]] = ($value != '' ? $row[$value] : $row);
 		}
 		return $return;
 	}
