@@ -24,7 +24,7 @@ abstract class NotORM_Abstract {
 	
 	abstract protected function __construct();
 	
-	protected function access($key) {
+	protected function access($key, $delete = false) {
 	}
 	
 }

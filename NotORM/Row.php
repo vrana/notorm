@@ -86,8 +86,8 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->delete();
 	}
 	
-	protected function access($key) {
-		if ($this->result->notORM->cache && $this->result->access($key)) {
+	protected function access($key, $delete = false) {
+		if ($this->result->notORM->cache && $this->result->access($key, $delete)) {
 			$this->row = $this->result[$this->row[$this->result->primary]];
 		}
 	}
@@ -107,7 +107,11 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	*/
 	function offsetExists($key) {
 		$this->access($key);
-		return array_key_exists($key, $this->row);
+		$return = array_key_exists($key, $this->row);
+		if (!$return) {
+			$this->access($key, true);
+		}
+		return $return;
 	}
 	
 	/** Get value of column
@@ -116,6 +120,9 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	*/
 	function offsetGet($key) {
 		$this->access($key);
+		if (!array_key_exists($key, $this->row)) {
+			$this->access($key, true);
+		}
 		return $this->row[$key];
 	}
 	

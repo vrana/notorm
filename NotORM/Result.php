@@ -23,7 +23,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function __destruct() {
 		if ($this->notORM->cache && !$this->select && isset($this->rows)) {
-			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $this->access);
+			$access = $this->access;
+			if (is_array($access)) {
+				$access = array_filter($access);
+			}
+			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $access);
 		}
 		$this->rows = null;
 	}
@@ -388,7 +392,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
-	protected function access($key) {
+	protected function access($key, $delete = false) {
+		if ($delete) {
+			if (is_array($this->access)) {
+				$this->access[$key] = false;
+			}
+			return false;
+		}
 		if (!isset($key)) {
 			$this->access = '';
 		} elseif (!is_string($this->access)) {
