@@ -1,6 +1,6 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
-include dirname(__FILE__) . "/../NotORM.php";
+include dirname(__FILE__) . "/../NotORM/NotORM.php";
 
 $connection = new PDO("mysql:dbname=software", "ODBC");
 $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
