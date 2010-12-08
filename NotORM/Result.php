@@ -36,7 +36,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = "";
 		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 		$where = $this->where;
-		if (isset($this->limit) && $driver == "oci") {
+		if (isset($this->limit) && $driver === "oci") {
 			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
 		}
 		if ($where) {
@@ -51,7 +51,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
-		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
+		if (isset($this->limit) && $driver !== "oci" && $driver !== "dblib") {
 			$return .= " LIMIT $this->limit";
 			if (isset($this->offset)) {
 				$return .= " OFFSET $this->offset";
@@ -61,7 +61,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 
 	protected function topString() {
-		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
+		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) === "dblib") {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
@@ -80,11 +80,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			preg_match_all('~\\b(\\w+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$name = $match[1];
-				if ($name != $this->table) { // case-sensitive
+				if ($name !== $this->table) { // case-sensitive
 					$table = $this->notORM->structure->getReferencedTable($name, $this->table);
 					$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
 					$primary = $this->notORM->structure->getPrimary($table);
-					$join[$name] = " " . (!isset($join[$name]) && $key == "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
+					$join[$name] = " " . (!isset($join[$name]) && $key === "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table !== $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
 				}
 			}
 		}
@@ -225,8 +225,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->__destruct();
 		$this->conditions[] = $condition;
 		$args = func_num_args();
-		if ($args != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
-			if ($args != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
+		if ($args !== 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
+			if ($args !== 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
 				$parameters = func_get_args();
 				array_shift($parameters);
 			}
@@ -238,13 +238,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!$clone->select) {
 				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
 			}
-			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
+			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) !== "mysql") {
 				$condition .= " IN ($clone)";
 			} else {
 				$in = array();
 				foreach ($clone as $row) {
 					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
-					$in[] = (count($row) == 1 ? $val : "($val)");
+					$in[] = (count($row) === 1 ? $val : "($val)");
 				}
 				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
 			}
@@ -403,7 +403,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = array();
 		// no $clone->select = array($key, $value) to allow efficient caching with repetitive calls with different parameters
 		foreach ($this as $row) {
-			$return[$row[$key]] = ($value != '' ? $row[$value] : $row);
+			$return[$row[$key]] = ($value !== '' ? $row[$value] : $row);
 		}
 		return $return;
 	}

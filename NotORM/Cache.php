@@ -120,7 +120,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 			try {
 				@$result->execute($parameters); // @ - ignore duplicate key error
 			} catch (PDOException $e) {
-				if ($e->getCode() != "23000") { // "23000" - duplicate key
+				if ($e->getCode() !== 23000) { // 23000 - duplicate key
 					throw $e;
 				}
 			}

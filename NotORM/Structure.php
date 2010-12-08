@@ -69,7 +69,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 
 	function getReferencedColumn($name, $table) {
-		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
+		if ($this->table !== '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
 			$name = $match[1];
 		}
 		return sprintf($this->foreign, $name, $table);
@@ -111,8 +111,8 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		if (!isset($return)) {
 			$return = "";
 			foreach ($this->connection->query("EXPLAIN $table") as $column) {
-				if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
-					if ($return != "") {
+				if ($column[3] === "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
+					if ($return !== "") {
 						$return = ""; // multi-column primary key is not supported
 						break;
 					}

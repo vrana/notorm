@@ -62,7 +62,7 @@ class NotORM extends NotORM_Abstract {
 	* @return NULL
 	*/
 	function __set($name, $value) {
-		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {
+		if ($name === "debug" || $name === "freeze" || $name === "rowClass") {
 			$this->$name = $value;
 		}
 	}
