@@ -6,12 +6,12 @@
 * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
 */
 
-require_once dirname(__FILE__) . "/Structure.php";
-require_once dirname(__FILE__) . "/Cache.php";
-require_once dirname(__FILE__) . "/Literal.php";
-require_once dirname(__FILE__) . "/Result.php";
-require_once dirname(__FILE__) . "/MultiResult.php";
-require_once dirname(__FILE__) . "/Row.php";
+require_once dirname(__FILE__) . '/Structure.php';
+require_once dirname(__FILE__) . '/Cache.php';
+require_once dirname(__FILE__) . '/Literal.php';
+require_once dirname(__FILE__) . '/Result.php';
+require_once dirname(__FILE__) . '/MultiResult.php';
+require_once dirname(__FILE__) . '/Row.php';
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
@@ -62,14 +62,14 @@ class NotORM extends NotORM_Abstract {
 	* @return NULL
 	*/
 	function __set($name, $value) {
-		if ($name === "debug" || $name === "freeze" || $name === "rowClass") {
+		if ($name === 'debug' || $name === 'freeze' || $name === 'rowClass') {
 			$this->$name = $value;
 		}
 	}
 
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
+	* @param array (['condition'[, array('value')]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {

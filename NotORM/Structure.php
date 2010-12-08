@@ -94,7 +94,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		$this->connection = $connection;
 		$this->cache = $cache;
 		if ($cache) {
-			$this->structure = $cache->load("structure");
+			$this->structure = $cache->load('structure');
 		}
 	}
 
@@ -102,18 +102,18 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	*/
 	function __destruct() {
 		if ($this->cache) {
-			$this->cache->save("structure", $this->structure);
+			$this->cache->save('structure', $this->structure);
 		}
 	}
 
 	function getPrimary($table) {
-		$return = &$this->structure["primary"][$table];
+		$return = &$this->structure['primary'][$table];
 		if ($return === NULL) {
-			$return = "";
+			$return = '';
 			foreach ($this->connection->query("EXPLAIN $table") as $column) {
-				if ($column[3] === "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
-					if ($return !== "") {
-						$return = ""; // multi-column primary key is not supported
+				if ($column[3] === 'PRI') { // 3 - 'Key' is not compatible with PDO::CASE_LOWER
+					if ($return !== '') {
+						$return = ''; // multi-column primary key is not supported
 						break;
 					}
 					$return = $column[0];
@@ -125,15 +125,15 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 
 	function getReferencingColumn($name, $table) {
 		$name = strtolower($name);
-		$return = &$this->structure["referencing"][$table];
+		$return = &$this->structure['referencing'][$table];
 		if (!isset($return[$name])) {
-			foreach ($this->connection->query("
+			foreach ($this->connection->query('
 				SELECT TABLE_NAME, COLUMN_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
-				AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
-				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) //! may not reference primary key
+				AND REFERENCED_TABLE_NAME = ' . $this->connection->quote($table) . '
+				AND REFERENCED_COLUMN_NAME = ' . $this->connection->quote($this->getPrimary($table)) //! may not reference primary key
 			) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
@@ -151,15 +151,15 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 
 	function getReferencedTable($name, $table) {
 		$name = strtolower($name);
-		$return = &$this->structure["referenced"][$table];
+		$return = &$this->structure['referenced'][$table];
 		if (!isset($return[$name])) {
-			foreach ($this->connection->query("
+			foreach ($this->connection->query('
 				SELECT COLUMN_NAME, REFERENCED_TABLE_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
-				AND TABLE_NAME = " . $this->connection->quote($table) . "
-			") as $row) {
+				AND TABLE_NAME = ' . $this->connection->quote($table)
+			) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}

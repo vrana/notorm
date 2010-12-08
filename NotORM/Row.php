@@ -52,7 +52,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 
 	/** Get referencing rows
 	* @param string table name
-	* @param array (["condition"[, array("value")]])
+	* @param array (['condition'[, array('value')]])
 	* @return NotORM_MultiResult
 	*/
 	function __call($name, array $args) {

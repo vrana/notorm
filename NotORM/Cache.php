@@ -24,14 +24,14 @@ interface NotORM_Cache {
 class NotORM_Cache_Session implements NotORM_Cache {
 
 	function load($key) {
-		if (!isset($_SESSION["NotORM"][$key])) {
+		if (!isset($_SESSION['NotORM'][$key])) {
 			return NULL;
 		}
-		return $_SESSION["NotORM"][$key];
+		return $_SESSION['NotORM'][$key];
 	}
 
 	function save($key, $data) {
-		$_SESSION["NotORM"][$key] = $data;
+		$_SESSION['NotORM'][$key] = $data;
 	}
 
 }
@@ -91,7 +91,7 @@ class NotORM_Cache_Include implements NotORM_Cache {
 
 }
 
-/** Cache storing data to the "notorm" table in database
+/** Cache storing data to the 'notorm' table in database
 */
 class NotORM_Cache_Database implements NotORM_Cache {
 	private $connection;
@@ -101,7 +101,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 	}
 
 	function load($key) {
-		$result = $this->connection->prepare("SELECT data FROM notorm WHERE id = ?");
+		$result = $this->connection->prepare('SELECT data FROM notorm WHERE id = ?');
 		$result->execute(array($key));
 		$return = $result->fetchColumn();
 		if (!$return) {
@@ -113,10 +113,10 @@ class NotORM_Cache_Database implements NotORM_Cache {
 	function save($key, $data) {
 		// REPLACE is not supported by PostgreSQL and MS SQL
 		$parameters = array(serialize($data), $key);
-		$result = $this->connection->prepare("UPDATE notorm SET data = ? WHERE id = ?");
+		$result = $this->connection->prepare('UPDATE notorm SET data = ? WHERE id = ?');
 		$result->execute($parameters);
 		if (!$result->rowCount()) {
-			$result = $this->connection->prepare("INSERT INTO notorm (data, id) VALUES (?, ?)");
+			$result = $this->connection->prepare('INSERT INTO notorm (data, id) VALUES (?, ?)');
 			try {
 				@$result->execute($parameters); // @ - ignore duplicate key error
 			} catch (PDOException $e) {
@@ -131,7 +131,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 
 // eAccelerator - user cache is obsoleted
 
-/** Cache using "NotORM." prefix in Memcache
+/** Cache using 'NotORM.' prefix in Memcache
 */
 class NotORM_Cache_Memcache implements NotORM_Cache {
 	private $memcache;
@@ -154,7 +154,7 @@ class NotORM_Cache_Memcache implements NotORM_Cache {
 
 }
 
-/** Cache using "NotORM." prefix in APC
+/** Cache using 'NotORM.' prefix in APC
 */
 class NotORM_Cache_APC implements NotORM_Cache {
 

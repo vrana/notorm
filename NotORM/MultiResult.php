@@ -54,7 +54,7 @@ class NotORM_MultiResult extends NotORM_Result {
 
 	function order($columns) {
 		if (!$this->order) { // improve index utilization
-			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
+			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? ' DESC' : '');
 		}
 		return parent::order($columns);
 	}
@@ -62,7 +62,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	function aggregation($function) {
 		$query = "SELECT $function, $this->column FROM $this->table";
 		if ($this->where) {
-			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
+			$query .= ' WHERE (' . implode(') AND (', $this->where) . ')';
 		}
 		$query .= " GROUP BY $this->column";
 		$aggregation = &$this->result->aggregation[$query];
