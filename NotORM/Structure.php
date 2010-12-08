@@ -90,7 +90,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	* @param PDO
 	* @param string
 	*/
-	function __construct(PDO $connection, NotORM_Cache $cache = null) {
+	function __construct(PDO $connection, NotORM_Cache $cache = NULL) {
 		$this->connection = $connection;
 		$this->cache = $cache;
 		if ($cache) {

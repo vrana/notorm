@@ -6,14 +6,14 @@ interface NotORM_Cache {
 
 	/** Load stored data
 	* @param string
-	* @return mixed or null if not found
+	* @return mixed or NULL if not found
 	*/
 	function load($key);
 
 	/** Save data
 	* @param string
 	* @param mixed
-	* @return null
+	* @return NULL
 	*/
 	function save($key, $data);
 
@@ -25,7 +25,7 @@ class NotORM_Cache_Session implements NotORM_Cache {
 
 	function load($key) {
 		if (!isset($_SESSION["NotORM"][$key])) {
-			return null;
+			return NULL;
 		}
 		return $_SESSION["NotORM"][$key];
 	}
@@ -48,7 +48,7 @@ class NotORM_Cache_File implements NotORM_Cache {
 
 	function load($key) {
 		if (!isset($this->data[$key])) {
-			return null;
+			return NULL;
 		}
 		return $this->data[$key];
 	}
@@ -77,7 +77,7 @@ class NotORM_Cache_Include implements NotORM_Cache {
 
 	function load($key) {
 		if (!isset($this->data[$key])) {
-			return null;
+			return NULL;
 		}
 		return $this->data[$key];
 	}
@@ -85,7 +85,7 @@ class NotORM_Cache_Include implements NotORM_Cache {
 	function save($key, $data) {
 		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
 			$this->data[$key] = $data;
-			file_put_contents($this->filename, '<?php return ' . var_export($this->data, true) . ';', LOCK_EX);
+			file_put_contents($this->filename, '<?php return ' . var_export($this->data, TRUE) . ';', LOCK_EX);
 		}
 	}
 
@@ -105,7 +105,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 		$result->execute(array($key));
 		$return = $result->fetchColumn();
 		if (!$return) {
-			return null;
+			return NULL;
 		}
 		return unserialize($return);
 	}
@@ -142,8 +142,8 @@ class NotORM_Cache_Memcache implements NotORM_Cache {
 
 	function load($key) {
 		$return = $this->memcache->get("NotORM.$key");
-		if ($return === false) {
-			return null;
+		if ($return === FALSE) {
+			return NULL;
 		}
 		return $return;
 	}
@@ -161,7 +161,7 @@ class NotORM_Cache_APC implements NotORM_Cache {
 	function load($key) {
 		$return = apc_fetch("NotORM.$key", $success);
 		if (!$success) {
-			return null;
+			return NULL;
 		}
 		return $return;
 	}

@@ -18,30 +18,30 @@ abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 
-	protected $debug = false;
-	protected $freeze = false;
+	protected $debug = FALSE;
+	protected $freeze = FALSE;
 	protected $rowClass = 'NotORM_Row';
 
 	abstract protected function __construct();
 
-	protected function access($key, $delete = false) {
+	protected function access($key, $delete = FALSE) {
 	}
 
 }
 
 /** Database representation
-* @property-write mixed $debug = false Enable debuging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
-* @property-write bool $freeze = false Disable persistence
+* @property-write mixed $debug = FALSE Enable debuging queries, TRUE for fwrite(STDERR, $query), callback($query, $parameters) otherwise
+* @property-write bool $freeze = FALSE Disable persistence
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 */
 class NotORM extends NotORM_Abstract {
 
 	/** Create database representation
 	* @param PDO
-	* @param NotORM_Structure or null for new NotORM_Structure_Convention
-	* @param NotORM_Cache or null for no cache
+	* @param NotORM_Structure or NULL for new NotORM_Structure_Convention
+	* @param NotORM_Cache or NULL for no cache
 	*/
-	function __construct(PDO $connection, NotORM_Structure $structure = null, NotORM_Cache $cache = null) {
+	function __construct(PDO $connection, NotORM_Structure $structure = NULL, NotORM_Cache $cache = NULL) {
 		$this->connection = $connection;
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;
@@ -55,11 +55,11 @@ class NotORM extends NotORM_Abstract {
 	* @return NotORM_Result
 	*/
 	function __get($table) {
-		return new NotORM_Result($table, $this, true);
+		return new NotORM_Result($table, $this, TRUE);
 	}
 
 	/** Set write-only properties
-	* @return null
+	* @return NULL
 	*/
 	function __set($name, $value) {
 		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {

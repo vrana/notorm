@@ -4,7 +4,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = NULL, $offset = NULL, $group = "", $having = "";
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 
 	/** Create table result
@@ -12,7 +12,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @param NotORM
 	* @param bool single row
 	*/
-	protected function __construct($table, NotORM $notORM, $single = false) {
+	protected function __construct($table, NotORM $notORM, $single = FALSE) {
 		$this->table = $table;
 		$this->notORM = $notORM;
 		$this->single = $single;
@@ -29,7 +29,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $access);
 		}
-		$this->rows = null;
+		$this->rows = NULL;
 	}
 
 	protected function whereString() {
@@ -104,18 +104,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 
 	protected function query($query) {
 		if (is_callable($this->notORM->debug)) {
-			$start = microtime(true);
+			$start = microtime(TRUE);
 		}
 		$return = $this->notORM->connection->prepare($query);
 		$result = $return->execute($this->parameters);
 		if ($this->notORM->debug) {
 			if (is_callable($this->notORM->debug)) {
-				call_user_func($this->notORM->debug, $query, $this->parameters, microtime(true) - $start);
+				call_user_func($this->notORM->debug, $query, $this->parameters, microtime(TRUE) - $start);
 			} else {
 				fwrite(STDERR, "-- $query;\n");
 			}
 		}
-		return ($result ? $return : false);
+		return ($result ? $return : FALSE);
 	}
 
 	protected function quote($val) {
@@ -130,11 +130,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 
 	/** Insert row in a table
 	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
-	* @return NotORM_Row or false in case of an error or number of affected rows for INSERT ... SELECT
+	* @return NotORM_Row or FALSE in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert($data) {
 		if ($this->notORM->freeze) {
-			return false;
+			return FALSE;
 		}
 		if ($data instanceof NotORM_Result) {
 			$data = (string) $data;
@@ -149,9 +149,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		// requiers empty $this->parameters
 		$return = $this->query("INSERT INTO $this->table $values");
 		if (!$return) {
-			return false;
+			return FALSE;
 		}
-		$this->rows = null;
+		$this->rows = NULL;
 		if (!is_array($data)) {
 			return $return->rowCount();
 		}
@@ -163,11 +163,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 
 	/** Update all rows in result set
 	* @param array ($column => $value)
-	* @return int number of affected rows or false in case of an error
+	* @return int number of affected rows or FALSE in case of an error
 	*/
 	function update(array $data) {
 		if ($this->notORM->freeze) {
-			return false;
+			return FALSE;
 		}
 		if (!$data) {
 			return 0;
@@ -180,21 +180,21 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		// joins in UPDATE are supported only in MySQL
 		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString());
 		if (!$return) {
-			return false;
+			return FALSE;
 		}
 		return $return->rowCount();
 	}
 
 	/** Delete all rows in result set
-	* @return int number of affected rows or false in case of an error
+	* @return int number of affected rows or FALSE in case of an error
 	*/
 	function delete() {
 		if ($this->notORM->freeze) {
-			return false;
+			return FALSE;
 		}
 		$return = $this->query("DELETE" . $this->topString() . " FROM $this->table" . $this->whereString());
 		if (!$return) {
-			return false;
+			return FALSE;
 		}
 		return $return->rowCount();
 	}
@@ -231,7 +231,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				array_shift($parameters);
 			}
 			$this->parameters = array_merge($this->parameters, $parameters);
-		} elseif (is_null($parameters)) { // where("column", null)
+		} elseif (is_null($parameters)) { // where("column", NULL)
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$clone = clone $parameters;
@@ -266,7 +266,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function order($columns) {
-		$this->rows = null;
+		$this->rows = NULL;
 		$this->order[] = $columns;
 		return $this;
 	}
@@ -276,8 +276,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @param int
 	* @return NotORM_Result fluent interface
 	*/
-	function limit($limit, $offset = null) {
-		$this->rows = null;
+	function limit($limit, $offset = NULL) {
+		$this->rows = NULL;
 		$this->limit = $limit;
 		$this->offset = $offset;
 		return $this;
@@ -346,14 +346,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 
 	/** Execute built query
-	* @return null
+	* @return NULL
 	*/
 	protected function execute() {
 		if (isset($this->rows)) {
 			return;
 		}
-		$result = false;
-		$exception = null;
+		$result = FALSE;
+		$exception = NULL;
 		try {
 			$result = $this->query($this->__toString());
 		} catch (PDOException $exception) {
@@ -375,7 +375,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				if (isset($row[$this->primary])) {
 					$key = $row[$this->primary];
 					if (!is_string($this->access)) {
-						$this->access[$this->primary] = true;
+						$this->access[$this->primary] = TRUE;
 					}
 				}
 				$this->rows[$key] = new $this->notORM->rowClass($row, $this);
@@ -385,7 +385,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 
 	/** Fetch next row of result
-	* @return NotORM_Row or false if there is no row
+	* @return NotORM_Row or FALSE if there is no row
 	*/
 	function fetch() {
 		$this->execute();
@@ -408,26 +408,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 
-	protected function access($key, $delete = false) {
+	protected function access($key, $delete = FALSE) {
 		if ($delete) {
 			if (is_array($this->access)) {
-				$this->access[$key] = false;
+				$this->access[$key] = FALSE;
 			}
-			return false;
+			return FALSE;
 		}
 
 		if (!isset($key)) {
 			$this->access = '';
 		} elseif (!is_string($this->access)) {
-			$this->access[$key] = true;
+			$this->access[$key] = TRUE;
 		}
 
 		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
 			$this->accessed = '';
-			$this->rows = null;
-			return true;
+			$this->rows = NULL;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
@@ -453,7 +453,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 
 	function valid() {
-		return current($this->keys) !== false;
+		return current($this->keys) !== FALSE;
 	}
 
 	// ArrayAccess implementation
@@ -476,7 +476,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 
 	/** Get specified row
 	* @param string row ID
-	* @return NotORM_Row or null if there is no such row
+	* @return NotORM_Row or NULL if there is no such row
 	*/
 	function offsetGet($key) {
 		if ($this->single && !isset($this->data)) {
@@ -484,7 +484,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$clone->where($this->primary, $key);
 			$return = $clone->fetch();
 			if (!$return) {
-				return null;
+				return NULL;
 			}
 			return $return;
 
@@ -497,7 +497,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	/** Mimic row
 	* @param string row ID
 	* @param NotORM_Row
-	* @return null
+	* @return NULL
 	*/
 	function offsetSet($key, $value) {
 		$this->execute();
@@ -506,7 +506,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 
 	/** Remove row from result set
 	* @param string row ID
-	* @return null
+	* @return NULL
 	*/
 	function offsetUnset($key) {
 		$this->execute();

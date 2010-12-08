@@ -85,7 +85,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		if (!isset($referencing)) {
 			$limit = $this->limit;
 			if ($this->limit && count($this->result->rows) > 1) {
-				$this->limit = null;
+				$this->limit = NULL;
 			}
 			parent::execute();
 			$this->limit = $limit;
