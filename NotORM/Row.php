@@ -25,7 +25,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	function __get($name) {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
-		if (!isset($referenced)) {
+		if ($referenced === NULL) {
 			$table = $this->result->notORM->structure->getReferencedTable($name, $this->result->table);
 			$keys = array();
 			foreach ($this->result->rows as $row) {
@@ -72,7 +72,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	*/
 	function update($data = NULL) {
 		// update is an SQL keyword
-		if (!isset($data)) {
+		if ($data === NULL) {
 			$data = $this->modified;
 		}
 		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->update($data);

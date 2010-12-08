@@ -22,7 +22,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	/** Save data to cache and empty result
 	*/
 	function __destruct() {
-		if ($this->notORM->cache && !$this->select && isset($this->rows)) {
+		if ($this->notORM->cache && !$this->select && $this->rows !== NULL) {
 			$access = $this->access;
 			if (is_array($access)) {
 				$access = array_filter($access);
@@ -36,7 +36,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = "";
 		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 		$where = $this->where;
-		if (isset($this->limit) && $driver === "oci") {
+		if ($this->limit !== NULL && $driver === "oci") {
 			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
 		}
 		if ($where) {
@@ -51,9 +51,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
-		if (isset($this->limit) && $driver !== "oci" && $driver !== "dblib") {
+		if ($this->limit !== NULL && $driver !== "oci" && $driver !== "dblib") {
 			$return .= " LIMIT $this->limit";
-			if (isset($this->offset)) {
+			if ($this->offset !== NULL) {
 				$return .= " OFFSET $this->offset";
 			}
 		}
@@ -61,7 +61,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 
 	protected function topString() {
-		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) === "dblib") {
+		if ($this->limit !== NULL && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) === "dblib") {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
@@ -88,7 +88,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				}
 			}
 		}
-		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
+		if ($this->rows === NULL && $this->notORM->cache && !is_string($this->accessed)) {
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
 		}
@@ -122,7 +122,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($val instanceof DateTime) {
 			$val = $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
-		return (!isset($val) ? "NULL"
+		return ($val === NULL ? "NULL"
 			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
 			: $this->notORM->connection->quote($val)
 		));
@@ -231,7 +231,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				array_shift($parameters);
 			}
 			$this->parameters = array_merge($this->parameters, $parameters);
-		} elseif (is_null($parameters)) { // where("column", NULL)
+		} elseif ($parameters === NULL) { // where("column", NULL)
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$clone = clone $parameters;
@@ -349,7 +349,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NULL
 	*/
 	protected function execute() {
-		if (isset($this->rows)) {
+		if ($this->rows !== NULL) {
 			return;
 		}
 		$result = FALSE;
@@ -416,13 +416,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return FALSE;
 		}
 
-		if (!isset($key)) {
+		if ($key === NULL) {
 			$this->access = '';
 		} elseif (!is_string($this->access)) {
 			$this->access[$key] = TRUE;
 		}
 
-		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
+		if (!$this->select && $this->accessed && ($key === NULL || !isset($this->accessed[$key]))) {
 			$this->accessed = '';
 			$this->rows = NULL;
 			return TRUE;
@@ -463,7 +463,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return bool
 	*/
 	function offsetExists($key) {
-		if ($this->single && !isset($this->data)) {
+		if ($this->single && $this->data === NULL) {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
 			return $clone->count();
@@ -479,7 +479,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Row or NULL if there is no such row
 	*/
 	function offsetGet($key) {
-		if ($this->single && !isset($this->data)) {
+		if ($this->single && $this->data === NULL) {
 			$clone = clone $this;
 			$clone->where($this->primary, $key);
 			$return = $clone->fetch();

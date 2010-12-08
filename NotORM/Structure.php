@@ -108,7 +108,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 
 	function getPrimary($table) {
 		$return = &$this->structure["primary"][$table];
-		if (!isset($return)) {
+		if ($return === NULL) {
 			$return = "";
 			foreach ($this->connection->query("EXPLAIN $table") as $column) {
 				if ($column[3] === "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER

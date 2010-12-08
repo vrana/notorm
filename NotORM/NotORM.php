@@ -43,7 +43,7 @@ class NotORM extends NotORM_Abstract {
 	*/
 	function __construct(PDO $connection, NotORM_Structure $structure = NULL, NotORM_Cache $cache = NULL) {
 		$this->connection = $connection;
-		if (!isset($structure)) {
+		if ($structure === NULL) {
 			$structure = new NotORM_Structure_Convention;
 		}
 		$this->structure = $structure;

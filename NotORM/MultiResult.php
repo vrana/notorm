@@ -66,7 +66,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		}
 		$query .= " GROUP BY $this->column";
 		$aggregation = &$this->result->aggregation[$query];
-		if (!isset($aggregation)) {
+		if ($aggregation === NULL) {
 			$aggregation = array();
 			foreach ($this->query($query, $this->parameters) as $row) {
 				$aggregation[$row[$this->column]] = $row;
@@ -78,11 +78,11 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 
 	protected function execute() {
-		if (isset($this->rows)) {
+		if ($this->rows !== NULL) {
 			return;
 		}
 		$referencing = &$this->result->referencing[$this->__toString()];
-		if (!isset($referencing)) {
+		if ($referencing === NULL) {
 			$limit = $this->limit;
 			if ($this->limit && count($this->result->rows) > 1) {
 				$this->limit = NULL;
@@ -94,7 +94,7 @@ class NotORM_MultiResult extends NotORM_Result {
 			foreach ($this->rows as $key => $row) {
 				$ref = &$referencing[$row[$this->column]];
 				$skip = &$offset[$row[$this->column]];
-				if (!isset($limit) || (count($ref) < $limit && $skip >= $this->offset)) {
+				if ($limit === NULL || (count($ref) < $limit && $skip >= $this->offset)) {
 					$ref[$key] = $row;
 				} else {
 					unset($this->rows[$key]);
@@ -104,7 +104,7 @@ class NotORM_MultiResult extends NotORM_Result {
 			}
 		}
 		$this->data = &$referencing[$this->active];
-		if (!isset($this->data)) {
+		if ($this->data === NULL) {
 			$this->data = array();
 		}
 	}
