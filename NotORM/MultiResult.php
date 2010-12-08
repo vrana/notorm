@@ -1,35 +1,51 @@
 <?php
 
-/** Representation of filtered table grouped by some column
-*/
-class NotORM_MultiResult extends NotORM_Result {
-	private $result, $column, $active;
+/**
+ * Representation of filtered table grouped by some column.
+ */
+class NotORM_MultiResult extends NotORM_Result
+{
+	private $result;
+	private $column;
+	private $active;
+
 
 	/** @access protected must be public because it is called from Row */
-	function __construct($table, NotORM_Result $result, $column, $active) {
+	function __construct($table, NotORM_Result $result, $column, $active)
+	{
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
 		$this->active = $active;
 	}
 
-	/** Specify referencing column
-	* @param string
-	* @return NotORM_MultiResult fluent interface
-	*/
-	function through($column) {
+
+
+	/**
+	 * Specify referencing column.
+	 * @param  string
+	 * @return NotORM_MultiResult fluent interface
+	 */
+	function through($column)
+	{
 		$this->column = $column;
 		return $this;
 	}
 
-	function insert($data) {
+
+
+	function insert($data)
+	{
 		if (is_array($data) || $data instanceof ArrayAccess) {
 			$data[$this->column] = $this->active;
 		}
 		return parent::insert($data);
 	}
 
-	function update(array $data) {
+
+
+	function update(array $data)
+	{
 		$where = $this->where;
 		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
 		$return = parent::update($data);
@@ -37,7 +53,10 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $return;
 	}
 
-	function delete() {
+
+
+	function delete()
+	{
 		$where = $this->where;
 		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
 		$return = parent::delete();
@@ -45,43 +64,57 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $return;
 	}
 
-	function select($columns) {
+
+
+	function select($columns)
+	{
 		if (!$this->select) {
 			$this->select[] = "$this->table.$this->column";
 		}
 		return parent::select($columns);
 	}
 
-	function order($columns) {
+
+
+	function order($columns)
+	{
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? ' DESC' : '');
 		}
 		return parent::order($columns);
 	}
 
-	function aggregation($function) {
+
+
+	function aggregation($function)
+	{
 		$query = "SELECT $function, $this->column FROM $this->table";
 		if ($this->where) {
 			$query .= ' WHERE (' . implode(') AND (', $this->where) . ')';
 		}
 		$query .= " GROUP BY $this->column";
-		$aggregation = &$this->result->aggregation[$query];
+		$aggregation = & $this->result->aggregation[$query];
 		if ($aggregation === NULL) {
 			$aggregation = array();
 			foreach ($this->query($query, $this->parameters) as $row) {
 				$aggregation[$row[$this->column]] = $row;
 			}
 		}
+
 		foreach ($aggregation[$this->active] as $val) {
 			return $val;
 		}
 	}
 
-	protected function execute() {
+
+
+	protected function execute()
+	{
 		if ($this->rows !== NULL) {
 			return;
 		}
-		$referencing = &$this->result->referencing[$this->__toString()];
+
+		$referencing = & $this->result->referencing[$this->__toString()];
 		if ($referencing === NULL) {
 			$limit = $this->limit;
 			if ($this->limit && count($this->result->rows) > 1) {
@@ -92,8 +125,8 @@ class NotORM_MultiResult extends NotORM_Result {
 			$referencing = array();
 			$offset = array();
 			foreach ($this->rows as $key => $row) {
-				$ref = &$referencing[$row[$this->column]];
-				$skip = &$offset[$row[$this->column]];
+				$ref = & $referencing[$row[$this->column]];
+				$skip = & $offset[$row[$this->column]];
 				if ($limit === NULL || (count($ref) < $limit && $skip >= $this->offset)) {
 					$ref[$key] = $row;
 				} else {
@@ -103,7 +136,8 @@ class NotORM_MultiResult extends NotORM_Result {
 				unset($ref, $skip);
 			}
 		}
-		$this->data = &$referencing[$this->active];
+
+		$this->data = & $referencing[$this->active];
 		if ($this->data === NULL) {
 			$this->data = array();
 		}

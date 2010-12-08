@@ -1,96 +1,134 @@
 <?php
 
-/** Information about tables and columns structure
-*/
-interface NotORM_Structure {
+/**
+ * Information about tables and columns structure.
+ */
+interface NotORM_Structure
+{
 
-	/** Get primary key of a table in $db->$table()
-	* @param string
-	* @return string
-	*/
+	/**
+	 * Get primary key of a table in $db->$table()
+	 * @param  string
+	 * @return string
+	 */
 	function getPrimary($table);
 
-	/** Get column holding foreign key in $table[$id]->$name()
-	* @param string
-	* @param string
-	* @return string
-	*/
+	/**
+	 * Get column holding foreign key in $table[$id]->$name()
+	 * @param  string
+	 * @param  string
+	 * @return string
+	 */
 	function getReferencingColumn($name, $table);
 
-	/** Get target table in $table[$id]->$name()
-	* @param string
-	* @param string
-	* @return string
-	*/
+	/**
+	 * Get target table in $table[$id]->$name()
+	 * @param  string
+	 * @param  string
+	 * @return string
+	 */
 	function getReferencingTable($name, $table);
 
-	/** Get column holding foreign key in $table[$id]->$name
-	* @param string
-	* @param string
-	* @return string
-	*/
+	/**
+	 * Get column holding foreign key in $table[$id]->$name
+	 * @param  string
+	 * @param  string
+	 * @return string
+	 */
 	function getReferencedColumn($name, $table);
 
-	/** Get table holding foreign key in $table[$id]->$name
-	* @param string
-	* @param string
-	* @return string
-	*/
+	/**
+	 * Get table holding foreign key in $table[$id]->$name
+	 * @param  string
+	 * @param  string
+	 * @return string
+	 */
 	function getReferencedTable($name, $table);
 
 }
 
-/** Structure described by some rules
-*/
-class NotORM_Structure_Convention implements NotORM_Structure {
-	protected $primary, $foreign, $table;
 
-	/** Create conventional structure
-	* @param string %s stands for table name
-	* @param string %1$s stands for key used after ->, %2$s for table name
-	* @param string %1$s stands for key used after ->, %2$s for table name
-	*/
-	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s') {
+
+/**
+ * Structure described by some rules.
+ */
+class NotORM_Structure_Convention implements NotORM_Structure
+{
+	protected $primary;
+	protected $foreign;
+	protected $table;
+
+	/**
+	 * Create conventional structure.
+	 * @param  string %s stands for table name
+	 * @param  string %1$s stands for key used after ->, %2$s for table name
+	 * @param  string %1$s stands for key used after ->, %2$s for table name
+	 */
+	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s')
+	{
 		$this->primary = $primary;
 		$this->foreign = $foreign;
 		$this->table = $table;
 	}
 
-	function getPrimary($table) {
+
+
+	function getPrimary($table)
+	{
 		return sprintf($this->primary, $table);
 	}
 
-	function getReferencingColumn($name, $table) {
+
+
+	function getReferencingColumn($name, $table)
+	{
 		return $this->getReferencedColumn($table, $name);
 	}
 
-	function getReferencingTable($name, $table) {
+
+
+	function getReferencingTable($name, $table)
+	{
 		return $name;
 	}
 
-	function getReferencedColumn($name, $table) {
+
+
+	function getReferencedColumn($name, $table)
+	{
 		if ($this->table !== '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
 			$name = $match[1];
 		}
 		return sprintf($this->foreign, $name, $table);
 	}
 
-	function getReferencedTable($name, $table) {
+
+
+	function getReferencedTable($name, $table)
+	{
 		return sprintf($this->table, $name, $table);
 	}
 
 }
 
-/** Structure reading meta-informations from the database
-*/
-class NotORM_Structure_Discovery implements NotORM_Structure {
-	protected $connection, $cache, $structure = array();
 
-	/** Create autodisovery structure
-	* @param PDO
-	* @param string
-	*/
-	function __construct(PDO $connection, NotORM_Cache $cache = NULL) {
+
+/**
+ * Structure reading meta-informations from the database.
+ */
+class NotORM_Structure_Discovery implements NotORM_Structure
+{
+	protected $connection;
+	protected $cache;
+	protected $structure = array();
+
+	/**
+	 * Create autodisovery structure.
+	 * @param  PDO
+	 * @param  string
+	 */
+	function __construct(PDO $connection, NotORM_Cache $cache = NULL)
+	{
 		$this->connection = $connection;
 		$this->cache = $cache;
 		if ($cache) {
@@ -98,16 +136,23 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		}
 	}
 
-	/** Save data to cache
-	*/
-	function __destruct() {
+
+
+	/**
+	 * Save data to cache.
+	 */
+	function __destruct()
+	{
 		if ($this->cache) {
 			$this->cache->save('structure', $this->structure);
 		}
 	}
 
-	function getPrimary($table) {
-		$return = &$this->structure['primary'][$table];
+
+
+	function getPrimary($table)
+	{
+		$return = & $this->structure['primary'][$table];
 		if ($return === NULL) {
 			$return = '';
 			foreach ($this->connection->query("EXPLAIN $table") as $column) {
@@ -123,9 +168,12 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		return $return;
 	}
 
-	function getReferencingColumn($name, $table) {
+
+
+	function getReferencingColumn($name, $table)
+	{
 		$name = strtolower($name);
-		$return = &$this->structure['referencing'][$table];
+		$return = & $this->structure['referencing'][$table];
 		if (!isset($return[$name])) {
 			foreach ($this->connection->query('
 				SELECT TABLE_NAME, COLUMN_NAME
@@ -141,17 +189,26 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		return $return[$name];
 	}
 
-	function getReferencingTable($name, $table) {
+
+
+	function getReferencingTable($name, $table)
+	{
 		return $name;
 	}
 
-	function getReferencedColumn($name, $table) {
+
+
+	function getReferencedColumn($name, $table)
+	{
 		return $name;
 	}
 
-	function getReferencedTable($name, $table) {
+
+
+	function getReferencedTable($name, $table)
+	{
 		$name = strtolower($name);
-		$return = &$this->structure['referenced'][$table];
+		$return = & $this->structure['referenced'][$table];
 		if (!isset($return[$name])) {
 			foreach ($this->connection->query('
 				SELECT COLUMN_NAME, REFERENCED_TABLE_NAME
