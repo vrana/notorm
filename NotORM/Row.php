@@ -5,19 +5,19 @@
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess {
 	private $modified = array();
 	protected $row, $result;
-	
+
 	protected function __construct(array $row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
 	}
-	
+
 	/** Get primary key value
 	* @return string
 	*/
 	function __toString() {
 		return (string) $this[$this->result->primary]; // (string) - PostgreSQL returns int
 	}
-	
+
 	/** Get referenced row
 	* @param string
 	* @return NotORM_Row or null if the row does not exist
@@ -39,7 +39,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $referenced[$this[$column]];
 	}
-	
+
 	/** Test if referenced row exists
 	* @param string
 	* @return bool
@@ -47,9 +47,9 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	function __isset($name) {
 		return ($this->__get($name) !== null);
 	}
-	
+
 	// __set is not defined to allow storing custom references (undocumented)
-	
+
 	/** Get referencing rows
 	* @param string table name
 	* @param array (["condition"[, array("value")]])
@@ -65,7 +65,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $return;
 	}
-	
+
 	/** Update row
 	* @param array or null for all modified values
 	* @return int number of affected rows or false in case of an error
@@ -77,7 +77,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->update($data);
 	}
-	
+
 	/** Delete row
 	* @return int number of affected rows or false in case of an error
 	*/
@@ -85,22 +85,22 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		// delete is an SQL keyword
 		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->delete();
 	}
-	
+
 	protected function access($key, $delete = false) {
 		if ($this->result->notORM->cache && $this->result->access($key, $delete)) {
 			$this->row = $this->result[$this->row[$this->result->primary]];
 		}
 	}
-	
+
 	// IteratorAggregate implementation
-	
+
 	function getIterator() {
 		$this->access(null);
 		return new ArrayIterator($this->row);
 	}
-	
+
 	// ArrayAccess implementation
-	
+
 	/** Test if column exists
 	* @param string column name
 	* @return bool
@@ -113,7 +113,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $return;
 	}
-	
+
 	/** Get value of column
 	* @param string column name
 	* @return string
@@ -125,7 +125,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $this->row[$key];
 	}
-	
+
 	/** Store value in column
 	* @param string column name
 	* @return null
@@ -134,7 +134,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		$this->row[$key] = $value;
 		$this->modified[$key] = $value;
 	}
-	
+
 	/** Remove column from data
 	* @param string column name
 	* @return null
@@ -143,5 +143,5 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		unset($this->row[$key]);
 		unset($this->modified[$key]);
 	}
-	
+
 }

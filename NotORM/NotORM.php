@@ -17,16 +17,16 @@ require_once dirname(__FILE__) . "/Row.php";
 abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
-	
+
 	protected $debug = false;
 	protected $freeze = false;
 	protected $rowClass = 'NotORM_Row';
-	
+
 	abstract protected function __construct();
-	
+
 	protected function access($key, $delete = false) {
 	}
-	
+
 }
 
 /** Database representation
@@ -35,7 +35,7 @@ abstract class NotORM_Abstract {
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 */
 class NotORM extends NotORM_Abstract {
-	
+
 	/** Create database representation
 	* @param PDO
 	* @param NotORM_Structure or null for new NotORM_Structure_Convention
@@ -49,7 +49,7 @@ class NotORM extends NotORM_Abstract {
 		$this->structure = $structure;
 		$this->cache = $cache;
 	}
-	
+
 	/** Get table data to use as $db->table[1]
 	* @param string
 	* @return NotORM_Result
@@ -57,7 +57,7 @@ class NotORM extends NotORM_Abstract {
 	function __get($table) {
 		return new NotORM_Result($table, $this, true);
 	}
-	
+
 	/** Set write-only properties
 	* @return null
 	*/
@@ -66,7 +66,7 @@ class NotORM extends NotORM_Abstract {
 			$this->$name = $value;
 		}
 	}
-	
+
 	/** Get table data
 	* @param string
 	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
@@ -79,5 +79,5 @@ class NotORM extends NotORM_Abstract {
 		}
 		return $return;
 	}
-	
+
 }
