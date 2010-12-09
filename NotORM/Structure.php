@@ -85,14 +85,17 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 */
 class NotORM_Structure_Discovery implements NotORM_Structure {
 	protected $connection, $cache, $structure = array();
+	protected $foreign;
 	
 	/** Create autodisovery structure
 	* @param PDO
-	* @param string
+	* @param NotORM_Cache
+	* @param string use "%s_id" to access $name . "_id" column in $row->$name
 	*/
-	function __construct(PDO $connection, NotORM_Cache $cache = null) {
+	function __construct(PDO $connection, NotORM_Cache $cache = null, $foreign = '%s') {
 		$this->connection = $connection;
 		$this->cache = $cache;
+		$this->foreign = $foreign;
 		if ($cache) {
 			$this->structure = $cache->load("structure");
 		}
@@ -146,13 +149,13 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 	}
 	
 	function getReferencedColumn($name, $table) {
-		return $name;
+		return sprintf($this->foreign, $name);
 	}
 	
 	function getReferencedTable($name, $table) {
-		$name = strtolower($name);
+		$column = strtolower($this->getReferencedColumn($name, $table));
 		$return = &$this->structure["referenced"][$table];
-		if (!isset($return[$name])) {
+		if (!isset($return[$column])) {
 			foreach ($this->connection->query("
 				SELECT COLUMN_NAME, REFERENCED_TABLE_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
@@ -163,7 +166,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}
-		return $return[$name];
+		return $return[$column];
 	}
 	
 }
