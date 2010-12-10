@@ -130,7 +130,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Insert row in a table
 	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
-	* @return NotORM_Row or false in case of an error or number of affected rows for INSERT ... SELECT
+	* @param ... used for extended insert
+	* @return NotORM_Row inserted row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert($data) {
 		if ($this->notORM->freeze) {
@@ -141,13 +142,20 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif ($data instanceof Traversable) {
 			$data = iterator_to_array($data);
 		}
-		$values = $data;
+		$insert = $data;
 		if (is_array($data)) {
-			//! driver specific empty $data
-			$values = "(" . implode(", ", array_keys($data)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $data)) . ")";
+			$values = array();
+			foreach (func_get_args() as $val) {
+				if ($val instanceof Traversable) {
+					$val = iterator_to_array($val);
+				}
+				$values[] = "(" . implode(", ", array_map(array($this, 'quote'), $val)) . ")";
+			}
+			//! driver specific empty $data and extended insert
+			$insert = "(" . implode(", ", array_keys($data)) . ") VALUES " . implode(", ", $values);
 		}
-		// requiers empty $this->parameters
-		$return = $this->query("INSERT INTO $this->table $values");
+		// requires empty $this->parameters
+		$return = $this->query("INSERT INTO $this->table $insert");
 		if (!$return) {
 			return false;
 		}

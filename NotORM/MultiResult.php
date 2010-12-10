@@ -23,13 +23,17 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function insert($data) {
-		if ($data instanceof Traversable && !$data instanceof NotORM_Result) {
-			$data = iterator_to_array($data);
+		$args = array();
+		foreach (func_get_args() as $data) {
+			if ($data instanceof Traversable && !$data instanceof NotORM_Result) {
+				$data = iterator_to_array($data);
+			}
+			if (is_array($data)) {
+				$data[$this->column] = $this->active;
+			}
+			$args[] = $data;
 		}
-		if (is_array($data)) {
-			$data[$this->column] = $this->active;
-		}
-		return parent::insert($data);
+		return call_user_func_array(array($this, 'parent::insert'), $args);
 	}
 	
 	function update(array $data) {
