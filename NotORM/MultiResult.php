@@ -23,7 +23,10 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function insert($data) {
-		if (is_array($data) || $data instanceof ArrayAccess) {
+		if ($data instanceof Traversable && !$data instanceof NotORM_Result) {
+			$data = iterator_to_array($data);
+		}
+		if (is_array($data)) {
 			$data[$this->column] = $this->active;
 		}
 		return parent::insert($data);
