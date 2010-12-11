@@ -56,14 +56,16 @@ class NotORM_MultiResult extends NotORM_Result {
 		if (!$this->select) {
 			$this->select[] = "$this->table.$this->column";
 		}
-		return parent::select($columns);
+		$args = func_get_args();
+		return call_user_func_array(array($this, 'parent::select'), $args);
 	}
 	
 	function order($columns) {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
-		return parent::order($columns);
+		$args = func_get_args();
+		return call_user_func_array(array($this, 'parent::order'), $args);
 	}
 	
 	function aggregation($function) {

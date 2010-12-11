@@ -209,11 +209,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Add select clause, more calls appends to the end
 	* @param string for example "column, MD5(column) AS column_md5"
+	* @param string ...
 	* @return NotORM_Result fluent interface
 	*/
 	function select($columns) {
 		$this->__destruct();
-		$this->select[] = $columns;
+		foreach (func_get_args() as $columns) {
+			$this->select[] = $columns;
+		}
 		return $this;
 	}
 	
@@ -271,11 +274,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Add order clause, more calls appends to the end
 	* @param string for example "column1, column2 DESC"
+	* @param string ...
 	* @return NotORM_Result fluent interface
 	*/
 	function order($columns) {
 		$this->rows = null;
-		$this->order[] = $columns;
+		foreach (func_get_args() as $columns) {
+			$this->order[] = $columns;
+		}
 		return $this;
 	}
 	
