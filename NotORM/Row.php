@@ -88,7 +88,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	
 	protected function access($key, $delete = false) {
 		if ($this->result->notORM->cache && $this->result->access($key, $delete)) {
-			$this->row = $this->result[$this->row[$this->result->primary]];
+			$this->row = $this->result[$this->row[$this->result->primary]]->row;
 		}
 	}
 	
