@@ -33,7 +33,7 @@ class NotORM_MultiResult extends NotORM_Result {
 			}
 			$args[] = $data;
 		}
-		return call_user_func_array(array($this, 'parent::insert'), $args);
+		return call_user_func_array(array($this, 'parent::insert'), $args); // works since PHP 5.1.2, array('parent', 'insert') issues E_STRICT in 5.1.2 <= PHP < 5.3.0
 	}
 	
 	function update(array $data) {
