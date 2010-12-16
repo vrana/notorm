@@ -103,19 +103,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function query($query) {
-		if (is_callable($this->notORM->debug)) {
-			$start = microtime(true);
-		}
-		$return = $this->notORM->connection->prepare($query);
-		$result = $return->execute($this->parameters);
 		if ($this->notORM->debug) {
-			if (is_callable($this->notORM->debug)) {
-				call_user_func($this->notORM->debug, $query, $this->parameters, microtime(true) - $start);
-			} else {
+			if (!is_callable($this->notORM->debug)) {
 				fwrite(STDERR, "-- $query;\n");
+			} elseif (call_user_func($this->notORM->debug, $query, $this->parameters) === false) {
+				return false;
 			}
 		}
-		return ($result ? $return : false);
+		$return = $this->notORM->connection->prepare($query);
+		if (!$return->execute($this->parameters)) {
+			return false;
+		}
+		return $return;
 	}
 	
 	protected function quote($val) {
