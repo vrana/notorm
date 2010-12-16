@@ -74,7 +74,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = "SELECT" . $this->topString() . " ";
 		$join = array();
 		foreach (array(
-			"where" => implode(",", $this->where),
+			"where" => implode(",", $this->conditions),
 			"rest" => implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order)
 		) as $key => $val) {
 			preg_match_all('~\\b(\\w+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
