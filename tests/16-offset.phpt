@@ -18,3 +18,6 @@ foreach ($software->application() as $application) {
 ?>
 --EXPECTF--
 MySQL
+
+MySQL
+MySQL
