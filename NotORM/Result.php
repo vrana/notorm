@@ -34,14 +34,6 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function whereString() {
 		$return = "";
-		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
-		$where = $this->where;
-		if (isset($this->limit) && $driver == "oci") {
-			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
-		}
-		if ($where) {
-			$return .= " WHERE (" . implode(") AND (", $where) . ")";
-		}
 		if ($this->group) {
 			$return .= " GROUP BY $this->group";
 		}
@@ -51,6 +43,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->order) {
 			$return .= " ORDER BY " . implode(", ", $this->order);
 		}
+		$return = preg_replace('~\\b(\\w+\\.)+(\\w+\\.\\w)~', '\\2', $return); // rewrite tab1.tab2.col
+		
+		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$where = $this->where;
+		if (isset($this->limit) && $driver == "oci") {
+			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
+		}
+		if ($where) {
+			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
+		}
+		
 		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
 			$return .= " LIMIT $this->limit";
 			if (isset($this->offset)) {
@@ -77,14 +80,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			"where" => implode(",", $this->conditions),
 			"rest" => implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order)
 		) as $key => $val) {
-			preg_match_all('~\\b(\\w+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
+			preg_match_all('~\\b([\\w.]+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
-				$name = $match[1];
-				if ($name != $this->table) { // case-sensitive
-					$table = $this->notORM->structure->getReferencedTable($name, $this->table);
-					$column = $this->notORM->structure->getReferencedColumn($name, $this->table);
-					$primary = $this->notORM->structure->getPrimary($table);
-					$join[$name] = " " . (!isset($join[$name]) && $key == "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $this->table.$column = $name.$primary";
+				$parent = $this->table;
+				if ($match[1] != $parent) { // case-sensitive
+					foreach (explode(".", $match[1]) as $name) {
+						$table = $this->notORM->structure->getReferencedTable($name, $parent);
+						$column = $this->notORM->structure->getReferencedColumn($name, $parent);
+						$primary = $this->notORM->structure->getPrimary($table);
+						$join[$name] = " " . (!isset($join[$name]) && $key == "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
+						$parent = $name;
+					}
 				}
 			}
 		}
@@ -93,7 +99,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->access = $this->accessed;
 		}
 		if ($this->select) {
-			$return .= implode(", ", $this->select);
+			$return .= preg_replace('~\\b(\\w+\\.)+(\\w+\\.\\w)~', '\\2', implode(", ", $this->select));
 		} elseif ($this->accessed) {
 			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
 		} else {
@@ -234,6 +240,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$this->__destruct();
 		$this->conditions[] = $condition;
+		$condition = preg_replace('~\\b(\\w+\\.)+(\\w+\\.\\w)~', '\\2', $condition);
 		$args = func_num_args();
 		if ($args != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
 			if ($args != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
