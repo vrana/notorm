@@ -70,30 +70,32 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return "";
 	}
 	
+	protected function createJoin($val, $inner = false) {
+		$return = array();
+		preg_match_all('~\\b([\\w.]+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
+		foreach ($matches as $match) {
+			$parent = $this->table;
+			if ($match[1] != $parent) { // case-sensitive
+				foreach (explode(".", $match[1]) as $name) {
+					$table = $this->notORM->structure->getReferencedTable($name, $parent);
+					$column = $this->notORM->structure->getReferencedColumn($name, $parent);
+					$primary = $this->notORM->structure->getPrimary($table);
+					$return[$name] = " " . (!isset($join[$name]) && $inner && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
+					$parent = $name;
+				}
+			}
+		}
+		return $return;
+	}
+	
 	/** Get SQL query
 	* @return string
 	*/
 	function __toString() {
 		$return = "SELECT" . $this->topString() . " ";
-		$join = array();
-		foreach (array(
-			"where" => implode(",", $this->conditions),
-			"rest" => implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order)
-		) as $key => $val) {
-			preg_match_all('~\\b([\\w.]+)\\.(\\w+)(\\s+IS\\b|\\s*<=>)?~i', $val, $matches, PREG_SET_ORDER);
-			foreach ($matches as $match) {
-				$parent = $this->table;
-				if ($match[1] != $parent) { // case-sensitive
-					foreach (explode(".", $match[1]) as $name) {
-						$table = $this->notORM->structure->getReferencedTable($name, $parent);
-						$column = $this->notORM->structure->getReferencedColumn($name, $parent);
-						$primary = $this->notORM->structure->getPrimary($table);
-						$join[$name] = " " . (!isset($join[$name]) && $key == "where" && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
-						$parent = $name;
-					}
-				}
-			}
-		}
+		$join = $this->createJoin(implode(",", $this->conditions), true)
+			+ $this->createJoin(implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order))
+		;
 		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
@@ -320,7 +322,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return string
 	*/
 	function aggregation($function) {
-		$query = "SELECT $function FROM $this->table";
+		$join = $this->createJoin(implode(",", $this->conditions), true) + $this->createJoin($function);
+		$query = "SELECT $function FROM $this->table" . implode($join);
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}

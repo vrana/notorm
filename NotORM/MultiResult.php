@@ -69,11 +69,13 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function aggregation($function) {
-		$query = "SELECT $function, $this->column FROM $this->table";
+		$join = $this->createJoin(implode(",", $this->conditions), true) + $this->createJoin($function);
+		$column = ($join ? "$this->table." : "") . $this->column;
+		$query = "SELECT $function, $column FROM $this->table" . implode($join);
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
-		$query .= " GROUP BY $this->column";
+		$query .= " GROUP BY $column";
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
