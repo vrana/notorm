@@ -26,13 +26,19 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
-			$table = $this->result->notORM->structure->getReferencedTable($name, $this->result->table);
 			$keys = array();
 			foreach ($this->result->rows as $row) {
-				$keys[$row[$column]] = null;
+				if ($row[$column] !== null) {
+					$keys[$row[$column]] = null;
+				}
 			}
-			$referenced = new NotORM_Result($table, $this->result->notORM);
-			$referenced->where("$table." . $this->result->notORM->structure->getPrimary($table), array_keys($keys));
+			if ($keys) {
+				$table = $this->result->notORM->structure->getReferencedTable($name, $this->result->table);
+				$referenced = new NotORM_Result($table, $this->result->notORM);
+				$referenced->where("$table." . $this->result->notORM->structure->getPrimary($table), array_keys($keys));
+			} else {
+				$referenced = array();
+			}
 		}
 		if (!isset($referenced[$this[$column]])) { // referenced row may not exist
 			return null;
