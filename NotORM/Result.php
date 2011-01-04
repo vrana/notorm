@@ -327,8 +327,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->where) {
 			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
 		}
-		foreach ($this->query($query)->fetch() as $val) {
-			return $val;
+		foreach ($this->query($query)->fetch() as $return) {
+			return $return;
 		}
 	}
 	
