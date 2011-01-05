@@ -33,6 +33,7 @@ abstract class NotORM_Abstract {
 * @property-write mixed $debug = false Enable debuging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
 * @property-write bool $freeze = false Disable persistence
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
+* @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends NotORM_Abstract {
 	
@@ -64,6 +65,13 @@ class NotORM extends NotORM_Abstract {
 	function __set($name, $value) {
 		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {
 			$this->$name = $value;
+		}
+		if ($name == "transaction") {
+			switch (strtoupper($value)) {
+				case "BEGIN": return $this->connection->beginTransaction();
+				case "COMMIT": return $this->connection->commit();
+				case "ROLLBACK": return $this->connection->rollback();
+			}
 		}
 	}
 	
