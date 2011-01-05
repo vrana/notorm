@@ -143,13 +143,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function quote($val) {
+		if (!isset($val)) {
+			return "NULL";
+		}
 		if ($val instanceof DateTime) {
 			$val = $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
-		return (!isset($val) ? "NULL"
-			: ($val instanceof NotORM_Literal ? $val->value // SQL code - for example "NOW()"
+		return (is_int($val) || is_float($val) || $val instanceof NotORM_Literal // number or SQL code - for example "NOW()"
+			? (string) $val
 			: $this->notORM->connection->quote($val)
-		));
+		);
 	}
 	
 	/** Insert row in a table
