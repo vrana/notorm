@@ -5,6 +5,7 @@
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
+	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
 	/** Create table result
@@ -32,6 +33,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->rows = null;
 	}
 	
+	protected function limitString($limit, $offset) {
+		$return = "";
+		if (isset($limit)) {
+			$return .= " LIMIT $limit";
+			if (isset($offset)) {
+				$return .= " OFFSET $offset";
+			}
+		}
+		return $return;
+	}
+	
 	protected function whereString() {
 		$return = "";
 		if ($this->group) {
@@ -54,11 +66,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
 		}
 		
-		if (isset($this->limit) && $driver != "oci" && $driver != "dblib") {
-			$return .= " LIMIT $this->limit";
-			if (isset($this->offset)) {
-				$return .= " OFFSET $this->offset";
-			}
+		if ($driver != "oci" && $driver != "dblib") {
+			$return .= $this->limitString($this->limit, $this->offset);
 		}
 		return $return;
 	}
@@ -107,7 +116,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} else {
 			$return .= ($join ? "$this->table." : "") . "*";
 		}
-		return "$return FROM $this->table" . implode($join) . $this->whereString();
+		$return .= " FROM $this->table" . implode($join) . $this->whereString();
+		if ($this->union) {
+			$return = "($return)" . implode($this->union);
+			if ($this->unionOrder) {
+				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
+			}
+			$return .= $this->limitString($this->unionLimit, $this->unionOffset);
+		}
+		return $return;
 	}
 	
 	protected function query($query) {
@@ -288,7 +305,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function order($columns) {
 		$this->rows = null;
 		foreach (func_get_args() as $columns) {
-			$this->order[] = $columns;
+			if ($this->union) {
+				$this->unionOrder[] = $columns;
+			} else {
+				$this->order[] = $columns;
+			}
 		}
 		return $this;
 	}
@@ -300,8 +321,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function limit($limit, $offset = null) {
 		$this->rows = null;
-		$this->limit = $limit;
-		$this->offset = $offset;
+		if ($this->union) {
+			$this->unionLimit = $limit;
+			$this->unionOffset = $offset;
+		} else {
+			$this->limit = $limit;
+			$this->offset = $offset;
+		}
 		return $this;
 	}
 	
@@ -314,6 +340,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->__destruct();
 		$this->group = $columns;
 		$this->having = $having;
+		return $this;
+	}
+	
+	/** 
+	* @param NotORM_Result
+	* @param bool
+	* @return NotORM_Result fluent interface
+	*/
+	function union(NotORM_Result $result, $all = false) {
+		$this->union[] = " UNION " . ($all ? "ALL " : "") . "($result)";
 		return $this;
 	}
 	
