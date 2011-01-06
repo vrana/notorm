@@ -300,6 +300,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this;
 	}
 	
+	/** Shortcut for where()
+	* @param string
+	* @param mixed
+	* @param mixed ...
+	* @return NotORM_Result fluent interface
+	*/
+	function __invoke($where, $parameters = array()) {
+		$args = func_get_args();
+		return call_user_func_array(array($this, 'where'), $args);
+	}
+	
 	/** Add order clause, more calls appends to the end
 	* @param string for example "column1, column2 DESC"
 	* @param string ...
