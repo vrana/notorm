@@ -19,6 +19,8 @@ interface NotORM_Cache {
 	
 }
 
+
+
 /** Cache using $_SESSION["NotORM"]
 */
 class NotORM_Cache_Session implements NotORM_Cache {
@@ -35,6 +37,8 @@ class NotORM_Cache_Session implements NotORM_Cache {
 	}
 	
 }
+
+
 
 /** Cache using file
 */
@@ -61,6 +65,8 @@ class NotORM_Cache_File implements NotORM_Cache {
 	}
 	
 }
+
+
 
 /** Cache using PHP include
 */
@@ -90,6 +96,8 @@ class NotORM_Cache_Include implements NotORM_Cache {
 	}
 	
 }
+
+
 
 /** Cache storing data to the "notorm" table in database
 */
@@ -129,7 +137,11 @@ class NotORM_Cache_Database implements NotORM_Cache {
 	
 }
 
+
+
 // eAccelerator - user cache is obsoleted
+
+
 
 /** Cache using "NotORM." prefix in Memcache
 */
@@ -153,6 +165,8 @@ class NotORM_Cache_Memcache implements NotORM_Cache {
 	}
 	
 }
+
+
 
 /** Cache using "NotORM." prefix in APC
 */

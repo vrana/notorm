@@ -40,6 +40,8 @@ interface NotORM_Structure {
 	
 }
 
+
+
 /** Structure described by some rules
 */
 class NotORM_Structure_Convention implements NotORM_Structure {
@@ -80,6 +82,8 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 }
+
+
 
 /** Structure reading meta-informations from the database
 */

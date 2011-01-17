@@ -13,6 +13,8 @@ include_once dirname(__FILE__) . "/NotORM/Result.php";
 include_once dirname(__FILE__) . "/NotORM/MultiResult.php";
 include_once dirname(__FILE__) . "/NotORM/Row.php";
 
+
+
 // friend visibility emulation
 abstract class NotORM_Abstract {
 	protected $connection, $structure, $cache;
@@ -28,6 +30,8 @@ abstract class NotORM_Abstract {
 	}
 	
 }
+
+
 
 /** Database representation
 * @property-write mixed $debug = false Enable debuging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
