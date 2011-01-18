@@ -529,29 +529,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	// ArrayAccess implementation
 	
 	/** Test if row exists
-	* @param string row ID
+	* @param string row ID or array for where conditions
 	* @return bool
 	*/
 	function offsetExists($key) {
-		if ($this->single && !isset($this->data)) {
-			$clone = clone $this;
-			$clone->where($this->primary, $key);
-			return $clone->count();
-			// can also use array_pop($this->where) instead of clone to save memory
-		} else {
-			$this->execute();
-			return isset($this->data[$key]);
-		}
+		$row = $this->offsetGet($key);
+		return isset($row);
 	}
 	
 	/** Get specified row
-	* @param string row ID
+	* @param string row ID or array for where conditions
 	* @return NotORM_Row or null if there is no such row
 	*/
 	function offsetGet($key) {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
-			$clone->where($this->primary, $key);
+			if (is_array($key)) {
+				$clone->where($key);
+			} else {
+				$clone->where($this->primary, $key);
+			}
 			$return = $clone->fetch();
 			if (!$return) {
 				return null;
@@ -559,7 +556,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return $return;
 		} else {
 			$this->execute();
-			return $this->data[$key];
+			if (is_array($key)) {
+				foreach ($this->data as $row) {
+					foreach ($key as $k => $v) {
+						if ((isset($v) ? $row[$k] != $v : $row[$k] !== $v)) {
+							break;
+						}
+						return $row;
+					}
+				}
+			} elseif (isset($this->data[$key])) {
+				return $this->data[$key];
+			}
 		}
 	}
 	
