@@ -89,7 +89,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					$table = $this->notORM->structure->getReferencedTable($name, $parent);
 					$column = $this->notORM->structure->getReferencedColumn($name, $parent);
 					$primary = $this->notORM->structure->getPrimary($table);
-					$return[$name] = " " . (!isset($join[$name]) && $inner && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
+					$return[$name] = " " . (!isset($return[$name]) && $inner && !isset($match[3]) ? "INNER" : "LEFT") . " JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
 					$parent = $name;
 				}
 			}
