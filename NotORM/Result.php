@@ -475,8 +475,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function fetchPairs($key, $value = '') {
 		$return = array();
-		// no $clone->select = array($key, $value) to allow efficient caching with repetitive calls with different parameters
-		foreach ($this as $row) {
+		$clone = clone $this;
+		if ($value != '') {
+			$clone->select($key, $value);
+		}
+		foreach ($clone as $row) {
 			$return[$row[$key]] = ($value != '' ? $row[$value] : $row);
 		}
 		return $return;
