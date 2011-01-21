@@ -281,6 +281,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
 				$condition .= " IN ($clone)";
+				$this->parameters = array_merge($this->parameters, $clone->parameters);
 			} else {
 				$in = array();
 				foreach ($clone as $row) {
