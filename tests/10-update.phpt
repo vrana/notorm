@@ -12,7 +12,7 @@ $application = $software->application()->insert(array(
 	"web" => "",
 	"slogan" => "The best humane Web text generator",
 ));
-$application->application_tag()->insert(array("tag_id" => 21));
+$application_tag = $application->application_tag()->insert(array("tag_id" => 21));
 
 // retrieve the really stored value
 $application = $software->application[$id];
@@ -22,6 +22,7 @@ $application["web"] = "http://texy.info/";
 echo $application->update() . " row updated.\n";
 echo $software->application[$id]["web"] . "\n";
 
+$software->application_tag("application_id", 5)->delete(); // foreign keys may be disabled
 echo $application->delete() . " row deleted.\n";
 echo count($software->application("id", $id)) . " rows found.\n";
 ?>
