@@ -61,23 +61,22 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$return = $this->removeExtraDots($return);
 		
-		$driver = $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 		$where = $this->where;
-		if (isset($this->limit) && $driver == "oci") {
+		if (isset($this->limit) && $this->notORM->driver == "oci") {
 			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
 		}
 		if ($where) {
 			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
 		}
 		
-		if ($driver != "oci" && $driver != "dblib") {
+		if ($this->notORM->driver != "oci" && $this->notORM->driver != "dblib") {
 			$return .= $this->limitString($this->limit, $this->offset);
 		}
 		return $return;
 	}
 	
 	protected function topString() {
-		if (isset($this->limit) && $this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "dblib") {
+		if (isset($this->limit) && $this->notORM->driver == "dblib") {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
@@ -279,7 +278,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!$clone->select) {
 				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
 			}
-			if ($this->notORM->connection->getAttribute(PDO::ATTR_DRIVER_NAME) != "mysql") {
+			if ($this->notORM->driver != "mysql") {
 				$condition .= " IN ($clone)";
 				$this->parameters = array_merge($this->parameters, $clone->parameters);
 			} else {

@@ -18,7 +18,7 @@ include_once dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
-	protected $connection, $structure, $cache;
+	protected $connection, $driver, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
 	protected $debug = false;
@@ -49,6 +49,7 @@ class NotORM extends NotORM_Abstract {
 	*/
 	function __construct(PDO $connection, NotORM_Structure $structure = null, NotORM_Cache $cache = null) {
 		$this->connection = $connection;
+		$this->driver = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 		if (!isset($structure)) {
 			$structure = new NotORM_Structure_Convention;
 		}
