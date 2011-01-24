@@ -119,7 +119,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$return .= " FROM $this->table" . implode($join) . $this->whereString();
 		if ($this->union) {
-			$return = "($return)" . implode($this->union);
+			$return = ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $return : "($return)") . implode($this->union);
 			if ($this->unionOrder) {
 				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
 			}
@@ -365,7 +365,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function union(NotORM_Result $result, $all = false) {
-		$this->union[] = " UNION " . ($all ? "ALL " : "") . "($result)";
+		$this->union[] = " UNION " . ($all ? "ALL " : "") . ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $result : "($result)");
 		return $this;
 	}
 	
