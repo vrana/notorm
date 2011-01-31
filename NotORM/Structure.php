@@ -38,6 +38,11 @@ interface NotORM_Structure {
 	*/
 	function getReferencedTable($name, $table);
 	
+	/** Get sequence name, used by insert
+	* @param string
+	*/
+	function getSequence($table);
+	
 }
 
 
@@ -79,6 +84,10 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	
 	function getReferencedTable($name, $table) {
 		return sprintf($this->table, $name, $table);
+	}
+	
+	function getSequence($table) {
+		return null;
 	}
 	
 }
@@ -171,6 +180,10 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 			}
 		}
 		return $return[$column];
+	}
+	
+	function getSequence($table) {
+		return null;
 	}
 	
 }

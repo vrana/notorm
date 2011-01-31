@@ -191,7 +191,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!is_array($data)) {
 			return $return->rowCount();
 		}
-		if (!isset($data[$this->primary]) && ($id = $this->notORM->connection->lastInsertId())) {
+		if (!isset($data[$this->primary]) && ($id = $this->notORM->connection->lastInsertId($this->notORM->structure->getSequence($this->table)))) {
 			$data[$this->primary] = $id;
 		}
 		return new NotORM_Row($data, $this);
