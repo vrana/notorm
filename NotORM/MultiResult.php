@@ -17,7 +17,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	* @param string
 	* @return NotORM_MultiResult fluent interface
 	*/
-	function through($column) {
+	function via($column) {
 		$this->column = $column;
 		return $this;
 	}
