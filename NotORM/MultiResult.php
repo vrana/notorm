@@ -53,10 +53,10 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	function select($columns) {
-		if (!$this->select) {
-			$this->select[] = "$this->table.$this->column";
-		}
 		$args = func_get_args();
+		if (!$this->select) {
+			$args[] = "$this->table.$this->column";
+		}
 		return call_user_func_array(array($this, 'parent::select'), $args);
 	}
 	

@@ -477,7 +477,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = array();
 		$clone = clone $this;
 		if ($value != "") {
-			$clone->select = array($key, $value);
+			$clone->select = array();
+			$clone->select("$key, $value"); // MultiResult adds its column
 		} elseif ($clone->select) {
 			array_unshift($clone->select, $key);
 		} else {
