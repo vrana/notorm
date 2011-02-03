@@ -221,6 +221,48 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return->rowCount();
 	}
 	
+	/** Insert row or update if it already exists
+	* @param array ($column => $value)
+	* @param array ($column => $value)
+	* @param array ($column => $value), empty array means use $insert
+	* @return int number of affected rows or false in case of an error
+	*/
+	function insert_update(array $unique, array $insert, array $update = array()) {
+		if (!$update) {
+			$update = $insert;
+		}
+		$insert = $unique + $insert;
+		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $insert)) . ")";
+		if ($this->notORM->driver == "mysql") {
+			$set = array();
+			foreach ($update as $key => $val) {
+				$set[] = "$key = " . $this->quote($val);
+			}
+			return $this->insert("$values ON DUPLICATE KEY UPDATE " . implode(", ", $set));
+		} else {
+			$connection = $this->notORM->connection;
+			$errorMode = $connection->getAttribute(PDO::ATTR_ERRMODE);
+			$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			try {
+				$return = $this->insert($values);
+				$connection->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
+				return $return;
+			} catch (PDOException $e) {
+				$connection->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
+				if ($e->getCode() == "23000") { // "23000" - duplicate key
+					$clone = clone $this;
+					$return = $clone->where($unique)->update($update);
+					return ($return ? $return + 1 : $return);
+				}
+				if ($errorMode == PDO::ERRMODE_EXCEPTION) {
+					throw $e;
+				} elseif ($errorMode == PDO::ERRMODE_WARNING) {
+					trigger_error("PDOStatement::execute(): " . $e->getMessage(), E_USER_WARNING); // E_WARNING is unusable
+				}
+			}
+		}
+	}
+	
 	/** Delete all rows in result set
 	* @return int number of affected rows or false in case of an error
 	*/
