@@ -45,7 +45,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function removeExtraDots($expression) {
-		return preg_replace('~\\b[a-z_][a-z0-9_.]*\\.([a-z_][a-z0-9_]*\\.[a-z_])~i', '\\1', $expression); // rewrite tab1.tab2.col
+		return preg_replace('~\\b[a-z_][a-z0-9_.]*\\.([a-z_][a-z0-9_]*\\.[a-z_*])~i', '\\1', $expression); // rewrite tab1.tab2.col
 	}
 	
 	protected function whereString() {
@@ -84,7 +84,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function createJoins($val) {
 		$return = array();
-		preg_match_all('~\\b([a-z_][a-z0-9_.]*)\\.[a-z_]~i', $val, $matches, PREG_SET_ORDER);
+		preg_match_all('~\\b([a-z_][a-z0-9_.]*)\\.[a-z_*]~i', $val, $matches, PREG_SET_ORDER);
 		foreach ($matches as $match) {
 			$parent = $this->table;
 			if ($match[1] != $parent) { // case-sensitive
