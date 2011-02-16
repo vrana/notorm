@@ -62,7 +62,7 @@ class NotORM extends NotORM_Abstract {
 	* @return NotORM_Result
 	*/
 	function __get($table) {
-		return new NotORM_Result($table, $this, true);
+		return new NotORM_Result($this->structure->getReferencingTable($table, ''), $this, true);
 	}
 	
 	/** Set write-only properties
@@ -87,7 +87,7 @@ class NotORM extends NotORM_Abstract {
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
-		$return = new NotORM_Result($table, $this);
+		$return = new NotORM_Result($this->structure->getReferencingTable($table, ''), $this);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);
 		}

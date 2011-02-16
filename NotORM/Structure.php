@@ -4,12 +4,6 @@
 */
 interface NotORM_Structure {
 	
-	/** Get table name in $db->$table()
-	* @param string
-	* @return string
-	*/
-	function getTable($table);
-	
 	/** Get primary key of a table in $db->$table()
 	* @param string
 	* @return string
@@ -69,10 +63,6 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 		$this->table = $table;
 	}
 	
-	function getTable($table) {
-		return $table;
-	}
-	
 	function getPrimary($table) {
 		return sprintf($this->primary, $table);
 	}
@@ -130,10 +120,6 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		if ($this->cache) {
 			$this->cache->save("structure", $this->structure);
 		}
-	}
-	
-	function getTable($table) {
-		return $table;
 	}
 	
 	function getPrimary($table) {
