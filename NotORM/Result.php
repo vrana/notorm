@@ -408,6 +408,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function union(NotORM_Result $result, $all = false) {
 		$this->union[] = " UNION " . ($all ? "ALL " : "") . ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $result : "($result)");
+		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
 	}
 	
