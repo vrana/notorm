@@ -31,6 +31,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $access);
 		}
 		$this->rows = null;
+		$this->data = null;
 	}
 	
 	protected function limitString($limit, $offset) {
