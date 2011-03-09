@@ -599,7 +599,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
 			if (is_array($key)) {
-				$clone->where($key);
+				$clone->where($key)->limit(1);
 			} else {
 				$clone->where($this->primary, $key);
 			}
