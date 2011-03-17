@@ -83,7 +83,7 @@ class NotORM extends NotORM_Abstract {
 	
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where() or (array|Traversable) passed to NotORM_Result::insert()
+	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
 	* @return NotORM_Result
 	*/
 	function __call($table, array $where) {
