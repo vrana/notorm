@@ -163,6 +163,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!isset($val)) {
 			return "NULL";
 		}
+		if (is_array($val)) { // (a, b) IN ((1, 2), (3, 4))
+			return "(" . implode(", ", array_map(array($this, 'quote'), $val)) . ")";
+		}
 		if ($val instanceof DateTime) {
 			$val = $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
