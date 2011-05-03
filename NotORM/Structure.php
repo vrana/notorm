@@ -50,17 +50,19 @@ interface NotORM_Structure {
 /** Structure described by some rules
 */
 class NotORM_Structure_Convention implements NotORM_Structure {
-	protected $primary, $foreign, $table;
+	protected $primary, $foreign, $table, $prefix;
 	
 	/** Create conventional structure
 	* @param string %s stands for table name
 	* @param string %1$s stands for key used after ->, %2$s for table name
 	* @param string %1$s stands for key used after ->, %2$s for table name
+	* @param string prefix for all tables
 	*/
-	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s') {
+	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s', $prefix = '') {
 		$this->primary = $primary;
 		$this->foreign = $foreign;
 		$this->table = $table;
+		$this->prefix = $prefix;
 	}
 	
 	function getPrimary($table) {
@@ -72,7 +74,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencingTable($name, $table) {
-		return $name;
+		return $this->prefix . $name;
 	}
 	
 	function getReferencedColumn($name, $table) {
@@ -83,7 +85,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencedTable($name, $table) {
-		return sprintf($this->table, $name, $table);
+		return $this->prefix . sprintf($this->table, $name, $table);
 	}
 	
 	function getSequence($table) {
