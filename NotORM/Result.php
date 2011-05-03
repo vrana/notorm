@@ -4,7 +4,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "";
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
 	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
@@ -72,6 +72,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		
 		if ($this->notORM->driver != "oci" && $this->notORM->driver != "dblib") {
 			$return .= $this->limitString($this->limit, $this->offset);
+		}
+		if (isset($this->lock)) {
+			$return .= ($this->lock ? " FOR UPDATE" : " LOCK IN SHARE MODE");
 		}
 		return $return;
 	}
@@ -409,6 +412,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->__destruct();
 		$this->group = $columns;
 		$this->having = $having;
+		return $this;
+	}
+	
+	/** Set select FOR UPDATE or LOCK IN SHARE MODE
+	* @param bool
+	* @return NotORM_Result fluent interface
+	*/
+	function lock($exclusive = true) {
+		$this->lock = $exclusive;
 		return $this;
 	}
 	
