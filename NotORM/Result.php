@@ -46,7 +46,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function removeExtraDots($expression) {
-		return preg_replace('~\\b[a-z_][a-z0-9_.]*\\.([a-z_][a-z0-9_]*\\.[a-z_*])~i', '\\1', $expression); // rewrite tab1.tab2.col
+		return preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $expression); // rewrite tab1.tab2.col
 	}
 	
 	protected function whereString() {
@@ -88,14 +88,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function createJoins($val) {
 		$return = array();
-		preg_match_all('~\\b([a-z_][a-z0-9_.]*)\\.[a-z_*]~i', $val, $matches, PREG_SET_ORDER);
-		foreach ($matches as $match) {
+		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
+		foreach ($matches[1] as $names) {
 			$parent = $this->table;
-			if ($match[1] != $parent) { // case-sensitive
-				foreach (explode(".", $match[1]) as $name) {
+			if ($names != "$parent.") { // case-sensitive
+				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~', $names, $matches, PREG_SET_ORDER);
+				foreach ($matches as $match) {
+					list(, $name, $delimiter) = $match;
 					$table = $this->notORM->structure->getReferencedTable($name, $parent);
-					$column = $this->notORM->structure->getReferencedColumn($name, $parent);
-					$primary = $this->notORM->structure->getPrimary($table);
+					$column = ($delimiter == ':' ? $this->notORM->structure->getPrimary($parent) : $this->notORM->structure->getReferencedColumn($name, $parent));
+					$primary = ($delimiter == ':' ? $this->notORM->structure->getReferencedColumn($parent, $table) : $this->notORM->structure->getPrimary($table));
 					$return[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
 					$parent = $name;
 				}
