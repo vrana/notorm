@@ -352,7 +352,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				if ($in) {
 					$condition .= " IN (" . implode(", ", $in) . ")";
 				} else {
-					$condition .= " IN (NULL)";
+					$condition = "($condition) IS NOT NULL AND $condition IS NULL"; // $condition = "NOT id"
 				}
 			}
 		} elseif (!is_array($parameters)) { // where("column", "x")
@@ -361,7 +361,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if ($parameters) {
 				$condition .= " IN (" . implode(", ", array_map(array($this, 'quote'), $parameters)) . ")";
 			} else {
-				$condition .= " IN (NULL)";
+				$condition = "($condition) IS NOT NULL AND $condition IS NULL";
 			}
 		}
 		$this->where[] = $condition;
