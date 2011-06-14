@@ -343,18 +343,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$in = array();
 				foreach ($clone as $row) {
 					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
-					$in[] = (count($row) == 1 ? $val : "($val)");
+					if (count($row) == 1) {
+						$in[] = $val;
+					} else {
+						$in[] = "($val)";
+					}
 				}
-				$condition .= " IN (" . ($in ? implode(", ", $in) : "NULL") . ")";
+				if ($in) {
+					$condition .= " IN (" . implode(", ", $in) . ")";
+				} else {
+					$condition .= " IN (NULL)";
+				}
 			}
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1, 2))
-			$in = "NULL";
 			if ($parameters) {
-				$in = implode(", ", array_map(array($this, 'quote'), $parameters));
+				$condition .= " IN (" . implode(", ", array_map(array($this, 'quote'), $parameters)) . ")";
+			} else {
+				$condition .= " IN (NULL)";
 			}
-			$condition .= " IN ($in)";
 		}
 		$this->where[] = $condition;
 		return $this;
