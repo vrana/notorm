@@ -36,9 +36,13 @@ class NotORM_MultiResult extends NotORM_Result {
 		return call_user_func_array(array($this, 'parent::insert'), $args); // works since PHP 5.1.2, array('parent', 'insert') issues E_STRICT in 5.1.2 <= PHP < 5.3.0
 	}
 	
+	protected function single() {
+		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
+	}
+	
 	function update(array $data) {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
+		$this->single();
 		$return = parent::update($data);
 		$this->where = $where;
 		return $return;
@@ -46,7 +50,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	function delete() {
 		$where = $this->where;
-		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
+		$this->single();
 		$return = parent::delete();
 		$this->where = $where;
 		return $return;
@@ -55,7 +59,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	function select($columns) {
 		$args = func_get_args();
 		if (!$this->select) {
-			$args[] = "$this->table.$this->column";
+			array_unshift($args, "$this->table.$this->column");
 		}
 		return call_user_func_array(array($this, 'parent::select'), $args);
 	}

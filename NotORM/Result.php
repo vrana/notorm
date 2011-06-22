@@ -334,19 +334,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$clone = clone $parameters;
 			if (!$clone->select) {
-				$clone->select = array($this->notORM->structure->getPrimary($clone->table));
+				$clone->select($this->notORM->structure->getPrimary($clone->table));
 			}
 			if ($this->notORM->driver != "mysql") {
+				if ($clone instanceof NotORM_MultiResult) {
+					array_shift($clone->select);
+					$clone->single();
+				}
 				$condition .= " IN ($clone)";
 				$this->parameters = array_merge($this->parameters, $clone->parameters);
 			} else {
 				$in = array();
 				foreach ($clone as $row) {
-					$val = implode(", ", array_map(array($this, 'quote'), iterator_to_array($row)));
+					$row = array_values(iterator_to_array($row));
+					if ($clone instanceof NotORM_MultiResult && count($row) > 1) {
+						array_shift($row);
+					}
 					if (count($row) == 1) {
-						$in[] = $val;
+						$in[] = $this->quote($row[0]);
 					} else {
-						$in[] = "($val)";
+						$in[] = "(" . implode(", ", array_map(array($this, 'quote'), $row)) . ")";
 					}
 				}
 				if ($in) {
@@ -585,6 +592,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return true;
 		}
 		return false;
+	}
+	
+	protected function single() {
 	}
 	
 	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
