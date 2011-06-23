@@ -199,7 +199,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				if ($val instanceof Traversable) {
 					$val = iterator_to_array($val);
 				}
-				$values[] = "(" . implode(", ", array_map(array($this, 'quote'), $val)) . ")";
+				$values[] = $this->quote($val);
 			}
 			//! driver specific empty $data and extended insert
 			$insert = "(" . implode(", ", array_keys($data)) . ") VALUES " . implode(", ", $values);
@@ -254,7 +254,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$update = $insert;
 		}
 		$insert = $unique + $insert;
-		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES (" . implode(", ", array_map(array($this, 'quote'), $insert)) . ")";
+		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES " . $this->quote($insert);
 		if ($this->notORM->driver == "mysql") {
 			$set = array();
 			foreach ($update as $key => $val) {
@@ -359,7 +359,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					if (count($row) == 1) {
 						$in[] = $this->quote($row[0]);
 					} else {
-						$in[] = "(" . implode(", ", array_map(array($this, 'quote'), $row)) . ")";
+						$in[] = $this->quote($row);
 					}
 				}
 				if ($in) {
@@ -374,11 +374,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!$parameters) {
 				$condition = "($condition) IS NOT NULL AND $condition IS NULL";
 			} elseif ($this->notORM->driver != "oci") {
-				$condition .= " IN (" . implode(", ", array_map(array($this, 'quote'), $parameters)) . ")";
+				$condition .= " IN " . $this->quote($parameters);
 			} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
 				$or = array();
 				for ($i=0; $i < count($parameters); $i += 1000) {
-					$or[] = "$condition IN (" . implode(", ", array_map(array($this, 'quote'), array_slice($parameters, $i, 1000))) . ")";
+					$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
 				}
 				$condition = "(" . implode(" OR ", $or) . ")";
 			}
