@@ -365,10 +365,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1, 2))
-			if ($parameters) {
-				$condition .= " IN (" . implode(", ", array_map(array($this, 'quote'), $parameters)) . ")";
-			} else {
+			if (!$parameters) {
 				$condition = "($condition) IS NOT NULL AND $condition IS NULL";
+			} elseif ($this->notORM->driver != "oci") {
+				$condition .= " IN (" . implode(", ", array_map(array($this, 'quote'), $parameters)) . ")";
+			} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
+				$or = array();
+				for ($i=0; $i < count($parameters); $i += 1000) {
+					$or[] = "$condition IN (" . implode(", ", array_map(array($this, 'quote'), array_slice($parameters, $i, 1000))) . ")";
+				}
+				$condition = "(" . implode(" OR ", $or) . ")";
 			}
 		}
 		$this->where[] = $condition;
