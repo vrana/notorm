@@ -6,7 +6,8 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	private $modified = array();
 	protected $row, $result;
 	
-	protected function __construct(array $row, NotORM_Result $result) {
+	/** @access protected must be public because it is called from Result */
+	function __construct(array $row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
 	}

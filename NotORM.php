@@ -25,8 +25,6 @@ abstract class NotORM_Abstract {
 	protected $freeze = false;
 	protected $rowClass = 'NotORM_Row';
 	
-	abstract protected function __construct();
-	
 	protected function access($key, $delete = false) {
 	}
 	
