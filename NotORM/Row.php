@@ -82,7 +82,8 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		if (!isset($data)) {
 			$data = $this->modified;
 		}
-		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->update($data);
+		$result = new NotORM_Result($this->result->table, $this->result->notORM);
+		return $result->where($this->result->primary, $this[$this->result->primary])->update($data);
 	}
 	
 	/** Delete row
@@ -90,7 +91,8 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	*/
 	function delete() {
 		// delete is an SQL keyword
-		return $this->result->notORM->__call($this->result->table, array($this->result->primary, $this[$this->result->primary]))->delete();
+		$result = new NotORM_Result($this->result->table, $this->result->notORM);
+		return $result->where($this->result->primary, $this[$this->result->primary])->delete();
 	}
 	
 	protected function access($key, $delete = false) {

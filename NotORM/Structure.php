@@ -40,6 +40,7 @@ interface NotORM_Structure {
 	
 	/** Get sequence name, used by insert
 	* @param string
+	* @return string
 	*/
 	function getSequence($table);
 	
@@ -70,7 +71,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencingColumn($name, $table) {
-		return $this->getReferencedColumn($table, $name);
+		return $this->getReferencedColumn(substr($table, strlen($this->prefix)), $this->prefix . $name);
 	}
 	
 	function getReferencingTable($name, $table) {
@@ -81,7 +82,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
 			$name = $match[1];
 		}
-		return sprintf($this->foreign, $name, $table);
+		return sprintf($this->foreign, $name, substr($table, strlen($this->prefix)));
 	}
 	
 	function getReferencedTable($name, $table) {
