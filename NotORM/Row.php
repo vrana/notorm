@@ -55,7 +55,24 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		return ($this->__get($name) !== null);
 	}
 	
-	// __set is not defined to allow storing custom references (undocumented)
+	/** Store referenced value
+	* @param string
+	* @param NotORM_Row or null
+	* @return null
+	*/
+	function __set($name, NotORM_Row $value = null) {
+		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
+		$this[$column] = $value;
+	}
+	
+	/** Remove referenced column from data
+	* @param string
+	* @return null
+	*/
+	function __unset($name) {
+		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
+		unset($this[$column]);
+	}
 	
 	/** Get referencing rows
 	* @param string table name
