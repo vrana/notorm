@@ -538,7 +538,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$result = false;
 			$exception = null;
 			$parameters = array();
-			foreach (array_merge($this->select, array($this), $this->order, $this->unionOrder) as $val) {
+			foreach (array_merge($this->select, array($this, $this->group, $this->having), $this->order, $this->unionOrder) as $val) {
 				if (($val instanceof NotORM_Literal || $val instanceof self) && $val->parameters) {
 					$parameters = array_merge($parameters, $val->parameters);
 				}
