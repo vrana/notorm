@@ -93,7 +93,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		foreach ($matches[1] as $names) {
 			$parent = $this->table;
 			if ($names != "$parent.") { // case-sensitive
-				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~', $names, $matches, PREG_SET_ORDER);
+				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~i', $names, $matches, PREG_SET_ORDER);
 				foreach ($matches as $match) {
 					list(, $name, $delimiter) = $match;
 					$table = $this->notORM->structure->getReferencedTable($name, $parent);
