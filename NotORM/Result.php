@@ -138,9 +138,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected function query($query) {
 		if ($this->notORM->debug) {
 			if (!is_callable($this->notORM->debug)) {
-				$parameters = "";
+				$debug = "$query;";
 				if ($this->parameters) {
-					$parameters = " -- " . implode(", ", array_map(array($this->notORM->connection, 'quote'), $this->parameters));
+					$debug .= " -- " . implode(", ", array_map(array($this->notORM->connection, 'quote'), $this->parameters));
 				}
 				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
@@ -148,7 +148,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 						break;
 					}
 				}
-				fwrite(STDERR, "$backtrace[file]:$backtrace[line]:$query;$parameters\n");
+				fwrite(STDERR, "$backtrace[file]:$backtrace[line]:$debug\n");
 			} elseif (call_user_func($this->notORM->debug, $query, $this->parameters) === false) {
 				return false;
 			}
