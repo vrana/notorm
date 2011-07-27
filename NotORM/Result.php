@@ -65,7 +65,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		
 		$where = $this->where;
 		if (isset($this->limit) && $this->notORM->driver == "oci") {
-			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset);
+			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset); //! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
 		}
 		if ($where) {
 			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
