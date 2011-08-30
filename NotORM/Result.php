@@ -198,13 +198,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$insert = $data;
 		if (is_array($data)) {
 			$values = array();
-			foreach (func_get_args() as $val) {
-				if ($val instanceof Traversable) {
-					$val = iterator_to_array($val);
+			foreach (func_get_args() as $value) {
+				if ($value instanceof Traversable) {
+					$value = iterator_to_array($value);
 				}
-				$values[] = $this->quote($val);
-				if ($val instanceof NotORM_Literal && $val->parameters) {
-					$parameters = array_merge($parameters, $val->parameters);
+				$values[] = $this->quote($value);
+				foreach ($value as $val) {
+					if ($val instanceof NotORM_Literal && $val->parameters) {
+						$parameters = array_merge($parameters, $val->parameters);
+					}
 				}
 			}
 			//! driver specific empty $data and extended insert
