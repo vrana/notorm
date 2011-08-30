@@ -140,7 +140,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!is_callable($this->notORM->debug)) {
 				$debug = "$query;";
 				if ($parameters) {
-					$debug .= " -- " . implode(", ", array_map(array($this->notORM->connection, 'quote'), $parameters));
+					$debug .= " -- " . implode(", ", array_map(array($this, 'quote'), $parameters));
 				}
 				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
