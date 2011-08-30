@@ -154,10 +154,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 		}
 		$return = $this->notORM->connection->prepare($query);
-		if (!$return || !$return->execute($parameters)) {
+		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
 			return false;
 		}
 		return $return;
+	}
+	
+	protected function formatValue($val) {
+		if ($val instanceof DateTime) {
+			return $val->format("Y-m-d H:i:s"); //! may be driver specific
+		}
+		return $val;
 	}
 	
 	protected function quote($val) {
@@ -167,9 +174,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (is_array($val)) { // (a, b) IN ((1, 2), (3, 4))
 			return "(" . implode(", ", array_map(array($this, 'quote'), $val)) . ")";
 		}
-		if ($val instanceof DateTime) {
-			$val = $val->format("Y-m-d H:i:s"); //! may be driver specific
-		}
+		$val = $this->formatValue($val);
 		if (is_float($val)) {
 			return sprintf("%F", $val); // otherwise depends on setlocale()
 		}
