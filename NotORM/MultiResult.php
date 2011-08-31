@@ -37,7 +37,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	protected function single() {
-		$this->where[0] = "$this->column = " . $this->notORM->connection->quote($this->active);
+		$this->where[0] = "$this->column = " . $this->quote($this->active);
 	}
 	
 	function update(array $data) {
