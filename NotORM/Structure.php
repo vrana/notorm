@@ -67,7 +67,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getPrimary($table) {
-		return sprintf($this->primary, $table);
+		return sprintf($this->primary, $this->getColumnFromTable($table));
 	}
 	
 	function getReferencingColumn($name, $table) {
@@ -79,10 +79,7 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	}
 	
 	function getReferencedColumn($name, $table) {
-		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
-			$name = $match[1];
-		}
-		return sprintf($this->foreign, $name, substr($table, strlen($this->prefix)));
+		return sprintf($this->foreign, $this->getColumnFromTable($name), substr($table, strlen($this->prefix)));
 	}
 	
 	function getReferencedTable($name, $table) {
@@ -91,6 +88,13 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 	
 	function getSequence($table) {
 		return null;
+	}
+	
+	protected function getColumnFromTable($name) {
+		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
+			return $match[1];
+		}
+		return $name;
 	}
 	
 }
