@@ -178,10 +178,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (is_float($val)) {
 			return sprintf("%F", $val); // otherwise depends on setlocale()
 		}
-		return (is_int($val) || $val instanceof NotORM_Literal // number or SQL code - for example "NOW()"
-			? (string) $val
-			: $this->notORM->connection->quote($val)
-		);
+		if ($val === false) {
+			return "0";
+		}
+		if (is_int($val) || $val instanceof NotORM_Literal) { // number or SQL code - for example "NOW()"
+			return (string) $val;
+		}
+		return $this->notORM->connection->quote($val);
 	}
 	
 	/** Insert row in a table
@@ -537,7 +540,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this->aggregation("SUM($column)");
 	}
 	
-	/** Execute built query
+	/** Execute the built query
 	* @return null
 	*/
 	protected function execute() {
