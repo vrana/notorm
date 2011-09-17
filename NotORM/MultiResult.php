@@ -36,6 +36,11 @@ class NotORM_MultiResult extends NotORM_Result {
 		return call_user_func_array(array($this, 'parent::insert'), $args); // works since PHP 5.1.2, array('parent', 'insert') issues E_STRICT in 5.1.2 <= PHP < 5.3.0
 	}
 	
+	function insert_update(array $unique, array $insert, array $update = array()) {
+		$unique[$this->column] = $this->active;
+		return parent::insert_update($unique, $insert, $update);
+	}
+	
 	protected function single() {
 		$this->where[0] = "$this->column = " . $this->quote($this->active);
 	}
