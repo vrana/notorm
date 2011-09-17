@@ -281,6 +281,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		//! parameters
 		if ($this->notORM->driver == "mysql") {
 			$set = array();
+			if (!$update) {
+				$update = $unique;
+			}
 			foreach ($update as $key => $val) {
 				$set[] = "$key = " . $this->quote($val);
 				//! parameters
@@ -297,6 +300,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			} catch (PDOException $e) {
 				$connection->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
 				if ($e->getCode() == "23000") { // "23000" - duplicate key
+					if (!$update) {
+						return 0;
+					}
 					$clone = clone $this;
 					$return = $clone->where($unique)->update($update);
 					return ($return ? $return + 1 : $return);
