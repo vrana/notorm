@@ -1,3 +1,5 @@
+/*!40102 SET storage_engine = InnoDB */;
+
 CREATE TABLE author (
   id int NOT NULL,
   name varchar(30) NOT NULL,
