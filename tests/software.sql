@@ -1,4 +1,4 @@
-/*!40102 SET storage_engine = InnoDB */;
+SET storage_engine = InnoDB;
 
 CREATE TABLE author (
   id int NOT NULL,
@@ -55,3 +55,29 @@ INSERT INTO application_tag (application_id, tag_id) VALUES (1, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (4, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (2, 23);
 
+CREATE TABLE article (
+  id int(11) NOT NULL,
+  author_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  KEY author_id (author_id),
+  CONSTRAINT article_author FOREIGN KEY (author_id) REFERENCES author (id)
+);
+
+INSERT INTO article (id, author_id) VALUES
+(1,	11),
+(2,	11),
+(3,	12);
+
+CREATE TABLE article_translation (
+  article_id int(11) NOT NULL,
+  language char(2) NOT NULL,
+  title varchar(100) NOT NULL,
+  KEY article_id (article_id),
+  CONSTRAINT article_translation_article FOREIGN KEY (article_id) REFERENCES article (id) ON DELETE CASCADE
+);
+
+INSERT INTO article_translation (article_id, language, title) VALUES
+(1,	'cs',	'O Admineru'),
+(1,	'en',	'About Adminer'),
+(2,	'en',	'About JUSH'),
+(3,	'cs',	'O Nette');
