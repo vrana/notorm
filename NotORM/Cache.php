@@ -75,7 +75,9 @@ class NotORM_Cache_Include implements NotORM_Cache {
 	
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path //! silently falls with syntax error and fails with unreadable file
+		$filePath = realpath($filename);
+		$this->data = is_file($filePath) ? include $filePath : array();
+
 		if (!is_array($this->data)) { // empty file returns 1
 			$this->data = array();
 		}
