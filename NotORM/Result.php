@@ -593,10 +593,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	/** Fetch next row of result
 	* @return NotORM_Row or false if there is no row
 	*/
-	function fetch() {
+	function fetch($key = '') {
 		$this->execute();
 		$return = current($this->data);
 		next($this->data);
+		if ($key) return $return[$key];
 		return $return;
 	}
 	
