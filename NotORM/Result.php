@@ -71,7 +71,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
 		}
 		
-		if ($this->notORM->driver != "oci" && $this->notORM->driver != "dblib") {
+		if ($this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
 			$return .= $this->limitString($this->limit, $this->offset);
 		}
 		if (isset($this->lock)) {
@@ -81,7 +81,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function topString() {
-		if (isset($this->limit) && $this->notORM->driver == "dblib") {
+		if (isset($this->limit) && ($this->notORM->driver == "dblib" || $this->notORM->driver == "mssql" || $this->notORM->driver == "sqlsrv")) {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
