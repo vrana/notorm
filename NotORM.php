@@ -28,6 +28,14 @@ abstract class NotORM_Abstract {
 	protected function access($key, $delete = false) {
 	}
 	
+	/**
+	 *
+	 * @return PDO
+	 */
+	public function getConnection() {
+		return $this->connection;
+	}
+	
 }
 
 
