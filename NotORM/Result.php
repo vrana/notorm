@@ -590,6 +590,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
+	/** Fetch a single columnt record of row result
+	* @param string column name
+	* @return string result column 
+	*/
+	function fetchSingle($column) {
+		$this->execute();
+		$return = current($this->data);
+		return $return[$column];
+	}
+	
 	/** Fetch next row of result
 	* @return NotORM_Row or false if there is no row
 	*/
