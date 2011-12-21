@@ -35,9 +35,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->data = null;
 	}
 	
-	protected function limitString($limit, $offset) {
+	protected function limitString($limit, $offset = null) {
 		$return = "";
-		if (isset($limit)) {
+		if (isset($limit) && $this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
 			$return .= " LIMIT $limit";
 			if (isset($offset)) {
 				$return .= " OFFSET $offset";
@@ -71,17 +71,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
 		}
 		
-		if ($this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
-			$return .= $this->limitString($this->limit, $this->offset);
-		}
+		$return .= $this->limitString($this->limit, $this->offset);
 		if (isset($this->lock)) {
 			$return .= ($this->lock ? " FOR UPDATE" : " LOCK IN SHARE MODE");
 		}
 		return $return;
 	}
 	
-	protected function topString() {
-		if (isset($this->limit) && ($this->notORM->driver == "dblib" || $this->notORM->driver == "mssql" || $this->notORM->driver == "sqlsrv")) {
+	protected function topString($limit, $offset = null) {
+		if (isset($limit) && ($this->notORM->driver == "dblib" || $this->notORM->driver == "mssql" || $this->notORM->driver == "sqlsrv")) {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
 		return "";
@@ -111,7 +109,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return string
 	*/
 	function __toString() {
-		$return = "SELECT" . $this->topString() . " ";
+		$return = "SELECT" . $this->topString($this->limit, $this->offset) . " ";
 		$join = $this->createJoins(implode(",", $this->conditions) . "," . implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order));
 		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
 			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
@@ -131,6 +129,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
 			}
 			$return .= $this->limitString($this->unionLimit, $this->unionOffset);
+			$top = $this->topString($this->unionLimit, $this->unionOffset);
+			if ($top) {
+				$return = "SELECT$top * FROM ($return) t";
+			}
 		}
 		return $return;
 	}
@@ -259,7 +261,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$parameters = array_merge($parameters, $this->parameters);
 		}
 		// joins in UPDATE are supported only in MySQL
-		$return = $this->query("UPDATE" . $this->topString() . " $this->table SET " . implode(", ", $values) . $this->whereString(), $parameters);
+		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " $this->table SET " . implode(", ", $values) . $this->whereString(), $parameters);
 		if (!$return) {
 			return false;
 		}
@@ -323,7 +325,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		$return = $this->query("DELETE" . $this->topString() . " FROM $this->table" . $this->whereString(), $this->parameters);
+		$return = $this->query("DELETE" . $this->topString($this->limit, $this->offset) . " FROM $this->table" . $this->whereString(), $this->parameters);
 		if (!$return) {
 			return false;
 		}
