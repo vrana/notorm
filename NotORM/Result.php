@@ -594,7 +594,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Fetch next row of result
 	* @param string column name to return or an empty string for the whole row
-	* @return mixed string or null with $key, NotORM_Row without $key, false if there is no row
+	* @return mixed string or null with $column, NotORM_Row without $column, false if there is no row
 	*/
 	function fetch($column = '') {
 		// no $this->select($column) because next calls can access different columns
