@@ -593,12 +593,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Fetch next row of result
-	* @return NotORM_Row or false if there is no row
+	* @param string column name to return or an empty string for the whole row
+	* @return mixed string or null with $key, NotORM_Row without $key, false if there is no row
 	*/
-	function fetch() {
+	function fetch($column = '') {
+		// no $this->select($column) because next calls can access different columns
 		$this->execute();
 		$return = current($this->data);
 		next($this->data);
+		if ($return && $column != '') {
+			return $return[$column];
+		}
 		return $return;
 	}
 	
