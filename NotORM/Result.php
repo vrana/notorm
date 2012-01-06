@@ -39,7 +39,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$return = "";
 		if (isset($limit) && $this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
 			$return .= " LIMIT $limit";
-			if (isset($offset)) {
+			if ($offset) {
 				$return .= " OFFSET $offset";
 			}
 		}
