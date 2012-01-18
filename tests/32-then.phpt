@@ -6,7 +6,10 @@ echo (version_compare(PHP_VERSION, '5.3.0') < 0 ? "PHP 5.3+ required\n" : "");
 ?>
 --FILE--
 <?php
-include dirname(__FILE__) . "/32-then.php";
+if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+	// in a separate file to avoid syntax errors
+	include dirname(__FILE__) . "/32-then.php";
+}
 ?>
 --EXPECTF--
 Jakub Vrana

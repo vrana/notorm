@@ -8,10 +8,8 @@ $software->author()->order("id")->then(function ($authors) {
 });
 echo "\n";
 
-$software->application_tag()->order("application_id, tag_id")->then(function ($application_tags) {
-	foreach ($application_tags as $application_tag) {
-		NotORM::then($application_tag->application, $application_tag->tag, function ($application, $tag) {
-			echo "$application[title]: $tag[name]\n";
-		});
-	}
+$software->application_tag()->order("application_id, tag_id")->thenForeach(function ($application_tag) {
+	NotORM::then($application_tag->application, $application_tag->tag, function ($application, $tag) {
+		echo "$application[title]: $tag[name]\n";
+	});
 });

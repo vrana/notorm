@@ -639,6 +639,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		// don't return $this - should be at the end of fluent call
 	}
 	
+	/** Pass each row to callback
+	* @param callback it will get NotORM_Row in argument
+	* @return null
+	*/
+	function thenForeach($callback) {
+		$foreach = new NotORM_Foreach($callback); // since PHP 5.3: function ($result) use ($callback) { foreach ($result as $row) { $callback($row); } }
+		return NotORM::then($this, array($foreach, '__invoke'));
+	}
+	
 	protected function access($key, $delete = false) {
 		if ($delete) {
 			if (is_array($this->access)) {

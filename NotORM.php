@@ -9,6 +9,7 @@
 
 include_once dirname(__FILE__) . "/NotORM/Structure.php";
 include_once dirname(__FILE__) . "/NotORM/Cache.php";
+include_once dirname(__FILE__) . "/NotORM/Foreach.php";
 include_once dirname(__FILE__) . "/NotORM/Literal.php";
 include_once dirname(__FILE__) . "/NotORM/Result.php";
 include_once dirname(__FILE__) . "/NotORM/MultiResult.php";
