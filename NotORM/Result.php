@@ -630,6 +630,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/** Pass result to callback
+	* @param callback it will get $this in argument
+	* @return null
+	*/
+	function then($callback) {
+		return NotORM::then($this, $callback);
+		// don't return $this - should be at the end of fluent call
+	}
+	
 	protected function access($key, $delete = false) {
 		if ($delete) {
 			if (is_array($this->access)) {

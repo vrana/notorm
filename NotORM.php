@@ -91,5 +91,17 @@ class NotORM extends NotORM_Abstract {
 		}
 		return $return;
 	}
+
+	/** Pass results to callback
+	* @param NotORM_Result|NotORM_Row
+	* @param ...
+	* @param callback it will get results in arguments
+	* @return null
+	*/
+	static function then($result1, $callback) {
+		$results = func_get_args();
+		$callback = array_pop($results);
+		call_user_func_array($callback, $results); // don't return its result to be forward compatible with deferred calls
+	}
 	
 }
