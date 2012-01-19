@@ -631,7 +631,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Pass result to callback
-	* @param callback it will get $this in argument
+	* @param callback with signature (NotORM_Result $result)
 	* @return null
 	*/
 	function then($callback) {
@@ -640,11 +640,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Pass each row to callback
-	* @param callback it will get NotORM_Row in argument
+	* @param callback with signature (NotORM_Row $row, $id)
 	* @return null
 	*/
 	function thenForeach($callback) {
-		$foreach = new NotORM_Foreach($callback); // since PHP 5.3: function ($result) use ($callback) { foreach ($result as $row) { $callback($row); } }
+		$foreach = new NotORM_Foreach($callback); // since PHP 5.3: function ($result) use ($callback) { foreach ($result as $id => $row) { $callback($row, $id); } }
 		return NotORM::then($this, array($foreach, '__invoke'));
 	}
 	

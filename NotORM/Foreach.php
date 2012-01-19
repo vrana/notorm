@@ -17,8 +17,8 @@ class NotORM_Foreach {
 	*/
 	function __invoke($result) {
 		$callback = $this->callback;
-		foreach ($result as $row) {
-			$callback($row);
+		foreach ($result as $id => $row) {
+			$callback($row, $id);
 		}
 	}
 	
