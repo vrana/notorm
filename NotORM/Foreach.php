@@ -13,9 +13,10 @@ class NotORM_Foreach {
 	}
 	
 	/** Call callback for each row
+	* @param NotORM_Result
 	* @return null
 	*/
-	function __invoke($result) {
+	function __invoke(NotORM_Result $result) {
 		$callback = $this->callback;
 		foreach ($result as $id => $row) {
 			$callback($row, $id);
