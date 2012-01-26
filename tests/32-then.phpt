@@ -12,9 +12,11 @@ if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
 }
 ?>
 --EXPECTF--
+Authors:
 Jakub Vrana
 David Grudl
 
+Application tags:
 Adminer: PHP
 Adminer: MySQL
 JUSH: JavaScript
