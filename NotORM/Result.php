@@ -703,10 +703,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$clone->where($this->primary, $key);
 			}
 			$return = $clone->fetch();
-			if (!$return) {
-				return null;
+			if ($return) {
+				return $return;
 			}
-			return $return;
 		} else {
 			$this->execute();
 			if (is_array($key)) {
