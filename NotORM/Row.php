@@ -7,7 +7,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	protected $row, $result, $id;
 	
 	/** @access protected must be public because it is called from Result */
-	function __construct(array $row, NotORM_Result $result, $id = null) {
+	function __construct(array $row, NotORM_Result $result, $id = false) {
 		$this->row = $row;
 		$this->result = $result;
 		$this->id = $id;
@@ -108,6 +108,9 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	}
 	
 	protected function access($key, $delete = false) {
+		if ($this->id === null) { // couldn't be found
+			return false;
+		}
 		if ($this->row === array()) { // lazy loading
 			$row = $this->result[$this->id];
 			$this->row = ($row ? $row->row : null);
