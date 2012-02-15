@@ -713,10 +713,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				foreach ($this->data as $row) {
 					foreach ($key as $k => $v) {
 						if ((isset($v) && $row[$k] !== null ? $row[$k] != $v : $row[$k] !== $v)) {
-							break;
+							continue 2;
 						}
-						return $row;
 					}
+					return $row;
 				}
 			} elseif (isset($this->data[$key])) {
 				return $this->data[$key];

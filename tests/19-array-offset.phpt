@@ -4,7 +4,16 @@ Array offset
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-echo $software->application[array("title" => "Adminer")]["id"] . "\n";
+$where = array(
+	"author_id" => "11",
+	"maintainer_id" => null,
+);
+
+echo $software->application[$where]["id"] . "\n";
+
+$applications = $software->application()->order("id");
+echo $applications[$where]["id"] . "\n";
 ?>
 --EXPECTF--
-1
+2
+2
