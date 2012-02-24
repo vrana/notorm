@@ -715,6 +715,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function offsetGet($key) {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
+			$clone->single = false; // execute as normal query
 			if (is_array($key)) {
 				$clone->where($key)->limit(1);
 			} else {
