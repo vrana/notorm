@@ -333,14 +333,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Add select clause, more calls appends to the end
-	* @param string for example "column, MD5(column) AS column_md5"
+	* @param string for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
 	* @param string ...
 	* @return NotORM_Result fluent interface
 	*/
 	function select($columns) {
 		$this->__destruct();
-		foreach (func_get_args() as $columns) {
-			$this->select[] = $columns;
+		if ($columns != "") {
+			foreach (func_get_args() as $columns) {
+				$this->select[] = $columns;
+			}
+		} else {
+			$this->select = array();
 		}
 		return $this;
 	}
@@ -432,18 +436,24 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Add order clause, more calls appends to the end
-	* @param string for example "column1, column2 DESC"
+	* @param string for example "column1, column2 DESC", empty string to reset previous order
 	* @param string ...
 	* @return NotORM_Result fluent interface
 	*/
 	function order($columns) {
 		$this->rows = null;
-		foreach (func_get_args() as $columns) {
-			if ($this->union) {
-				$this->unionOrder[] = $columns;
-			} else {
-				$this->order[] = $columns;
+		if ($columns != "") {
+			foreach (func_get_args() as $columns) {
+				if ($this->union) {
+					$this->unionOrder[] = $columns;
+				} else {
+					$this->order[] = $columns;
+				}
 			}
+		} elseif ($this->union) {
+			$this->unionOrder = array();
+		} else {
+			$this->order = array();
 		}
 		return $this;
 	}
