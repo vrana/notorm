@@ -420,7 +420,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$condition = "(" . implode(" OR ", $or) . ")";
 			}
 		}
-		$this->where[] = $condition;
+		if (!in_array($condition, $this->where)) {
+			$this->where[] = $condition;
+		}
 		return $this;
 	}
 	
