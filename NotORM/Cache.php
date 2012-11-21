@@ -1,70 +1,13 @@
 <?php
 
-/** Loading and saving data, it's only cache so load() does not need to block until save()
-*/
-interface NotORM_Cache {
-	
-	/** Load stored data
-	* @param string
-	* @return mixed or null if not found
-	*/
-	function load($key);
-	
-	/** Save data
-	* @param string
-	* @param mixed
-	* @return null
-	*/
-	function save($key, $data);
-	
-}
 
 
 
-/** Cache using $_SESSION["NotORM"]
-*/
-class NotORM_Cache_Session implements NotORM_Cache {
-	
-	function load($key) {
-		if (!isset($_SESSION["NotORM"][$key])) {
-			return null;
-		}
-		return $_SESSION["NotORM"][$key];
-	}
-	
-	function save($key, $data) {
-		$_SESSION["NotORM"][$key] = $data;
-	}
-	
-}
 
 
 
-/** Cache using file
-*/
-class NotORM_Cache_File implements NotORM_Cache {
-	private $filename, $data = array();
-	
-	function __construct($filename) {
-		$this->filename = $filename;
-		$this->data = unserialize(@file_get_contents($filename)); // @ - file may not exist
-	}
-	
-	function load($key) {
-		if (!isset($this->data[$key])) {
-			return null;
-		}
-		return $this->data[$key];
-	}
-	
-	function save($key, $data) {
-		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
-			$this->data[$key] = $data;
-			file_put_contents($this->filename, serialize($this->data), LOCK_EX);
-		}
-	}
-	
-}
+
+
 
 
 
