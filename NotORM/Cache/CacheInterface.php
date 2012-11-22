@@ -16,4 +16,10 @@ interface CacheInterface
      * @return null
      */
     public function save($key, $data);
+    
+    /**
+     * Clear Cache
+     * @param string $key
+     */
+    public function clear($key = null);
 }
