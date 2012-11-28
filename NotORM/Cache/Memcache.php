@@ -40,14 +40,14 @@ class Memcache extends CacheAbstract implements CacheInterface
     {
        $load = $this->memcache->get($key);
        if (is_array($load) && isset($load[0])) {
-           return $load[0];
+           return $this->getDataSerialize($load[0]);
        }
        return false;
     }
     
     public function save($key, $data, $flag = 0)
     {                       
-        return $this->memcache->set($key, array($data, time(), $this->lifetime), $flag, $this->lifetime);                
+        return $this->memcache->set($key, array($this->saveDataSerialize($data), time(), $this->lifetime), $flag, $this->lifetime);                
     }
     
     public function getMemcache()
