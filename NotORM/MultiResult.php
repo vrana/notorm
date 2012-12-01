@@ -6,7 +6,7 @@ class MultiResult extends Result {
 	private $result, $column, $active;
 	
 	/** @access protected must be public because it is called from Row */
-	function __construct($table, Result $result, $column, $active) {
+	public function __construct($table, Result $result, $column, $active) {
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
@@ -17,12 +17,12 @@ class MultiResult extends Result {
 	* @param string
 	* @return NotORM_MultiResult fluent interface
 	*/
-	function via($column) {
+	public function via($column) {
 		$this->column = $column;
 		return $this;
 	}
 	
-	function insert($data) {
+	public function insert($data) {
 		$args = array();
 		foreach (func_get_args() as $data) {
 			if ($data instanceof \Traversable && !$data instanceof Result) {
@@ -36,7 +36,7 @@ class MultiResult extends Result {
 		return call_user_func_array(array($this, 'parent::insert'), $args); // works since PHP 5.1.2, array('parent', 'insert') issues E_STRICT in 5.1.2 <= PHP < 5.3.0
 	}
 	
-	function insert_update(array $unique, array $insert, array $update = array()) {
+	public function insert_update(array $unique, array $insert, array $update = array()) {
 		$unique[$this->column] = $this->active;
 		return parent::insert_update($unique, $insert, $update);
 	}
@@ -45,7 +45,7 @@ class MultiResult extends Result {
 		$this->where[0] = "$this->column = " . $this->quote($this->active);
 	}
 	
-	function update(array $data) {
+	public function update(array $data) {
 		$where = $this->where;
 		$this->single();
 		$return = parent::update($data);
@@ -53,7 +53,7 @@ class MultiResult extends Result {
 		return $return;
 	}
 	
-	function delete() {
+	public function delete() {
 		$where = $this->where;
 		$this->single();
 		$return = parent::delete();
@@ -61,7 +61,7 @@ class MultiResult extends Result {
 		return $return;
 	}
 	
-	function select($columns) {
+	public function select($columns) {
 		$args = func_get_args();
 		if (!$this->select) {
 			array_unshift($args, "$this->table.$this->column");
@@ -69,7 +69,7 @@ class MultiResult extends Result {
 		return call_user_func_array(array($this, 'parent::select'), $args);
 	}
 	
-	function order($columns) {
+	public function order($columns) {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
@@ -77,7 +77,7 @@ class MultiResult extends Result {
 		return call_user_func_array(array($this, 'parent::order'), $args);
 	}
 	
-	function aggregation($function) {
+	public function aggregation($function) {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
 		$column = ($join ? "$this->table." : "") . $this->column;
 		$query = "SELECT $function, $column FROM $this->table" . implode($join);
@@ -99,7 +99,7 @@ class MultiResult extends Result {
 		}
 	}
 	
-	function count($column = "") {
+	public function count($column = "") {
 		$return = parent::count($column);
 		return (isset($return) ? $return : 0);
 	}

@@ -12,7 +12,7 @@
          verbose="false">
     <filter>
         <whitelist>
-            <directory>NotORM</directory>
+            <directory>../NotORM</directory>
         </whitelist>
     </filter>
 </phpunit>

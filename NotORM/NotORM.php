@@ -6,19 +6,6 @@
 * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
 * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
 */
-namespace NotORM;
-//include_once dirname(__FILE__) . "/NotORM/Structure.php";
-//include_once dirname(__FILE__) . "/NotORM/Cache.php";
-//include_once dirname(__FILE__) . "/NotORM/Literal.php";
-//include_once dirname(__FILE__) . "/NotORM/Result.php";
-//include_once dirname(__FILE__) . "/NotORM/MultiResult.php";
-//include_once dirname(__FILE__) . "/NotORM/Row.php";
-
-
-
-
-
-
 
 /** Database representation
 * @property-write mixed $debug = false Enable debugging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
@@ -26,18 +13,24 @@ namespace NotORM;
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
+namespace NotORM;
+use \PDO,
+    NotORM\Structure\StructureInterface,
+    NotORM\Cache\CacheInterface,
+    NotORM\Structure\Convention;
+    
 class NotORM extends NotORMAbstract {
 	
 	/** Create database representation
-	* @param PDO
-	* @param NotORM_Structure or null for new NotORM_Structure_Convention
-	* @param NotORM_Cache or null for no cache
+	* @param \PDO
+	* @param NotORM\Structure\StructureInterface or null for new NotORM_Structure_Convention
+	* @param NotORM\Cache\CacheInterface or null for no cache
 	*/
-	function __construct(\PDO $connection, Structure $structure = null, NotORM_Cache $cache = null) {
+	function __construct(PDO $connection, StructureInterface $structure = null, CacheInterface $cache = null) {
 		$this->connection = $connection;
 		$this->driver = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		if (!isset($structure)) {
-			$structure = new Structure\Convention;
+			$structure = new Convention;
 		}
 		$this->structure = $structure;
 		$this->cache = $cache;

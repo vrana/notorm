@@ -209,7 +209,7 @@ class Result extends NotORMAbstract implements \Iterator, \ArrayAccess, \Countab
 		if (is_array($data)) {
 			$values = array();
 			foreach (func_get_args() as $value) {
-				if ($value instanceof T\raversable) {
+				if ($value instanceof \Traversable) {
 					$value = iterator_to_array($value);
 				}
 				$values[] = $this->quote($value);

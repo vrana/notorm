@@ -5,7 +5,7 @@ class MemcacheTest extends \PHPUnit_Framework_TestCase
 {
     protected $memcache;
     protected $data = array(
-        'host' => '10.1.1.4',        
+        'host' => '10.1.1.3',        
         );
     public function setUp() 
     {

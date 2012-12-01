@@ -38,6 +38,7 @@ class Session extends CacheAbstract implements CacheInterface
     public function save($key, $data) 
     {
         $_SESSION[$this->getSessionName()][$key] = $this->saveDataSerialize($data);
+        return true;
     }
     
     public function clear($key = null) 

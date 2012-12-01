@@ -11,9 +11,7 @@ class Memcache extends CacheAbstract implements CacheInterface
      * @var \Memcache
      */
     protected $memcache;    
-   
-
-    
+      
     public function __construct($options = null) 
     {
         if (!extension_loaded('memcache')) {
