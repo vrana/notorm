@@ -9,5 +9,8 @@
 			"name": "Jakub Vrána",
 			"homepage": "http://www.vrana.cz/"
 		}
-	]
+	],
+	"autoload": {
+		"files": ["NotORM.php"]
+	}
 }
