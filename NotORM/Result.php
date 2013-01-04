@@ -5,7 +5,7 @@
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
 	protected $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
-	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
+	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null, $unionAll = false;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
 	/** Create table result
@@ -502,6 +502,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return NotORM_Result fluent interface
 	*/
 	function union(NotORM_Result $result, $all = false) {
+		if ($all) {
+			$this->unionAll = true;
+		}
 		$this->union[] = " UNION " . ($all ? "ALL " : "") . ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $result : "($result)");
 		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
@@ -589,7 +592,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if ($result) {
 				$result->setFetchMode(PDO::FETCH_ASSOC);
 				foreach ($result as $key => $row) {
-					if (isset($row[$this->primary])) {
+					if (isset($row[$this->primary]) && !$this->unionAll) {
 						$key = $row[$this->primary];
 						if (!is_string($this->access)) {
 							$this->access[$this->primary] = true;
