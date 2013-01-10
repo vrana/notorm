@@ -13,13 +13,7 @@
     "authors": [
         {
             "name": "Jakub Vrána",
-            "homepage": "http://www.vrana.cz/",
-            "role": "Lead"
-        },
-        {
-            "name": "Emanuele Minotto",
-            "homepage": "http://emanueleminotto.wordpress.com/",
-            "role": "Contributor"
+            "homepage": "http://www.vrana.cz/"
         }
     ],
     "autoload": {
