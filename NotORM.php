@@ -1,11 +1,12 @@
 <?php
-/** NotORM - simple reading data from the database
-* @link http://www.notorm.com/
-* @author Jakub Vrana, http://www.vrana.cz/
-* @copyright 2010 Jakub Vrana
-* @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
-* @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
-*/
+/**
+ * NotORM - simple reading data from the database
+ * @link http://www.notorm.com/
+ * @author Jakub Vrana, http://www.vrana.cz/
+ * @copyright 2010 Jakub Vrana
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
+ */
 
 include_once dirname(__FILE__) . "/NotORM/Structure.php";
 include_once dirname(__FILE__) . "/NotORM/Cache.php";
@@ -30,15 +31,17 @@ abstract class NotORM_Abstract
 
 }
 
-/** Database representation
-* @property-write mixed $debug = false Enable debugging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
-* @property-write bool $freeze = false Disable persistence
-* @property-write string $rowClass = 'NotORM_Row' Class used for created objects
-* @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
-*/
+/**
+ * Database representation
+ * @property-write mixed $debug = false Enable debugging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
+ * @property-write bool $freeze = false Disable persistence
+ * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
+ * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
+ */
 class NotORM extends NotORM_Abstract
 {
-    /** Create database representation
+    /**
+     * Create database representation
     * @param PDO
     * @param NotORM_Structure or null for new NotORM_Structure_Convention
     * @param NotORM_Cache or null for no cache
@@ -54,7 +57,8 @@ class NotORM extends NotORM_Abstract
         $this->cache = $cache;
     }
 
-    /** Get table data to use as $db->table[1]
+    /**
+     * Get table data to use as $db->table[1]
     * @param string
     * @return NotORM_Result
     */
@@ -63,7 +67,8 @@ class NotORM extends NotORM_Abstract
         return new NotORM_Result($this->structure->getReferencingTable($table, ''), $this, true);
     }
 
-    /** Set write-only properties
+    /**
+     * Set write-only properties
     * @return null
     */
     public function __set($name, $value)
@@ -80,7 +85,8 @@ class NotORM extends NotORM_Abstract
         }
     }
 
-    /** Get table data
+    /**
+     * Get table data
     * @param string
     * @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
     * @return NotORM_Result

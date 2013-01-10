@@ -1,12 +1,15 @@
 <?php
 
-/** Representation of filtered table grouped by some column
-*/
+/**
+ * Representation of filtered table grouped by some column
+ */
 class NotORM_MultiResult extends NotORM_Result
 {
     private $result, $column, $active;
 
-    /** @access protected must be public because it is called from Row */
+    /**
+     * @access protected
+     */
     public function __construct($table, NotORM_Result $result, $column, $active)
     {
         parent::__construct($table, $result->notORM);
@@ -15,10 +18,11 @@ class NotORM_MultiResult extends NotORM_Result
         $this->active = $active;
     }
 
-    /** Specify referencing column
-    * @param string
-    * @return NotORM_MultiResult fluent interface
-    */
+    /**
+     * Specify referencing column
+     * @param string
+     * @return NotORM_MultiResult fluent interface
+     */
     public function via($column)
     {
         $this->column = $column;
@@ -86,7 +90,8 @@ class NotORM_MultiResult extends NotORM_Result
 
     public function order($columns)
     {
-        if (!$this->order) { // improve index utilization
+        // improve index utilization
+        if (!$this->order) {
             $this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
         }
         $args = func_get_args();
@@ -131,7 +136,9 @@ class NotORM_MultiResult extends NotORM_Result
             if (!isset($referencing)) {
                 if (!$this->limit || count($this->result->rows) <= 1 || $this->union) {
                     parent::execute();
-                } else { //! doesn't work with union
+                }
+                // doesn't work with union
+                else {
                     $result = clone $this;
                     $first = true;
                     foreach ((array) $this->result->rows as $val) {

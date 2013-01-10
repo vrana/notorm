@@ -1,28 +1,34 @@
 <?php
 
-/** Loading and saving data, it's only cache so load() does not need to block until save()
-*/
+/**
+ * Loading and saving data, it's only cache so load() does not need to block until save()
+ */
 interface NotORM_Cache
 {
-    /** Load stored data
-    * @param string
-    * @return mixed or null if not found
-    */
+    /**
+     * Load stored data
+     * 
+     * @param string
+     * @return mixed or null if not found
+     */
     public function load($key);
 
-    /** Save data
-    * @param string
-    * @param mixed
-    * @return null
-    */
+    /**
+     * Save data
+     * 
+     * @param string
+     * @param mixed
+     * @return null
+     */
     public function save($key, $data);
 
 }
 
 
 
-/** Cache using $_SESSION["NotORM"]
-*/
+/**
+ * Cache using $_SESSION["NotORM"]
+ */
 class NotORM_Cache_Session implements NotORM_Cache
 {
     public function load($key)
@@ -43,8 +49,9 @@ class NotORM_Cache_Session implements NotORM_Cache
 
 
 
-/** Cache using file
-*/
+/**
+ * Cache using file
+ */
 class NotORM_Cache_File implements NotORM_Cache
 {
     private $filename, $data = array();
@@ -76,8 +83,9 @@ class NotORM_Cache_File implements NotORM_Cache
 
 
 
-/** Cache using PHP include
-*/
+/**
+ * Cache using PHP include
+ */
 class NotORM_Cache_Include implements NotORM_Cache
 {
     private $filename, $data = array();
@@ -85,8 +93,11 @@ class NotORM_Cache_Include implements NotORM_Cache
     public function __construct($filename)
     {
         $this->filename = $filename;
-        $this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path //! silently falls with syntax error and fails with unreadable file
-        if (!is_array($this->data)) { // empty file returns 1
+        // @ - file may not exist, realpath() to not include from include_path
+        // silently falls with syntax error and fails with unreadable file
+        $this->data = @include realpath($filename);
+        // empty file returns 1
+        if (!is_array($this->data)) {
             $this->data = array();
         }
     }
@@ -110,8 +121,9 @@ class NotORM_Cache_Include implements NotORM_Cache
 
 }
 
-/** Cache storing data to the "notorm" table in database
-*/
+/**
+ * Cache storing data to the "notorm" table in database
+ */
 class NotORM_Cache_Database implements NotORM_Cache
 {
     private $connection;
@@ -155,8 +167,9 @@ class NotORM_Cache_Database implements NotORM_Cache
 
 // eAccelerator - user cache is obsoleted
 
-/** Cache using "NotORM." prefix in Memcache
-*/
+/**
+ * Cache using "NotORM." prefix in Memcache
+ */
 class NotORM_Cache_Memcache implements NotORM_Cache
 {
     private $memcache;
@@ -183,8 +196,9 @@ class NotORM_Cache_Memcache implements NotORM_Cache
 
 }
 
-/** Cache using "NotORM." prefix in APC
-*/
+/**
+ * Cache using "NotORM." prefix in APC
+ */
 class NotORM_Cache_APC implements NotORM_Cache
 {
     public function load($key)

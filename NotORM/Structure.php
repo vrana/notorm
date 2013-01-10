@@ -1,63 +1,72 @@
 <?php
 
-/** Information about tables and columns structure
-*/
+/**
+ * Information about tables and columns structure
+ */
 interface NotORM_Structure
 {
-    /** Get primary key of a table in $db->$table()
-    * @param string
-    * @return string
-    */
+    /**
+     * Get primary key of a table in $db->$table()
+     * @param string
+     * @return string
+     */
     public function getPrimary($table);
 
-    /** Get column holding foreign key in $table[$id]->$name()
-    * @param string
-    * @param string
-    * @return string
-    */
+    /**
+     * Get column holding foreign key in $table[$id]->$name()
+     * @param string
+     * @param string
+     * @return string
+     */
     public function getReferencingColumn($name, $table);
 
-    /** Get target table in $table[$id]->$name()
-    * @param string
-    * @param string
-    * @return string
-    */
+    /**
+     * Get target table in $table[$id]->$name()
+     * @param string
+     * @param string
+     * @return string
+     */
     public function getReferencingTable($name, $table);
 
-    /** Get column holding foreign key in $table[$id]->$name
-    * @param string
-    * @param string
-    * @return string
-    */
+    /**
+     * Get column holding foreign key in $table[$id]->$name
+     * @param string
+     * @param string
+     * @return string
+     */
     public function getReferencedColumn($name, $table);
 
-    /** Get table holding foreign key in $table[$id]->$name
-    * @param string
-    * @param string
-    * @return string
-    */
+    /**
+     * Get table holding foreign key in $table[$id]->$name
+     * @param string
+     * @param string
+     * @return string
+     */
     public function getReferencedTable($name, $table);
 
-    /** Get sequence name, used by insert
-    * @param string
-    * @return string
-    */
+    /**
+     * Get sequence name, used by insert
+     * @param string
+     * @return string
+     */
     public function getSequence($table);
 
 }
 
-/** Structure described by some rules
-*/
+/**
+ * Structure described by some rules
+ */
 class NotORM_Structure_Convention implements NotORM_Structure
 {
     protected $primary, $foreign, $table, $prefix;
 
-    /** Create conventional structure
-    * @param string %s stands for table name
-    * @param string %1$s stands for key used after ->, %2$s for table name
-    * @param string %1$s stands for key used after ->, %2$s for table name
-    * @param string prefix for all tables
-    */
+    /**
+     * Create conventional structure
+     * @param string %s stands for table name
+     * @param string %1$s stands for key used after ->, %2$s for table name
+     * @param string %1$s stands for key used after ->, %2$s for table name
+     * @param string prefix for all tables
+     */
     public function __construct($primary = 'id', $foreign = '%s_id', $table = '%s', $prefix = '')
     {
         $this->primary = $primary;
@@ -107,18 +116,20 @@ class NotORM_Structure_Convention implements NotORM_Structure
 
 }
 
-/** Structure reading meta-informations from the database
-*/
+/**
+ * Structure reading meta-informations from the database
+ */
 class NotORM_Structure_Discovery implements NotORM_Structure
 {
     protected $connection, $cache, $structure = array();
     protected $foreign;
 
-    /** Create autodisovery structure
-    * @param PDO
-    * @param NotORM_Cache
-    * @param string use "%s_id" to access $name . "_id" column in $row->$name
-    */
+    /**
+     * Create autodisovery structure
+     * @param PDO
+     * @param NotORM_Cache
+     * @param string use "%s_id" to access $name . "_id" column in $row->$name
+     */
     public function __construct(PDO $connection, NotORM_Cache $cache = null, $foreign = '%s')
     {
         $this->connection = $connection;
@@ -129,8 +140,9 @@ class NotORM_Structure_Discovery implements NotORM_Structure
         }
     }
 
-    /** Save data to cache
-    */
+    /**
+     * Save data to cache
+     */
     public function __destruct()
     {
         if ($this->cache) {
@@ -144,9 +156,11 @@ class NotORM_Structure_Discovery implements NotORM_Structure
         if (!isset($return)) {
             $return = "";
             foreach ($this->connection->query("EXPLAIN $table") as $column) {
-                if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
+                // 3 - "Key" is not compatible with PDO::CASE_LOWER
+                if ($column[3] == "PRI") {
                     if ($return != "") {
-                        $return = ""; // multi-column primary key is not supported
+                        // multi-column primary key is not supported
+                        $return = "";
                         break;
                     }
                     $return = $column[0];
@@ -168,7 +182,9 @@ class NotORM_Structure_Discovery implements NotORM_Structure
                 WHERE TABLE_SCHEMA = DATABASE()
                 AND REFERENCED_TABLE_SCHEMA = DATABASE()
                 AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
-                AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) //! may not reference primary key
+                AND REFERENCED_COLUMN_NAME = " 
+                //! may not reference primary key
+                . $this->connection->quote($this->getPrimary($table))
             ) as $row) {
                 $return[strtolower($row[0])] = $row[1];
             }
