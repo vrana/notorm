@@ -752,4 +752,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		unset($this->data[$key]);
 	}
 	
+	// JsonSerializable implementation (not explicit as it is available only since PHP 5.4)
+	
+	function jsonSerialize() {
+		$this->execute();
+		return $this->data;
+	}
+	
 }

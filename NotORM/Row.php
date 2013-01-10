@@ -177,4 +177,10 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		unset($this->modified[$key]);
 	}
 	
+	// JsonSerializable implementation (not explicit as it is available only since PHP 5.4)
+	
+	function jsonSerialize() {
+		return $this->row;
+	}
+	
 }
