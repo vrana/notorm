@@ -12,14 +12,19 @@ NotORM is a PHP library for simple working with data in the database. The most i
 <?php
 
 require_once 'NotORM.php';
-$PDO = new PDO("mysql:dbname=software");
+$PDO = new PDO('mysql:dbname=software');
 $software = new NotORM($PDO);
 
-foreach ($software->application()->order("title") as $application) { // get all applications ordered by title
-    echo "$application[title]\n"; // print application title
-    echo $application->author["name"] . "\n"; // print name of the application author
-    foreach ($application->application_tag() as $application_tag) { // get all tags of $application
-        echo $application_tag->tag["name"] . "\n"; // print the tag name
+// get all applications ordered by title
+foreach ($software->application()->order('title') as $application) {
+	// print application title
+    echo $application['title'] . PHP_EOL;
+    // print name of the application author
+    echo $application->author['name'] . PHP_EOL;
+    // get all tags of $application
+    foreach ($application->application_tag() as $application_tag) {
+    	// print the tag name
+        echo $application_tag->tag['name'] . PHP_EOL;
     }
 }
 ```
