@@ -7,6 +7,12 @@ NotORM is a PHP library for simple working with data in the database. The most i
  * PHP 5.1+
  * any database supported by PDO (tested with MySQL, SQLite, PostgreSQL, MS SQL, Oracle)
 
+## Installation
+Download this library as a ZIP or using [Composer](http://getcomposer.org/):
+```
+$ php composer.phar require vrana/notorm
+```
+
 ## Usage
 ```php
 <?php
