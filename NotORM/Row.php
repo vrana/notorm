@@ -2,7 +2,7 @@
 
 /** Single row representation
 */
-class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess, Countable {
+class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable {
 	private $modified = array();
 	protected $row, $result;
 	
@@ -177,7 +177,7 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		unset($this->modified[$key]);
 	}
 	
-	// JsonSerializable implementation (not explicit as it is available only since PHP 5.4)
+	// JsonSerializable implementation
 	
 	function jsonSerialize() {
 		return $this->row;

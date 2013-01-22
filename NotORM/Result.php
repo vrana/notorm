@@ -2,7 +2,7 @@
 
 /** Filtered table representation
 */
-class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable {
+class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable, JsonSerializable {
 	protected $single;
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
 	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
@@ -752,7 +752,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		unset($this->data[$key]);
 	}
 	
-	// JsonSerializable implementation (not explicit as it is available only since PHP 5.4)
+	// JsonSerializable implementation
 	
 	function jsonSerialize() {
 		$this->execute();
