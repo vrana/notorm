@@ -26,7 +26,7 @@ CREATE TABLE application (
   author_id int NOT NULL,
   maintainer_id int,
   title varchar(50) NOT NULL,
-  web varchar(100) NOT NULL,
+  web varchar(100),
   slogan varchar(100) NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT application_author FOREIGN KEY (author_id) REFERENCES author (id),

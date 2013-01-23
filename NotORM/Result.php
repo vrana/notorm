@@ -372,7 +372,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				array_shift($parameters);
 			}
 			$this->parameters = array_merge($this->parameters, $parameters);
-		} elseif (is_null($parameters)) { // where("column", null)
+		} elseif ($parameters === null) { // where("column", null)
 			$condition .= " IS NULL";
 		} elseif ($parameters instanceof NotORM_Result) { // where("column", $db->$table())
 			$clone = clone $parameters;
@@ -411,7 +411,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if (!$parameters) {
 				$condition = "($condition) IS NOT NULL AND $condition IS NULL";
 			} elseif ($this->notORM->driver != "oci") {
+				$column = $condition;
 				$condition .= " IN " . $this->quote($parameters);
+				$nulls = array_filter($parameters, 'is_null');
+				if ($nulls) {
+					$condition = "($condition OR $column IS NULL)";
+				}
 			} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
 				$or = array();
 				for ($i=0; $i < count($parameters); $i += 1000) {
