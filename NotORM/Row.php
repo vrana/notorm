@@ -98,6 +98,10 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		// update is an SQL keyword
 		if (!isset($data)) {
 			$data = $this->modified;
+		} else {
+			foreach ($data as $key => $value) {
+				$this->offsetSet($key, $value);
+			}
 		}
 		$result = new NotORM_Result($this->result->table, $this->result->notORM);
 		return $result->where($this->result->primary, $this[$this->result->primary])->update($data);
