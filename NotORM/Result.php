@@ -301,7 +301,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				return $return;
 			} catch (PDOException $e) {
 				$connection->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
-				if ($e->getCode() == "23000") { // "23000" - duplicate key
+				if ($e->getCode() == "23000" || $e->getCode() == "23505") { // "23000" - duplicate key, "23505" unique constraint pgsql
 					if (!$update) {
 						return 0;
 					}
