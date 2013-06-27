@@ -189,15 +189,18 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this->notORM->connection->quote($val);
 	}
 	
-	/** Insert row in a table
-	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
-	* @param ... used for extended insert
-	* @return NotORM_Row inserted row or false in case of an error or number of affected rows for INSERT ... SELECT
+	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
+	* @param array
+	* @return int number of affected rows or false in case of an error
 	*/
-	function insert($data) {
+	function insertMulti(array $rows) {
 		if ($this->notORM->freeze) {
 			return false;
 		}
+		if (!$rows) {
+			return 0;
+		}
+		$data = reset($rows);
 		$parameters = array();
 		if ($data instanceof NotORM_Result) {
 			$parameters = $data->parameters; //! other parameters
@@ -208,7 +211,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$insert = $data;
 		if (is_array($data)) {
 			$values = array();
-			foreach (func_get_args() as $value) {
+			foreach ($rows as $value) {
 				if ($value instanceof Traversable) {
 					$value = iterator_to_array($value);
 				}
@@ -228,8 +231,22 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return false;
 		}
 		$this->rows = null;
+		return $return->rowCount();
+	}
+	
+	/** Insert row in a table
+	* @param mixed array($column => $value)|Traversable for single row insert or NotORM_Result|string for INSERT ... SELECT
+	* @param ... used for extended insert
+	* @return mixed inserted NotORM_Row or false in case of an error or number of affected rows for INSERT ... SELECT
+	*/
+	function insert($data) {
+		$rows = func_get_args();
+		$return = $this->insertMulti($rows);
+		if (!$return) {
+			return false;
+		}
 		if (!is_array($data)) {
-			return $return->rowCount();
+			return $return;
 		}
 		if (!isset($data[$this->primary]) && ($id = $this->notORM->connection->lastInsertId($this->notORM->structure->getSequence($this->table)))) {
 			$data[$this->primary] = $id;
