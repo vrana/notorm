@@ -193,7 +193,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @param array
 	* @return int number of affected rows or false in case of an error
 	*/
-	function insertMulti(array $rows) {
+	function insert_multi(array $rows) {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -241,7 +241,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function insert($data) {
 		$rows = func_get_args();
-		$return = $this->insertMulti($rows);
+		$return = $this->insert_multi($rows);
 		if (!$return) {
 			return false;
 		}
