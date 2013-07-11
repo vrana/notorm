@@ -317,6 +317,31 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 		}
 	}
+
+	/** Insert row or update if it already exists
+	* @param array ($column => $value)
+	* @param array ($column => $value)
+	* @param array ($column => $value), empty array means use $insert
+	* @return NotORM_Row or false in case of an error
+	*/
+	function admit(array $unique, array $insert, array $update = array())
+	{
+		if (!$update) {
+			$update = $insert;
+		}
+		$insert = $unique + $insert;
+		$row = $this->where($unique)->fetch();
+		if ( ! $row) {
+			$row = $this->insert($insert);
+		}
+		else {
+			$affected = $this->update($update);
+			if ( ! $affected) {
+				$row = $affected;
+			}
+		}
+		return $row;
+	}
 	
 	/** Delete all rows in result set
 	* @return int number of affected rows or false in case of an error
