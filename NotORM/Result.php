@@ -335,6 +335,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 	}
 	
+	/** Get last insert ID
+	* @return string number
+	*/
+	function insert_id() {
+		return $this->notORM->connection->lastInsertId();
+	}
+	
 	/** Delete all rows in result set
 	* @return int number of affected rows or false in case of an error
 	*/
