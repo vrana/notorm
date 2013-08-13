@@ -788,7 +788,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	function jsonSerialize() {
 		$this->execute();
-		return $this->data;
+		if ($this->notORM->jsonAsArray) {
+			return array_values($this->data);
+		} else {
+			return $this->data;
+		}
 	}
 	
 }

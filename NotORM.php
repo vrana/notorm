@@ -30,6 +30,7 @@ abstract class NotORM_Abstract {
 	protected $debug = false;
 	protected $freeze = false;
 	protected $rowClass = 'NotORM_Row';
+	protected $jsonAsArray = false;
 	
 	protected function access($key, $delete = false) {
 	}
@@ -42,6 +43,7 @@ abstract class NotORM_Abstract {
 * @property-write mixed $debug = false Enable debugging queries, true for fwrite(STDERR, $query), callback($query, $parameters) otherwise
 * @property-write bool $freeze = false Disable persistence
 * @property-write string $rowClass = 'NotORM_Row' Class used for created objects
+* @property-write bool $jsonAsArray = false Use array instead of object in Result JSON serialization
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends NotORM_Abstract {
@@ -73,7 +75,7 @@ class NotORM extends NotORM_Abstract {
 	* @return null
 	*/
 	function __set($name, $value) {
-		if ($name == "debug" || $name == "freeze" || $name == "rowClass") {
+		if ($name == "debug" || $name == "freeze" || $name == "rowClass" || $name == "jsonAsArray") {
 			$this->$name = $value;
 		}
 		if ($name == "transaction") {
