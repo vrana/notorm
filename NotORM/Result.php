@@ -150,7 +150,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 						break;
 					}
 				}
-				fwrite(STDERR, "$backtrace[file]:$backtrace[line]:$debug\n");
+				error_log("$backtrace[file]:$backtrace[line]:$debug\n", 0);
 			} elseif (call_user_func($this->notORM->debug, $query, $parameters) === false) {
 				return false;
 			}
