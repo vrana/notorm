@@ -22,9 +22,9 @@ class NotORM_MultiResult extends NotORM_Result {
 		return $this;
 	}
 	
-	function insert($data) {
+	function insert_multi(array $rows) {
 		$args = array();
-		foreach (func_get_args() as $data) {
+		foreach ($rows as $data) {
 			if ($data instanceof Traversable && !$data instanceof NotORM_Result) {
 				$data = iterator_to_array($data);
 			}
@@ -33,7 +33,7 @@ class NotORM_MultiResult extends NotORM_Result {
 			}
 			$args[] = $data;
 		}
-		return call_user_func_array(array($this, 'parent::insert'), $args); // works since PHP 5.1.2, array('parent', 'insert') issues E_STRICT in 5.1.2 <= PHP < 5.3.0
+		return parent::insert_multi($args);
 	}
 	
 	function insert_update(array $unique, array $insert, array $update = array()) {
