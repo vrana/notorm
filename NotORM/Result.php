@@ -349,15 +349,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$insert = $unique + $insert;
 		$row = $this->where($unique)->fetch();
 		if ( ! $row) {
-			$row = $this->insert($insert);
+			return $this->insert($insert);
 		}
 		else {
-			$affected = $this->update($update);
-			if ( ! $affected) {
-				$row = $affected;
+			foreach ($update as $field => $value) {
+				$row[$field] = $value;
 			}
+			return $row->update() ? $row : false;
 		}
-		return $row;
 	}
 	
 	/** Get last insert ID
