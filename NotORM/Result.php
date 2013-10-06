@@ -681,6 +681,19 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return iterator_to_array($row);
 		}
 	}
+
+	/** Fetch all rows as associative array
+	* @return array
+	*/
+	function fetchAll() {
+		$clone = clone $this;
+		$i = 0;
+		foreach($clone as $row){
+			$data[$i++] = iterator_to_array($row);
+		}
+		$return['data'] = $data;
+		return $return;
+	}
 	
 	protected function access($key, $delete = false) {
 		if ($delete) {
