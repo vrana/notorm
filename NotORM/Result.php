@@ -156,7 +156,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 		}
 		$return = $this->notORM->connection->prepare($query);
+
 		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+    	    if($return) {
+	            throw new Exception(implode(';', $return->errorInfo()) .': ' . $query ) ;
+			}
 			return false;
 		}
 		return $return;
@@ -668,6 +672,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				array_shift($values);
 			}
 			$return[$values[0]] = ($value != "" ? $values[(isset($values[1]) ? 1 : 0)] : $row); // isset($values[1]) - fetchPairs("id", "id")
+		}
+		return $return;
+	}
+	
+	/** Fetch all rows
+	* @param string column name used for an array value or an empty string for the whole row
+	* @return array
+	*/
+	function fetchAll($value = '') {
+		$return = array();
+		$clone = clone $this;
+		if ($value != "") {
+			$clone->select = array();
+			$clone->select("$value"); // MultiResult adds its column
+		} elseif ($clone->select) {
+		} else {
+			$clone->select = array("$this->table.*");
+		}
+		foreach ($clone as $row) {
+			$return[] = $row->toArray();
 		}
 		return $return;
 	}

@@ -131,6 +131,13 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	function count() {
 		return count($this->row);
 	}
+        
+    /** Fetch all values as associative array
+	* @return array
+	*/
+	function toArray() {
+		return $this->row;
+	}
 	
 	// ArrayAccess implementation
 	
@@ -156,7 +163,13 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		if (!array_key_exists($key, $this->row)) {
 			$this->access($key, true);
 		}
-		return $this->row[$key];
+        $value = null;
+		if (array_key_exists($key, $this->row)) {
+            $value = $this->row[$key];
+        } else {
+            throw new Exception("field($key) not exists");
+        }
+		return $value;
 	}
 	
 	/** Store value in column
