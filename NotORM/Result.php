@@ -156,11 +156,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 		}
 		$return = $this->notORM->connection->prepare($query);
-        if($return) {
-            throw new Exception(implode(';', $return->errorInfo()) .': ' . $query ) ;
-			return false;
-		}
-		if (!$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+
+		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+    	    if($return) {
+	            throw new Exception(implode(';', $return->errorInfo()) .': ' . $query ) ;
+			}
 			return false;
 		}
 		return $return;
