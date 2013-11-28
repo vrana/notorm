@@ -676,6 +676,26 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/** Fetch all rows
+	* @param string column name used for an array value or an empty string for the whole row
+	* @return array
+	*/
+	function fetchAll($value = '') {
+		$return = array();
+		$clone = clone $this;
+		if ($value != "") {
+			$clone->select = array();
+			$clone->select("$value"); // MultiResult adds its column
+		} elseif ($clone->select) {
+		} else {
+			$clone->select = array("$this->table.*");
+		}
+		foreach ($clone as $row) {
+			$return[] = $row->toArray();
+		}
+		return $return;
+	}
+	
 	protected function access($key, $delete = false) {
 		if ($delete) {
 			if (is_array($this->access)) {
