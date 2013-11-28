@@ -81,12 +81,10 @@ class NotORM extends NotORM_Abstract {
 		if ($name == "transaction") {
 			switch (strtoupper($value)) {
 				case "BEGIN": 
-					if(!$this->transactionCounter++) 
-				case "BEGIN": return $this->connection->beginTransaction();
+					if(!$this->transactionCounter++)
        				return $this->transactionCounter >= 0;
 				case "COMMIT": 
-					if(!--$this->transactionCounter) 
-				case "COMMIT": return $this->connection->commit();
+					if(!--$this->transactionCounter)
        				return $this->transactionCounter >= 0; 
 				case "ROLLBACK": 
 					if($this->transactionCounter >= 0) 
