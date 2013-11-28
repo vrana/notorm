@@ -131,6 +131,13 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	function count() {
 		return count($this->row);
 	}
+        
+    /** Fetch all values as associative array
+	* @return array
+	*/
+	function toArray() {
+		return $this->row;
+	}
 	
 	// ArrayAccess implementation
 	
