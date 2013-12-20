@@ -624,7 +624,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 							$this->access[$this->primary] = true;
 						}
 					}
-					$this->rows[$key] = new $this->notORM->rowClass($row, $this);
+					$rowClass = new $this->notORM->rowClass($row, $this);
+					if ($this->notORM->assocArray) {
+						$this->rows[$key] = $rowClass;
+					} else {
+						$this->rows[]     = $rowClass;
+					}
 				}
 			}
 			$this->data = $this->rows;
