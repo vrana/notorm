@@ -4,12 +4,15 @@
 */
 class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable {
 	private $modified = array();
-	protected $row, $result;
+	protected $row, $result, $primary;
 	
 	/** @access protected must be public because it is called from Result */
 	function __construct(array $row, NotORM_Result $result) {
 		$this->row = $row;
 		$this->result = $result;
+		if (array_key_exists($result->primary, $row)) {
+			$this->primary = $row[$result->primary];
+		}
 	}
 	
 	/** Get primary key value
@@ -100,7 +103,9 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 			$data = $this->modified;
 		}
 		$result = new NotORM_Result($this->result->table, $this->result->notORM);
-		return $result->where($this->result->primary, $this[$this->result->primary])->update($data);
+		$return = $result->where($this->result->primary, $this->primary)->update($data);
+		$this->primary = $this[$this->result->primary];
+		return $return;
 	}
 	
 	/** Delete row
@@ -109,12 +114,14 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	function delete() {
 		// delete is an SQL keyword
 		$result = new NotORM_Result($this->result->table, $this->result->notORM);
-		return $result->where($this->result->primary, $this[$this->result->primary])->delete();
+		$return = $result->where($this->result->primary, $this->primary)->delete();
+		$this->primary = $this[$this->result->primary];
+		return $return;
 	}
 	
 	protected function access($key, $delete = false) {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
-			$id = (isset($this->row[$this->result->primary]) ? $this->row[$this->result->primary] : $this->row);
+			$id = (isset($this->primary) ? $this->primary : $this->row);
 			$this->row = $this->result[$id]->row;
 		}
 	}
