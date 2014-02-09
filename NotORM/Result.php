@@ -2,6 +2,7 @@
 
 /** Filtered table representation
 * @method NotORM_Result and(mixed $condition, mixed $parameters = array()) Add AND condition
+* @method NotORM_Result or(mixed $condition, mixed $parameters = array()) Add OR condition
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable, JsonSerializable {
 	protected $single;
@@ -66,10 +67,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		
 		$where = $this->where;
 		if (isset($this->limit) && $this->notORM->driver == "oci") {
-			$where[] = ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset); //! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
+			$where[] = ($where ? " AND " : "") . "(" . ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset) . ")"; //! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
 		}
 		if ($where) {
-			$return = " WHERE (" . implode(") AND (", $where) . ")$return";
+			$return = " WHERE " . implode($where) . $return;
 		}
 		
 		$return .= $this->limitString($this->limit, $this->offset);
@@ -395,7 +396,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			return $this;
 		}
 		$this->__destruct();
-		$this->conditions[] = $condition;
+		$this->conditions[] = "$operator $condition";
 		$condition = $this->removeExtraDots($condition);
 		if (count($args) != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
 			if (count($args) != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
@@ -445,17 +446,17 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$condition .= " IN " . $this->quote($parameters);
 				$nulls = array_filter($parameters, 'is_null');
 				if ($nulls) {
-					$condition = "($condition OR $column IS NULL)";
+					$condition = "$condition OR $column IS NULL";
 				}
 			} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
 				$or = array();
 				for ($i=0; $i < count($parameters); $i += 1000) {
 					$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
 				}
-				$condition = "(" . implode(" OR ", $or) . ")";
+				$condition = implode(" OR ", $or);
 			}
 		}
-		$this->where[] = $condition;
+		$this->where[] = ($this->where ? " $operator " : "") . "($condition)";
 		return $this;
 	}
 	
@@ -463,6 +464,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$operator = strtoupper($name);
 		switch ($operator) {
 			case "AND":
+			case "OR":
 				return $this->whereOperator($operator, $args);
 		}
 		trigger_error("Call to undefined method NotORM_Result::$name()", E_USER_ERROR);
@@ -559,7 +561,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
 		$query = "SELECT $function FROM $this->table" . implode($join);
 		if ($this->where) {
-			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
+			$query .= " WHERE " . implode($this->where);
 		}
 		foreach ($this->query($query, $this->parameters)->fetch() as $return) {
 			return $return;

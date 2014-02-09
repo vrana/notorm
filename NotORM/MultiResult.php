@@ -42,7 +42,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	}
 	
 	protected function single() {
-		$this->where[0] = "$this->column = " . $this->quote($this->active);
+		$this->where[0] = "($this->column = " . $this->quote($this->active) . ")";
 	}
 	
 	function update(array $data) {
@@ -82,7 +82,7 @@ class NotORM_MultiResult extends NotORM_Result {
 		$column = ($join ? "$this->table." : "") . $this->column;
 		$query = "SELECT $function, $column FROM $this->table" . implode($join);
 		if ($this->where) {
-			$query .= " WHERE (" . implode(") AND (", $this->where) . ")";
+			$query .= " WHERE " . implode($this->where);
 		}
 		$query .= " GROUP BY $column";
 		$aggregation = &$this->result->aggregation[$query];
