@@ -1,6 +1,7 @@
 <?php
 
 /** Filtered table representation
+* @method NotORM_Result and(mixed $condition, mixed $parameters = array()) Add AND condition
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable, JsonSerializable {
 	protected $single;
@@ -374,12 +375,19 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Add where condition, more calls appends with AND
-	* @param string condition possibly containing ? or :name
+	* @param mixed string possibly containing ? or :name; or array($condition => $parameters, ...)
 	* @param mixed array accepted by PDOStatement::execute or a scalar value
 	* @param mixed ...
 	* @return NotORM_Result fluent interface
 	*/
 	function where($condition, $parameters = array()) {
+		$args = func_get_args();
+		return $this->whereOperator("AND", $args);
+	}
+	
+	protected function whereOperator($operator, array $args) {
+		$condition = $args[0];
+		$parameters = (count($args) > 1 ? $args[1] : array());
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
@@ -389,11 +397,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->__destruct();
 		$this->conditions[] = $condition;
 		$condition = $this->removeExtraDots($condition);
-		$args = func_num_args();
-		if ($args != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
-			if ($args != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
-				$parameters = func_get_args();
-				array_shift($parameters);
+		if (count($args) != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
+			if (count($args) != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
+				$parameters = array_slice($args, 1);
 			}
 			$this->parameters = array_merge($this->parameters, $parameters);
 		} elseif ($parameters === null) { // where("column", null)
@@ -453,6 +459,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $this;
 	}
 	
+	function __call($name, array $args) {
+		$operator = strtoupper($name);
+		switch ($operator) {
+			case "AND":
+				return $this->whereOperator($operator, $args);
+		}
+		trigger_error("Call to undefined method NotORM_Result::$name()", E_USER_ERROR);
+	}
+	
 	/** Shortcut for where()
 	* @param string
 	* @param mixed
@@ -461,7 +476,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function __invoke($where, $parameters = array()) {
 		$args = func_get_args();
-		return call_user_func_array(array($this, 'where'), $args);
+		return $this->whereOperator("AND", $args);
 	}
 	
 	/** Add order clause, more calls appends to the end
