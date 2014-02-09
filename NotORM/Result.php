@@ -456,7 +456,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$condition = implode(" OR ", $or);
 			}
 		}
-		$this->where[] = ($this->where ? " $operator " : "") . "($condition)";
+		$this->where[] = (preg_match('~^\)+$~', $condition)
+			? $condition
+			: ($this->where ? " $operator " : "") . "($condition)"
+		);
 		return $this;
 	}
 	
