@@ -9,7 +9,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
 	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
-	
+
+	/**
+	 * Query time consumed
+	 * @var float
+	 */
+	private $time;
+
 	/** Create table result
 	* @param string
 	* @param NotORM
@@ -141,10 +147,23 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function query($query, $parameters) {
 		if ($this->notORM->debug) {
+			$time = microtime(true);
+		}
+
+		$return = $this->notORM->connection->prepare($query);
+		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+			$ret = false;
+		} else {
+			$ret = $return;
+		}
+
+		if ($this->notORM->debug) {
+			$this->time = microtime(TRUE) - $time;
 			if (!is_callable($this->notORM->debug)) {
 				$debug = "$query;";
 				if ($parameters) {
 					$debug .= " -- " . implode(", ", array_map(array($this, 'quote'), $parameters));
+					$debug .= " -- " . $time;
 				}
 				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
@@ -153,15 +172,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					}
 				}
 				error_log("$backtrace[file]:$backtrace[line]:$debug\n", 0);
-			} elseif (call_user_func($this->notORM->debug, $query, $parameters) === false) {
+			} elseif (call_user_func($this->notORM->debug, $query, $parameters, $this->time) === false) {
 				return false;
 			}
 		}
-		$return = $this->notORM->connection->prepare($query);
-		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
-			return false;
-		}
-		return $return;
+
+		return $ret;
 	}
 	
 	protected function formatValue($val) {
