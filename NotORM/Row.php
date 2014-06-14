@@ -70,8 +70,12 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return null
 	*/
 	function __set($name, NotORM_Row $value = null) {
-		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
-		$this[$column] = $value;
+		if($this->offsetExists($name)) {
+			$this->offsetSet($name, $value);
+		} else {
+			$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
+			$this[$column] = $value;
+		}
 	}
 	
 	/** Remove referenced column from data
