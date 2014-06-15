@@ -19,6 +19,8 @@ class NotORM_MultiResult extends NotORM_Result {
 	*/
 	function via($column) {
 		$this->column = $column;
+		$this->conditions[0] = "$this->table.$column AND";
+		$this->where[0] = "(" . $this->whereIn("$this->table.$column", array_keys((array) $this->result->rows)) . ")";
 		return $this;
 	}
 	

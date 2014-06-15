@@ -439,28 +439,33 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1, 2))
-			if (!$parameters) {
-				$condition = "($condition) IS NOT NULL AND $condition IS NULL";
-			} elseif ($this->notORM->driver != "oci") {
-				$column = $condition;
-				$condition .= " IN " . $this->quote($parameters);
-				$nulls = array_filter($parameters, 'is_null');
-				if ($nulls) {
-					$condition = "$condition OR $column IS NULL";
-				}
-			} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
-				$or = array();
-				for ($i=0; $i < count($parameters); $i += 1000) {
-					$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
-				}
-				$condition = implode(" OR ", $or);
-			}
+			$condition = $this->whereIn($condition, $parameters);
 		}
 		$this->where[] = (preg_match('~^\)+$~', $condition)
 			? $condition
 			: ($this->where ? " $operator " : "") . "($condition)"
 		);
 		return $this;
+	}
+	
+	protected function whereIn($condition, $parameters) {
+		if (!$parameters) {
+			$condition = "($condition) IS NOT NULL AND $condition IS NULL";
+		} elseif ($this->notORM->driver != "oci") {
+			$column = $condition;
+			$condition .= " IN " . $this->quote($parameters);
+			$nulls = array_filter($parameters, 'is_null');
+			if ($nulls) {
+				$condition = "$condition OR $column IS NULL";
+			}
+		} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
+			$or = array();
+			for ($i=0; $i < count($parameters); $i += 1000) {
+				$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
+			}
+			$condition = implode(" OR ", $or);
+		}
+		return $condition;
 	}
 	
 	function __call($name, array $args) {
