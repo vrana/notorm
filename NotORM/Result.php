@@ -496,18 +496,19 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Add order clause, more calls appends to the end
-	* @param string for example "column1, column2 DESC", empty string to reset previous order
+	* @param mixed "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
 	* @param string ...
 	* @return NotORM_Result fluent interface
 	*/
 	function order($columns) {
 		$this->rows = null;
 		if ($columns != "") {
-			foreach (func_get_args() as $columns) {
+			$columns = (is_array($columns) ? $columns : func_get_args());
+			foreach ($columns as $column) {
 				if ($this->union) {
-					$this->unionOrder[] = $columns;
+					$this->unionOrder[] = $column;
 				} else {
-					$this->order[] = $columns;
+					$this->order[] = $column;
 				}
 			}
 		} elseif ($this->union) {
