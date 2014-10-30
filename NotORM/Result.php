@@ -503,11 +503,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function order($columns) {
 		$this->rows = null;
 		if ($columns != "") {
-			foreach (func_get_args() as $columns) {
+			$columnsArray = is_array($columns) ? $columns : func_get_args();
+			foreach ($columnsArray as $column) {
 				if ($this->union) {
-					$this->unionOrder[] = $columns;
+					$this->unionOrder[] = $column;
 				} else {
-					$this->order[] = $columns;
+					$this->order[] = $column;
 				}
 			}
 		} elseif ($this->union) {
