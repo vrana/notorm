@@ -107,6 +107,21 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/** Put * at the beginning when imploding attribute names for select
+	* @return string
+	*/
+	protected function implodeSelect() {
+		if (in_array('*', $this->select)) {
+			$transposed = array_flip($this->select);
+			unset($transposed['*']);
+			$select = array_merge(array('*'), array_flip($transposed));
+		} else {
+			$select = $this->select;
+		}
+		return implode(", ", $select);
+	}
+
+	
 	/** Get SQL query
 	* @return string
 	*/
@@ -118,7 +133,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$this->access = $this->accessed;
 		}
 		if ($this->select) {
-			$return .= $this->removeExtraDots(implode(", ", $this->select));
+			$return .= $this->removeExtraDots($this->implodeSelect());
 		} elseif ($this->accessed) {
 			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
 		} else {
