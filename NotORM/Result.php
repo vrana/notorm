@@ -656,6 +656,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 							$this->access[$this->primary] = true;
 						}
 					}
+                                        if(isset($this->rows[$key]))
+                                        {
+                                            throw new Exception('The primary key of the selected table occurs more than one time in the rows. Join differently so that this does not happen!');
+                                        }
 					$this->rows[$key] = new $this->notORM->rowClass($row, $this);
 				}
 			}
