@@ -62,13 +62,32 @@ class NotORM extends NotORM_Abstract {
 		}
 		$this->structure = $structure;
 		$this->cache = $cache;
+
+    $this->load_tables();
 	}
+
+  protected $tables = array();
+  protected function load_tables() {
+    $table_prefix = $this->structure->getPrefix();
+    $table_prefix_len = strlen($table_prefix);
+
+    $st = $this->connection->query("show tables;");
+    while($table = $st->fetchColumn()) {
+      if ( strpos($table, $table_prefix) !== 0 )
+        continue;
+      $this->tables[] = substr($table, $table_prefix_len);
+    }
+  }
 	
 	/** Get table data to use as $db->table[1]
 	* @param string
 	* @return NotORM_Result
 	*/
 	function __get($table) {
+    if( !in_array($table, $this->tables) ){
+      throw new ErrorException("There is no table named " . $table);
+    }
+
 		return new NotORM_Result($this->structure->getReferencingTable($table, ''), $this, true);
 	}
 	

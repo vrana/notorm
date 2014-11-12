@@ -25,16 +25,34 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
     $this->load_columns();
 	}
 
-  protected $columns = array();
-  protected function load_columns() {
-    $st = $this->notORM->connection->query("show columns from `$this->table`;");
+  public static function s_columns($table, $conn = null) {
+    static $columns = array();
+    if( array_key_exists($table, $columns) )
+      return $columns[$table];
+
+    if(!$conn)
+      return array();
+
+    $columns[$table] = array();
+    $st = $conn->query("show columns from `$table`;");
     foreach( $st as $row ) {
       $row = array_change_key_case($row);
-      $this->columns[] = $row['field'];
+      $columns[$table][] = $row['field'];
     }
+    return $columns[$table];
+  }
+
+  public function columns() {
+    return $this->columns;
+  }
+
+  protected $columns;
+  protected function load_columns() {
+    $this->columns = static::s_columns($this->table, $this->notORM->connection);
   }
 
   protected function filter_data( array $data) {
+
     foreach ($data as $key => $_) {
       if( !in_array($key, $this->columns) )
         unset($data[$key]);
