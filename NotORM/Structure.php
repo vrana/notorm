@@ -65,6 +65,10 @@ class NotORM_Structure_Convention implements NotORM_Structure {
 		$this->table = $table;
 		$this->prefix = $prefix;
 	}
+
+  function getPrefix() {
+    return $this->prefix;
+  }
 	
 	function getPrimary($table) {
 		return sprintf($this->primary, $this->getColumnFromTable($table));

@@ -21,7 +21,56 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->notORM = $notORM;
 		$this->single = $single;
 		$this->primary = $notORM->structure->getPrimary($table);
+
+    $this->load_columns();
 	}
+
+  public static function s_columns($table, $conn = null) {
+    static $columns = array();
+    if( array_key_exists($table, $columns) )
+      return $columns[$table];
+
+    if(!$conn)
+      return array();
+
+    $columns[$table] = array();
+    $st = $conn->query("show columns from `$table`;");
+    foreach( $st as $row ) {
+      $row = array_change_key_case($row);
+      $columns[$table][] = $row['field'];
+    }
+    return $columns[$table];
+  }
+
+  public function columns() {
+    return $this->columns;
+  }
+
+  protected $columns;
+  protected function load_columns() {
+    $this->columns = static::s_columns($this->table, $this->notORM->connection);
+  }
+
+  protected function filter_data( array $data) {
+
+    foreach ($data as $key => $_) {
+      if( !in_array($key, $this->columns) )
+        unset($data[$key]);
+    }
+
+    return $data;
+  }
+
+  public static function db_quote( $key ) {
+    if( is_string($key) )
+      return "`{$key}`";
+
+    foreach ($key as &$k) {
+      $k = static::db_quote($k);
+    }
+
+    return $key;
+  }
 	
 	/** Save data to cache and empty result
 	*/
@@ -99,7 +148,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					$table = $this->notORM->structure->getReferencedTable($name, $parent);
 					$column = ($delimiter == ':' ? $this->notORM->structure->getPrimary($parent) : $this->notORM->structure->getReferencedColumn($name, $parent));
 					$primary = ($delimiter == ':' ? $this->notORM->structure->getReferencedColumn($parent, $table) : $this->notORM->structure->getPrimary($table));
-					$return[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
+					$return[$name] = " LEFT JOIN " . static::db_quote($table) . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
 					$parent = $name;
 				}
 			}
@@ -124,7 +173,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		} else {
 			$return .= ($join ? "$this->table." : "") . "*";
 		}
-		$return .= " FROM $this->table" . implode($join) . $this->whereString();
+		$return .= " FROM " . static::db_quote($this->table) . implode($join) . $this->whereString();
 		if ($this->union) {
 			$return = ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $return : "($return)") . implode($this->union);
 			if ($this->unionOrder) {
@@ -159,6 +208,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$return = $this->notORM->connection->prepare($query);
 		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+      $this->notORM->debug && error_log( json_encode($return->errorInfo()) );
 			$return = false;
 		}
 		if ($this->notORM->debugTimer) {
@@ -205,6 +255,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if (!$rows) {
 			return 0;
 		}
+
+    foreach($rows as &$_) {
+      $_ = $this->filter_data($_);
+    }
+
 		$data = reset($rows);
 		$parameters = array();
 		if ($data instanceof NotORM_Result) {
@@ -229,12 +284,12 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 			//! driver specific extended insert
 			$insert = ($data || $this->notORM->driver == "mysql"
-				? "(" . implode(", ", array_keys($data)) . ") VALUES " . implode(", ", $values)
+				? "(" . implode(", ", static::db_quote(array_keys($data))) . ") VALUES " . implode(", ", $values)
 				: "DEFAULT VALUES"
 			);
 		}
 		// requires empty $this->parameters
-		$return = $this->query("INSERT INTO $this->table $insert", $parameters);
+		$return = $this->query("INSERT INTO " . static::db_quote($this->table) . " $insert", $parameters);
 		if (!$return) {
 			return false;
 		}
@@ -270,6 +325,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
+
+    $data = $this->filter_data( $data );
 		if (!$data) {
 			return 0;
 		}
@@ -277,7 +334,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$parameters = array();
 		foreach ($data as $key => $val) {
 			// doesn't use binding because $this->parameters can be filled by ? or :name
-			$values[] = "$key = " . $this->quote($val);
+			$values[] = static::db_quote($key) . " = " . $this->quote($val);
 			if ($val instanceof NotORM_Literal && $val->parameters) {
 				$parameters = array_merge($parameters, $val->parameters);
 			}
@@ -286,7 +343,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			$parameters = array_merge($parameters, $this->parameters);
 		}
 		// joins in UPDATE are supported only in MySQL
-		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " $this->table SET " . implode(", ", $values) . $this->whereString(), $parameters);
+		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " " . static::db_quote($this->table) . " SET " . implode(", ", $values) . $this->whereString(), $parameters);
 		if (!$return) {
 			return false;
 		}
@@ -300,11 +357,16 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	* @return int number of affected rows or false in case of an error
 	*/
 	function insert_update(array $unique, array $insert, array $update = array()) {
-		if (!$update) {
-			$update = $insert;
-		}
-		$insert = $unique + $insert;
-		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES " . $this->quote($insert);
+    $unique = $this->filter_data( $unique );
+    $insert = $this->filter_data( $insert );
+    $update = $this->filter_data( $update );
+
+    if (!$update) {
+      $update = $insert;
+    }
+    $insert = $unique + $insert;
+
+		$values = "(" . implode(", ", static::db_quote(array_keys($insert))) . ") VALUES " . $this->quote($insert);
 		//! parameters
 		if ($this->notORM->driver == "mysql") {
 			$set = array();
@@ -312,7 +374,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				$update = $unique;
 			}
 			foreach ($update as $key => $val) {
-				$set[] = "$key = " . $this->quote($val);
+				$set[] = static::db_quote($key) . " = " . $this->quote($val);
 				//! parameters
 			}
 			return $this->insert("$values ON DUPLICATE KEY UPDATE " . implode(", ", $set));
@@ -357,7 +419,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		$return = $this->query("DELETE" . $this->topString($this->limit, $this->offset) . " FROM $this->table" . $this->whereString(), $this->parameters);
+		$return = $this->query("DELETE" . $this->topString($this->limit, $this->offset) . " FROM " . static::db_quote($this->table) . $this->whereString(), $this->parameters);
 		if (!$return) {
 			return false;
 		}
@@ -394,6 +456,9 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	protected function whereOperator($operator, array $args) {
 		$condition = $args[0];
+    if( in_array($condition, $this->columns) )
+      $condition = static::db_quote( $condition );
+
 		$parameters = (count($args) > 1 ? $args[1] : array());
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
@@ -574,7 +639,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	*/
 	function aggregation($function) {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
-		$query = "SELECT $function FROM $this->table" . implode($join);
+		$query = sprintf("SELECT $function FROM %s %s", static::db_quote($this->table), implode($join));
 		if ($this->where) {
 			$query .= " WHERE " . implode($this->where);
 		}
@@ -688,11 +753,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$clone = clone $this;
 		if ($value != "") {
 			$clone->select = array();
-			$clone->select("$key, $value"); // MultiResult adds its column
+			$clone->select(sprintf("%s, %s", static::db_quote($key), static::db_quote($value))); // MultiResult adds its column
 		} elseif ($clone->select) {
 			array_unshift($clone->select, $key);
 		} else {
-			$clone->select = array("$key, $this->table.*");
+			$clone->select = array(sprintf("%s, %s.*", static::db_quote($key), static::db_quote($this->table)));
 		}
 		foreach ($clone as $row) {
 			$values = array_values(iterator_to_array($row));

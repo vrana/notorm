@@ -8,8 +8,10 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	
 	/** @access protected must be public because it is called from Result */
 	function __construct(array $row, NotORM_Result $result) {
-		$this->row = $row;
 		$this->result = $result;
+    $this->row = $row;
+    $this->reload_data($row);
+
 		if (array_key_exists($result->primary, $row)) {
 			$this->primary = $row[$result->primary];
 		}
@@ -92,6 +94,18 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		}
 		return $return;
 	}
+
+  function reload_data( $data ) {
+
+    $primary = empty($this->primary) ? $data[$this->result->primary] : $this->primary;
+    foreach ($data as $key => $val) {
+      if ($val instanceof NotORM_Literal ) {
+        $result = new NotORM_Result($this->result->table, $this->result->notORM);
+        $this->row = $result->where($this->result->primary, $primary)->fetch()->JsonSerialize();
+        return;
+      }
+    }
+  }
 	
 	/** Update row
 	* @param array or null for all modified values
@@ -102,9 +116,14 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 		if (!isset($data)) {
 			$data = $this->modified;
 		}
+
 		$result = new NotORM_Result($this->result->table, $this->result->notORM);
 		$return = $result->where($this->result->primary, $this->primary)->update($data);
 		$this->primary = $this[$this->result->primary];
+
+    if( $return )
+      $this->reload_data($data);
+
 		return $return;
 	}
 	
