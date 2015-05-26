@@ -679,27 +679,35 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	/** Fetch all rows as associative array
-	* @param string
+	* @param array|string
 	* @param string column name used for an array value or an empty string for the whole row
 	* @return array
 	*/
 	function fetchPairs($key, $value = '') {
+		$keys = (array) $key;
 		$return = array();
 		$clone = clone $this;
 		if ($value != "") {
 			$clone->select = array();
-			$clone->select("$key, $value"); // MultiResult adds its column
+			$clone->select(implode(',', $keys) . ", $value"); // MultiResult adds its column
 		} elseif ($clone->select) {
 			array_unshift($clone->select, $key);
 		} else {
-			$clone->select = array("$key, $this->table.*");
+			$clone->select = array(implode(',', $keys) . ", $this->table.*");
 		}
 		foreach ($clone as $row) {
-			$values = array_values(iterator_to_array($row));
-			if ($value != "" && $clone instanceof NotORM_MultiResult) {
-				array_shift($values);
+			$values = iterator_to_array($row);
+			$node = &$return;
+			foreach ($keys as $nodeKey) {
+				$node = &$node[(string) $values[$nodeKey]];
 			}
-			$return[(string) $values[0]] = ($value != "" ? $values[(array_key_exists(1, $values) ? 1 : 0)] : $row); // isset($values[1]) - fetchPairs("id", "id")
+			if ($value != "") {
+				if (array_key_exists($value, $values)) {
+					$node = $values[$value];
+				}
+			} else {
+				$node = $row;
+			}
 		}
 		return $return;
 	}
