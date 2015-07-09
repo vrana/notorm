@@ -196,9 +196,10 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	
 	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
 	* @param array
+    * @param boolean $ignore if should ignore duplicates
 	* @return int number of affected rows or false in case of an error
 	*/
-	function insert_multi(array $rows) {
+	function insert_multi(array $rows, $ignore = false) {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -233,9 +234,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				: "DEFAULT VALUES"
 			);
 		}
+        $ignore_clause = '';
+        if ($ignore) {
+            $ignore_clause = 'IGNORE';
+        }
 		// requires empty $this->parameters
-		$return = $this->query("INSERT INTO $this->table $insert", $parameters);
-		if (!$return) {
+        $return = $this->query("INSERT $ignore_clause INTO $this->table $insert", $parameters);
+        if (!$return) {
 			return false;
 		}
 		$this->rows = null;
