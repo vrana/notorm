@@ -133,7 +133,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		$return = &$this->structure["primary"][$table];
 		if (!isset($return)) {
 			$return = "";
-			foreach ($this->connection->query("EXPLAIN $table") as $column) {
+			foreach ($this->connection->query("EXPLAIN $table", PDO::FETCH_NUM) as $column) {
 				if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
 					if ($return != "") {
 						$return = ""; // multi-column primary key is not supported
@@ -156,7 +156,8 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
-				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)) //! may not reference primary key
+				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)),  //! may not reference primary key
+				PDO::FETCH_NUM
 			) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
@@ -182,7 +183,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND TABLE_NAME = " . $this->connection->quote($table) . "
-			") as $row) {
+			", PDO::FETCH_NUM) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}
