@@ -442,12 +442,8 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					$condition = "($condition) IS NOT NULL AND $condition IS NULL"; // $condition = "NOT id"
 				}
 			}
-		} elseif (!is_array($parameters)) {
-			if (strtolower(trim($parameters)) === strtolower('is not null')) { // where("column", "is not null")
-				$condition .= " IS NOT NULL";
-			} else { // where("column", "x")
-				$condition .= " = " . $this->quote($parameters);
-			}
+		} elseif (!is_array($parameters)) { // where("column", "x")
+			$condition .= " = " . $this->quote($parameters);
 		} else { // where("column", array(1, 2))
 			$condition = $this->whereIn($condition, $parameters);
 		}

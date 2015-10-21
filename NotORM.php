@@ -24,6 +24,9 @@ include_once dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
+	/**
+	 * @var PDO $connection
+	 */
 	protected $connection, $driver, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
