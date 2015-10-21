@@ -10,6 +10,8 @@ foreach (array(
 	$software->application("id < ?", array(4)),
 	$software->application("id", array(1, 2)),
 	$software->application("id", null),
+	$software->application("id is not null"),
+	$software->application("NOT id", null),
 	$software->application("id", $software->application()),
 	$software->application("id < ?", 4)->where("maintainer_id IS NOT NULL"),
 	$software->application(array("id < ?" => 4, "author_id" => 12)),
@@ -23,6 +25,8 @@ foreach (array(
 1, 2, 3
 1, 2
 
+1, 2, 3, 4
+1, 2, 3, 4
 1, 2, 3, 4
 1, 3
 3

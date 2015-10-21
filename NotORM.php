@@ -24,6 +24,9 @@ include_once dirname(__FILE__) . "/NotORM/Row.php";
 
 // friend visibility emulation
 abstract class NotORM_Abstract {
+	/**
+	 * @var PDO $connection
+	 */
 	protected $connection, $driver, $structure, $cache;
 	protected $notORM, $table, $primary, $rows, $referenced = array();
 	
@@ -41,11 +44,11 @@ abstract class NotORM_Abstract {
 
 
 /** Database representation
-* @property-write mixed $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
-* @property-write bool $freeze = false Disable persistence
-* @property-write string $rowClass = 'NotORM_Row' Class used for created objects
-* @property-write bool $jsonAsArray = false Use array instead of object in Result JSON serialization
-* @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
+ * @property mixed $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
+ * @property bool $freeze = false Disable persistence
+ * @property string $rowClass = 'NotORM_Row' Class used for created objects
+ * @property bool $jsonAsArray = false Use array instead of object in Result JSON serialization
+ * @property string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends NotORM_Abstract {
 	
