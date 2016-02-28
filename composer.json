@@ -1,16 +1,23 @@
 {
-	"name": "vrana/notorm",
+	"name": "sim2github/notorm",
 	"description": "NotORM is a PHP library for simple working with data in the database.",
 	"keywords": ["database", "dbal"],
 	"homepage": "http://www.notorm.com/",
 	"license": ["Apache-2.0", "GPL-2.0+"],
 	"authors": [
-		{
-			"name": "Jakub Vrána",
-			"homepage": "http://www.vrana.cz/"
-		}
+      {
+          "name": "Jakub Vrána",
+          "homepage": "http://www.vrana.cz/"
+      },
+      {
+        "name": "Alexander V. Sergeyev",
+        "homepage": "http://www.simon.pp.ua/"
+      }
 	],
 	"autoload": {
-		"files": ["NotORM.php"]
-	}
+      "psr-4" : { "NotORM\\" : "src/" }
+	},
+    "required": {
+      "php": ">=5.4"
+    }
 }

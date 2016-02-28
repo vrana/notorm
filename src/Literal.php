@@ -1,8 +1,9 @@
 <?php
+namespace NotORM;
 
 /** SQL literal value
 */
-class NotORM_Literal {
+class Literal {
 	protected $value = '';
 	
 	/** @var array */
@@ -13,7 +14,7 @@ class NotORM_Literal {
 	* @param mixed parameter
 	* @param mixed ...
 	*/
-	function __construct($value) {
+	public function __construct($value) {
 		$this->value = $value;
 		$this->parameters = func_get_args();
 		array_shift($this->parameters);
@@ -22,7 +23,7 @@ class NotORM_Literal {
 	/** Get literal value
 	* @return string
 	*/
-	function __toString() {
+	public function __toString() {
 		return $this->value;
 	}
 	
