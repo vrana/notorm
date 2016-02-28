@@ -1,12 +1,15 @@
+[![Build Status](https://secure.travis-ci.org/sim2github/notorm.png)](http://travis-ci.org/sim2github/notorm) [![Code Coverage](https://scrutinizer-ci.com/g/sim2github/notorm/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/sim2github/notorm/?branch=master)
+
 # NotORM - http://www.notorm.com/
 
 NotORM is a PHP library for simple working with data in the database. The most interesting feature is a very easy work with table relationships. The overall performance is also very important and NotORM can actually run faster than a native driver.
 
-Requirements:
-PHP 5.3+
+**Requirements:**
+PHP 5.4+
 any database supported by PDO 
 
-Usage:
+**Usage:**
+```php
 <?php
 require __DIR__ . '/vendor/autoload.php';
 $connection = new PDO("mysql:dbname=software");
@@ -20,4 +23,4 @@ foreach ($software->application()->order("title") as $application) { // get all 
     }
 }
 ?>
-[![Build Status](https://secure.travis-ci.org/sim2github/notorm.png)](http://travis-ci.org/sim2github/notorm)
+```

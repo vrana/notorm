@@ -1,5 +1,5 @@
 {
-	"name": "sim2github/notorm",
+	"name": "vrana/notorm",
 	"description": "NotORM is a PHP library for simple working with data in the database.",
 	"keywords": ["database", "dbal"],
 	"homepage": "http://www.notorm.com/",
@@ -15,9 +15,12 @@
       }
 	],
 	"autoload": {
-      "psr-4" : { "NotORM\\" : "src/" }
+	  "psr-4" : {
+        "NotORM\\" : "src/",
+        "NotORM\\Tests\\" : "tests/"
+      }
 	},
-    "required": {
+    "require": {
       "php": ">=5.4"
     }
 }

@@ -64,7 +64,7 @@ class Instance extends AbstractClass {
 			$return = new Result($this->structure->getReferencingTable($table, ''), $this);
 		} else throw  new \InvalidArgumentException;
 
-		if ($where) {
+		if (!empty($where)) {
 			call_user_func_array(array($return, 'where'), $where);
 		}
 		return $return;

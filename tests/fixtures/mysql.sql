@@ -1,4 +1,7 @@
 /*!40102 SET storage_engine = InnoDB */;
+DROP DATABASE IF EXISTS `software`;
+CREATE DATABASE IF NOT EXISTS `software`;
+USE `software`;
 
 CREATE TABLE author (
   id int NOT NULL,
@@ -54,4 +57,3 @@ INSERT INTO application_tag (application_id, tag_id) VALUES (4, 21);
 INSERT INTO application_tag (application_id, tag_id) VALUES (1, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (4, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (2, 23);
-

@@ -1,2 +1,4 @@
 vendor/
 composer.lock
+tests/codecoverage
+tests/config.local.php
