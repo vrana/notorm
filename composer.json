@@ -1,26 +1,27 @@
 {
-	"name": "vrana/notorm",
-	"description": "NotORM is a PHP library for simple working with data in the database.",
-	"keywords": ["database", "dbal"],
-	"homepage": "http://www.notorm.com/",
-	"license": ["Apache-2.0", "GPL-2.0+"],
-	"authors": [
-      {
-          "name": "Jakub Vrána",
-          "homepage": "http://www.vrana.cz/"
-      },
-      {
-        "name": "Alexander V. Sergeyev",
-        "homepage": "http://www.simon.pp.ua/"
-      }
-	],
-	"autoload": {
-	  "psr-4" : {
-        "NotORM\\" : "src/",
-        "NotORM\\Tests\\" : "tests/"
-      }
-	},
-    "require": {
-      "php": ">=5.4"
+  "name": "vrana/notorm",
+  "description": "NotORM is a PHP library for simple working with data in the database.",
+  "keywords": ["database", "dbal"],
+  "homepage": "http://www.notorm.com/",
+  "license": ["Apache-2.0", "GPL-2.0+"],
+  "authors": [
+    {
+      "name": "Jakub Vrána",
+      "homepage": "http://www.vrana.cz/"
+    },
+    {
+      "name": "Alexander V. Sergeyev",
+      "homepage": "http://www.simon.pp.ua/"
     }
+  ],
+  "autoload": {
+    "psr-4" : {
+      "NotORM\\" : "src/",
+      "NotORM\\Tests\\" : "tests/"
+    }
+  },
+  "require": {
+    "php": ">=5.4",
+    "tedivm/stash": "^0.14.1"
+  }
 }

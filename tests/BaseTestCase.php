@@ -235,9 +235,9 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 
 
 	/**
-	 * Session cache
+	 *  Cache
 	 */
-	public function testSessionCache()
+	public function testCache()
 	{
 		$expected = [
 			'SELECT * FROM application',
@@ -246,8 +246,7 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 			'SELECT id, title, author_id, slogan FROM application',
 		];
 
-		$_SESSION = array(); // not session_start() - headers already sent
-		$cache = new \NotORM\Instance(self::$pdo, null, new \NotORM\CacheSession());
+		$cache = new \NotORM\Instance(self::$pdo, null, new \NotORM\Cache());
 		$applications = $cache->application();
 		$application = $applications->fetch();
 		$application['title'];
@@ -256,13 +255,13 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 		$applications->__destruct();
 		$applications = $cache->application();
 		$application = $applications->fetch();
-		$result[] = (string)$applications; // get only title and author_id
+		$result[] = (string) $applications; // get only title and author_id
 		$application["slogan"]; // script changed and now we want also slogan
-		$result[] = (string)$applications; // all columns must have been retrieved to get slogan
+		$result[] = (string) $applications; // all columns must have been retrieved to get slogan
 		$applications->__destruct();
 		$applications = $cache->application();
 		$applications->fetch();
-		$result[] = (string)$applications; // next time, get only title, author_id and slogan
+		$result[] = (string) $applications; // next time, get only title, author_id and slogan
 
 		$this->assertEquals($expected, $result);
 	}

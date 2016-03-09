@@ -94,9 +94,9 @@ class MysqlTest extends BaseTestCase {
 			self::$pdo,
 			new \NotORM\StructureDiscovery(
 				self::$pdo,
-				new \NotORM\CacheSession()
+				new \NotORM\Cache()
 			),
-			new \NotORM\CacheSession()
+			new \NotORM\Cache()
 		);
 
 		foreach ($discovery->application() as $application) {
