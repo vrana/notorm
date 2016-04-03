@@ -795,6 +795,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				return $this->data[$key];
 			}
 		}
+		throw new Exception('Resource Not Found', 404);
 	}
 	
 	/** Mimic row
