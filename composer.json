@@ -1,5 +1,5 @@
 {
-	"name": "vrana/notorm",
+	"name": "trijin/notorm",
 	"description": "NotORM is a PHP library for simple working with data in the database. + with advanced join",
 	"keywords": ["database", "dbal"],
 	"homepage": "http://www.notorm.com/",
@@ -15,6 +15,9 @@
 			"role": "Add `join` comand"
 		}
 	],
+	"replace": {
+		"vrana/notorm": "dev-master"
+	},
 	"autoload": {
 		"files": ["NotORM.php"]
 	}
