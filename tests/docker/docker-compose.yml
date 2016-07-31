@@ -1,0 +1,18 @@
+---
+# Our PostgreSQL service:
+postgres:
+  image: postgres:9.3
+  ports:
+    - "5432:5432" # Bind host port 5432 to PostgreSQL port 5432
+  volumes:
+    - ..:/tests # We're mounting this folder so we can backup/restore database dumps from our app folder.
+  environment:
+    LC_ALL: C.UTF-8
+    # POSTGRES_USER: postgres # default
+    POSTGRES_PASSWORD: postgres
+
+# Our Redis service:
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379" # Bind host port 6379 to Redis port 6379

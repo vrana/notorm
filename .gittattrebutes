@@ -1,0 +1,13 @@
+# Autodetect text files
+* text=auto
+
+# Definitively text files
+*.php  text
+*.md   text
+
+# Ignore all test and documentation for archive
+/tests            export-ignore
+/.gitignore         export-ignore
+/.scrutinizer.yml   export-ignore
+/.travis.yml        export-ignore
+/phpunit.xml.dist   export-ignore
