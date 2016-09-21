@@ -159,7 +159,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		}
 		$return = $this->notORM->connection->prepare($query);
 		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
-			$return = false;
+			throw new Exception($return->errorInfo()[2]);						
 		}
 		if ($this->notORM->debugTimer) {
 			call_user_func($this->notORM->debugTimer);
