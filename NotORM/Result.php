@@ -9,6 +9,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
 	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
+	protected $customizedJoins = array();
 	
 	/** Create table result
 	* @param string
@@ -104,7 +105,24 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 				}
 			}
 		}
+		
+		if(count($this->customizedJoins) > 0) {
+			foreach($this->customizedJoins as $name=>$query) {
+				$return[$name] = " ".$query;
+			}
+		}
+		
 		return $return;
+	}
+	
+	/** Flexible JOIN
+	 * @param string table to JOIN
+	 * @param string JOIN part
+	 * @return string SQL query
+	 **/
+	function join($tableName, $joinQuery) {
+		$this->customizedJoins[$tableName] = $joinQuery;
+		return $this;
 	}
 	
 	/** Get SQL query
