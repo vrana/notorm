@@ -528,10 +528,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$this->rows = null;
 		if ($this->union) {
 			$this->unionLimit = +$limit;
-			$this->unionOffset = +$offset;
+			if (isset($offset)) {
+				$this->unionOffset = +$offset;
+			}
 		} else {
 			$this->limit = +$limit;
-			$this->offset = +$offset;
+			if (isset($offset)) {
+				$this->offset = +$offset;
+			}
 		}
 		return $this;
 	}
