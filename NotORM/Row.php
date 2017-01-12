@@ -27,6 +27,12 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return NotORM_Row or null if the row does not exist
 	*/
 	function __get($name) {
+		
+				
+		if($this->offsetExists($name))
+			return $this->offsetGet($name);
+		
+		
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
@@ -64,8 +70,12 @@ class NotORM_Row extends NotORM_Abstract implements IteratorAggregate, ArrayAcce
 	* @return null
 	*/
 	function __set($name, NotORM_Row $value = null) {
-		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
-		$this[$column] = $value;
+		if($this->offsetExists($name)) {
+			$this->offsetSet($name, $value);
+		} else {
+			$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
+			$this[$column] = $value;
+		}
 	}
 	
 	/** Remove referenced column from data
