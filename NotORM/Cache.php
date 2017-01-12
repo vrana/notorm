@@ -185,3 +185,23 @@ class NotORM_Cache_APC implements NotORM_Cache {
 	}
 	
 }
+
+/** Cache using NotORM." prefix with Nette\Caching
+ */
+class NotORM_Cache_Nette implements NotORM_Cache {
+
+    private $storage;
+
+    function __construct(\Nette\Caching\IStorage $storage) {
+        $this->storage = $storage;
+    }
+
+    function load($key) {
+        return $this->storage->read('NotORM.' . $key);
+    }
+
+    function save($key, $data) {
+        $this->storage->write('NotORM.' . $key, $data, array());
+    }
+
+}
