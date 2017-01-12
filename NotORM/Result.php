@@ -704,6 +704,14 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		return $return;
 	}
 	
+	/**
+	 * One liner for simple fetch as associative array
+	 * @return array
+	 */
+	function fetchAssoc() {
+		return array_map('iterator_to_array', iterator_to_array($this));
+	}
+	
 	protected function access($key, $delete = false) {
 		if ($delete) {
 			if (is_array($this->access)) {
