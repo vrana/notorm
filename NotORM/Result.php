@@ -175,7 +175,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	}
 	
 	protected function quote($val) {
-		if (!isset($val)) {
+		if (!isset($val) || $val == NULL) {
 			return "NULL";
 		}
 		if (is_array($val)) { // (a, b) IN ((1, 2), (3, 4))
