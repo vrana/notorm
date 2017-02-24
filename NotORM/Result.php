@@ -396,7 +396,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
-	
+
 	function join($table,$on=false,$outer=false) {
 		$tbl=preg_replace('/^[^a-z]*((?:.* as )?`?([a-z][a-z0-9\_]*)).*$/i','$2',$table);
 		$this->join[$tbl]=" LEFT ".($outer?"OUTER ":"")."JOIN ".$table." ".($on===false?"":" ON ".$on);
