@@ -6,7 +6,7 @@
 */
 class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Countable, JsonSerializable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
+	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null, $join = array();
 	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 	
@@ -102,6 +102,11 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 					$return[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
 					$parent = $name;
 				}
+			}
+		}
+		if(count($this->join)) {
+			foreach ($this->join as $tableAlias => $joinStartament) {
+				$return[$tableAlias]=$joinStartament;
 			}
 		}
 		return $return;
@@ -390,6 +395,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function where($condition, $parameters = array()) {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
+	}
+
+	function join($table,$on=false,$outer=false) {
+		$tbl=preg_replace('/^[^a-z]*((?:.* as )?`?([a-z][a-z0-9\_]*)).*$/i','$2',$table);
+		$this->join[$tbl]=" LEFT ".($outer?"OUTER ":"")."JOIN ".$table." ".($on===false?"":" ON ".$on);
+	
+		return $this;
 	}
 	
 	protected function whereOperator($operator, array $args) {

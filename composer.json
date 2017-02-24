@@ -1,6 +1,6 @@
 {
-	"name": "vrana/notorm",
-	"description": "NotORM is a PHP library for simple working with data in the database.",
+	"name": "trijin/notorm",
+	"description": "NotORM is a PHP library for simple working with data in the database. + with advanced join",
 	"keywords": ["database", "dbal"],
 	"homepage": "http://www.notorm.com/",
 	"license": ["Apache-2.0", "GPL-2.0+"],
@@ -9,7 +9,15 @@
 			"name": "Jakub Vrána",
 			"homepage": "http://www.vrana.cz/"
 		}
+		,{
+			"name": "Alex T Trijin",
+			"homepage": "http://trijin.ru/",
+			"role": "Add `join` comand"
+		}
 	],
+	"replace": {
+		"vrana/notorm": "dev-master"
+	},
 	"autoload": {
 		"files": ["NotORM.php"]
 	}
