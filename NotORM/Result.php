@@ -229,7 +229,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			}
 			//! driver specific extended insert
 			$insert = ($data || $this->notORM->driver == "mysql"
-				? "(" . implode(", ", array_keys($data)) . ") VALUES " . implode(", ", $values)
+				? "(`" . implode("`, `", array_keys($data)) . "`) VALUES " . implode(", ", $values)
 				: "DEFAULT VALUES"
 			);
 		}
