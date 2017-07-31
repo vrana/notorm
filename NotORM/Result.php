@@ -477,6 +477,13 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 	function __call($name, array $args) {
 		$operator = strtoupper($name);
 		switch ($operator) {
+			case "CAND":
+				$arg = (is_array($args)) ? $args[count($args) - 1] : 1;
+				if ($arg != "" && $arg != null && $arg != 0) {
+				    return $this->whereOperator("AND", $args);
+				} else {
+				    return $this->whereOperator("AND", array(0 => 1));
+				}
 			case "AND":
 			case "OR":
 				return $this->whereOperator($operator, $args);
