@@ -168,6 +168,31 @@ class NotORM_Cache_Memcache implements NotORM_Cache {
 
 
 
+/** Cache using "NotORM." prefix in Memcached
+ */
+class NotORM_Cache_Memcached implements NotORM_Cache {
+    private $memcached;
+
+    function __construct(Memcached $memcached) {
+        $this->memcached = $memcached;
+    }
+
+    function load($key) {
+        $return = $this->memcached->get("NotORM.$key");
+        if ($return === false) {
+            return null;
+        }
+        return $return;
+    }
+
+    function save($key, $data) {
+        $this->memcached->set("NotORM.$key", $data);
+    }
+
+}
+
+
+
 /** Cache using "NotORM." prefix in APC
 */
 class NotORM_Cache_APC implements NotORM_Cache {
