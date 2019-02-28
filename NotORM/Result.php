@@ -285,8 +285,15 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 		if ($this->parameters) {
 			$parameters = array_merge($parameters, $this->parameters);
 		}
+
+		// null the order WHERE properties during an UPDATE as breaks when used w sqlite, restore to original after generating the whereString
+		$currentOrder = $this->order;
+		$this->order("");
+		$whereStr = $this->whereString();
+		$this->order($currentOrder);
+
 		// joins in UPDATE are supported only in MySQL
-		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " $this->table SET " . implode(", ", $values) . $this->whereString(), $parameters);
+		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " $this->table SET " . implode(", ", $values) . $whereStr, $parameters);
 		if (!$return) {
 			return false;
 		}
