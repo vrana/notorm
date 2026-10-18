@@ -25,7 +25,7 @@
 		"phpstan/phpstan-strict-rules": "2.1.0"
 	},
 	"suggest": {
-		"ext-apc": "Needed by NotORM\\Cache\\APC",
+		"ext-apcu": "Needed by NotORM\\Cache\\APCu",
 		"ext-memcache": "Needed by NotORM\\Cache\\Memcache",
 		"ext-session": "Needed by NotORM\\Cache\\Session"
 	},
