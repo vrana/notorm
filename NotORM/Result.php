@@ -424,6 +424,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->whereOperator("AND", $args);
 	}
 
+	/** @return $this */
 	protected function whereOperator(string $operator, array $args): static {
 		$condition = $args[0];
 		$parameters = (count($args) > 1 ? $args[1] : []);

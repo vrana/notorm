@@ -50,7 +50,7 @@ class NotORM extends Base {
 					$this->connection->commit();
 					break;
 				case "ROLLBACK":
-					$this->connection->rollback();
+					$this->connection->rollBack();
 					break;
 			}
 		}
