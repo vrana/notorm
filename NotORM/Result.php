@@ -754,27 +754,36 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Fetch all rows as associative array
+	* @param string|list<string> $key column name or names for nested arrays
 	* @param string $value column name used for an array value or an empty string for the whole row
 	* @return mixed[] values of $value or Row without it, indexed by $key
 	*/
-	function fetchPairs(string $key, string $value = ''): array {
+	function fetchPairs(string|array $key, string $value = ''): array {
+		$keys = (array) $key;
 		$return = [];
 		$clone = clone $this;
 		if ($value != "") {
 			$clone->select = [];
-			$clone->select($key == $value ? $key : "$key, $value"); // MultiResult adds its column, MS SQL doesn't allow ORDER BY a column selected twice
+			$clone->select(implode(", ", (in_array($value, $keys, true) ? $keys : [...$keys, $value]))); // MultiResult adds its column, MS SQL doesn't allow ORDER BY a column selected twice
 		} elseif ($clone->select) {
-			array_unshift($clone->select, $key);
+			array_unshift($clone->select, implode(", ", $keys));
 		} else {
-			$clone->select = ["$key, $this->table.*"];
+			$clone->select = [implode(", ", $keys) . ", $this->table.*"];
 		}
+		$index = array_search($value, $keys, true);
+		$index = ($index === false ? count($keys) : $index); // position of $value
 		foreach ($clone as $row) {
-			$values = array_values(iterator_to_array($row));
+			$values = array_values(iterator_to_array($row)); // by position - the keys can be expressions
 			if ($value != "" && $clone instanceof MultiResult) {
 				array_shift($values);
 			}
-			$return[(string) $values[0]] = ($value != "" ? $values[(array_key_exists(1, $values) ? 1 : 0)] : $row); // isset($values[1]) - fetchPairs("id", "id")
+			$node = &$return;
+			foreach (array_slice($values, 0, count($keys)) as $val) {
+				$node = &$node[(string) $val];
+			}
+			$node = ($value != "" ? $values[(array_key_exists($index, $values) ? $index : 0)] : $row); // the value has the same name as a key in fetchPairs("id", "application.id")
 		}
+		unset($node);
 		return $return;
 	}
 
