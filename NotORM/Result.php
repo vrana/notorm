@@ -60,10 +60,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	protected function limitString(?int $limit, ?int $offset = null): string {
 		$return = "";
-		if (isset($limit) && $this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
-			$return .= " LIMIT $limit";
-			if ($offset) {
-				$return .= " OFFSET $offset";
+		if (isset($limit) && $this->notORM->driver != "oci") {
+			if (!in_array($this->notORM->driver, ["dblib", "mssql", "sqlsrv"], true)) {
+				$return .= " LIMIT $limit";
+				if ($offset) {
+					$return .= " OFFSET $offset";
+				}
+			} elseif ($offset) { // requires ORDER BY
+				$return .= " OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
 			}
 		}
 		return $return;
@@ -103,8 +107,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	protected function topString(?int $limit, ?int $offset = null): string {
-		if (isset($limit) && ($this->notORM->driver == "dblib" || $this->notORM->driver == "mssql" || $this->notORM->driver == "sqlsrv")) {
-			return " TOP ($this->limit)"; //! offset is not supported
+		if (isset($limit) && !$offset && in_array($this->notORM->driver, ["dblib", "mssql", "sqlsrv"], true)) { // offset is in limitString()
+			return " TOP ($limit)";
 		}
 		return "";
 	}
