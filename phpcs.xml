@@ -90,8 +90,9 @@
 	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator"/>
 	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch"/>
 	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch"/>
-	<rule ref="SlevomatCodingStandard.Functions.DisallowArrowFunction"/>
+	<rule ref="SlevomatCodingStandard.Functions.ArrowFunctionDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.NamedArgumentSpacing"/>
+	<rule ref="SlevomatCodingStandard.Functions.RequireArrowFunction"/>
 	<rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure"/>
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>
