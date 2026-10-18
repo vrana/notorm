@@ -7,32 +7,21 @@
 * @license https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
 */
 
-include_once dirname(__FILE__) . "/NotORM/Structure.php";
-include_once dirname(__FILE__) . "/NotORM/Cache.php";
-include_once dirname(__FILE__) . "/NotORM/Literal.php";
-include_once dirname(__FILE__) . "/NotORM/Result.php";
-include_once dirname(__FILE__) . "/NotORM/MultiResult.php";
-include_once dirname(__FILE__) . "/NotORM/Row.php";
-
-
-
-// friend visibility emulation
-abstract class NotORM_Abstract {
-	protected $connection, $driver, $structure, $cache;
-	protected $notORM, $table, $primary, $rows, $referenced = array();
-	
-	protected $debug = false;
-	protected $debugTimer;
-	protected $freeze = false;
-	protected $rowClass = 'NotORM_Row';
-	protected $jsonAsArray = false;
-	
-	protected function access($key, $delete = false) {
-	}
-	
-}
-
-
+include_once dirname(__FILE__) . "/Base.php";
+include_once dirname(__FILE__) . "/Structure.php";
+include_once dirname(__FILE__) . "/Structure/Convention.php";
+include_once dirname(__FILE__) . "/Structure/Discovery.php";
+include_once dirname(__FILE__) . "/Cache.php";
+include_once dirname(__FILE__) . "/Cache/Session.php";
+include_once dirname(__FILE__) . "/Cache/File.php";
+include_once dirname(__FILE__) . "/Cache/IncludeFile.php";
+include_once dirname(__FILE__) . "/Cache/Database.php";
+include_once dirname(__FILE__) . "/Cache/Memcache.php";
+include_once dirname(__FILE__) . "/Cache/APC.php";
+include_once dirname(__FILE__) . "/Literal.php";
+include_once dirname(__FILE__) . "/Result.php";
+include_once dirname(__FILE__) . "/MultiResult.php";
+include_once dirname(__FILE__) . "/Row.php";
 
 /** Database representation
 * @property-write mixed $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
