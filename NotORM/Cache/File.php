@@ -5,11 +5,14 @@ namespace NotORM\Cache;
 */
 class File implements \NotORM\Cache {
 	private $filename;
-	private $data = array();
+	private $data;
 
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = unserialize(@file_get_contents($filename)); // @ - file may not exist
+		$this->data = unserialize((string) @file_get_contents($filename)); // @ - file may not exist
+		if (!is_array($this->data)) { // the file doesn't exist or is not readable
+			$this->data = array();
+		}
 	}
 
 	function load($key) {
