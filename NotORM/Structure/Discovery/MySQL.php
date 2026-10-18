@@ -7,7 +7,7 @@ class MySQL extends Driver {
 
 	function primaryColumns(string $table): array {
 		$return = [];
-		foreach ($this->connection->query("EXPLAIN $table", \PDO::FETCH_NUM) as $column) {
+		foreach ($this->rows("EXPLAIN $table") as $column) {
 			if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
 				$return[] = $column[0];
 			}
