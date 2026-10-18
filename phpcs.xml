@@ -3,6 +3,7 @@
 	<description>The coding standard for NotORM.</description>
 	<arg value="s"/>
 	<arg name="parallel" value="8"/>
+	<config name="php_version" value="80000"/><!-- the minimal version, e.g. for the native types -->
 	<arg name="cache"/><!-- PHP_CodeSniffer stores the cache in the system temp directory -->
 
 	<file>NotORM/</file>
@@ -89,6 +90,14 @@
 	<rule ref="SlevomatCodingStandard.PHP.TypeCast"/>
 	<rule ref="SlevomatCodingStandard.PHP.UselessSemicolon"/>
 	<rule ref="SlevomatCodingStandard.TypeHints.LongTypeHints"/>
-	<rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.UselessAnnotation"/>
+	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/><!-- array item types are documented where useful -->
+	</rule>
+	<rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingTraversableTypeHintSpecification"/>
+	</rule>
+	<rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification"/>
+	</rule>
 	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable"/>
 </ruleset>

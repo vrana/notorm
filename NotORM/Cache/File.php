@@ -6,7 +6,7 @@ class File implements \NotORM\Cache {
 	private string $filename;
 	private array $data;
 
-	function __construct($filename) {
+	function __construct(string $filename) {
 		$this->filename = $filename;
 		$data = unserialize((string) @file_get_contents($filename)); // @ - file may not exist
 		$this->data = (is_array($data) ? $data : array()); // the file doesn't exist or is not readable

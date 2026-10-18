@@ -48,7 +48,7 @@ class Convention implements \NotORM\Structure {
 		return (is_string($this->sequence) ? sprintf($this->sequence, $table) : $this->sequence);
 	}
 
-	protected function getColumnFromTable($name) {
+	protected function getColumnFromTable(string $name): string {
 		if ($this->table != '%s' && preg_match('(^' . str_replace('%s', '(.*)', preg_quote($this->table)) . '$)', $name, $match)) {
 			return $match[1];
 		}

@@ -111,7 +111,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		return $return;
 	}
 
-	protected function access($key, $delete = false): void {
+	protected function access(?string $key, bool $delete = false): void {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
 			$id = $this->id ?? $this->row;
 			$this->row = $this->result[$id]->row;
@@ -134,42 +134,42 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	// ArrayAccess implementation
 
 	/** Test if column exists
-	* @param string $key column name
+	* @param string $offset column name
 	*/
-	function offsetExists($key): bool {
-		$this->access($key);
-		$return = array_key_exists($key, $this->row);
+	function offsetExists(mixed $offset): bool {
+		$this->access($offset);
+		$return = array_key_exists($offset, $this->row);
 		if (!$return) {
-			$this->access($key, true);
+			$this->access($offset, true);
 		}
 		return $return;
 	}
 
 	/** Get value of column
-	* @param string $key column name
+	* @param string $offset column name
 	*/
-	function offsetGet($key): mixed {
-		$this->access($key);
-		if (!array_key_exists($key, $this->row)) {
-			$this->access($key, true);
+	function offsetGet(mixed $offset): mixed {
+		$this->access($offset);
+		if (!array_key_exists($offset, $this->row)) {
+			$this->access($offset, true);
 		}
-		return $this->row[$key];
+		return $this->row[$offset];
 	}
 
 	/** Store value in column
-	* @param string|null $key column name
+	* @param string|null $offset column name
 	*/
-	function offsetSet($key, mixed $value): void {
-		$this->row[$key] = $value;
-		$this->modified[$key] = $value;
+	function offsetSet(mixed $offset, mixed $value): void {
+		$this->row[$offset] = $value;
+		$this->modified[$offset] = $value;
 	}
 
 	/** Remove column from data
-	* @param string $key column name
+	* @param string $offset column name
 	*/
-	function offsetUnset($key): void {
-		unset($this->row[$key]);
-		unset($this->modified[$key]);
+	function offsetUnset(mixed $offset): void {
+		unset($this->row[$offset]);
+		unset($this->modified[$offset]);
 	}
 
 	// JsonSerializable implementation

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NotORM is a PHP library for working with a PDO database, centred on easy traversal of table relationships with a minimal number of queries. All classes are in the `NotORM` namespace, one class per file under `NotORM/`, autoloaded by Composer (PSR-4). The entry point is `NotORM\NotORM`.
 
-The minimum is **PHP 8.0**. Native type declarations are planned as a separate step, so don't add them as a side effect of other changes. Follow the existing idiom, which `phpcs.xml` enforces: `array()` not `[]`, tabs, `function` without visibility. Global classes are written with a leading backslash (`\PDO`, `\Traversable`), not imported with `use`.
+The minimum is **PHP 8.0**, so there are no `readonly`, `never`, intersection or standalone `null`/`false` types. Follow the existing idiom, which `phpcs.xml` enforces: `array()` not `[]`, tabs, `function` without visibility, native types on every parameter, return value and property, and doc-comments only for what the native type can't say (array items, `$this`, `callable`, a description). Global classes are written with a leading backslash (`\PDO`, `\Traversable`), not imported with `use`.
 
 ## Commands
 

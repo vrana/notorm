@@ -8,7 +8,7 @@ class MultiResult extends Result {
 	private mixed $active;
 
 	/** @access protected must be public because it is called from Row */
-	function __construct($table, Result $result, $column, $active) {
+	function __construct(string $table, Result $result, string $column, mixed $active) {
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
@@ -18,7 +18,7 @@ class MultiResult extends Result {
 	/** Specify referencing column
 	* @return $this fluent interface
 	*/
-	function via(string $column) {
+	function via(string $column): static {
 		$this->column = $column;
 		$this->conditions[0] = "$this->table.$column AND";
 		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this->active))) . ")"; // rows are null after insert
@@ -64,21 +64,21 @@ class MultiResult extends Result {
 		return $return;
 	}
 
-	function select(string|Literal $columns, string|Literal ...$moreColumns) {
+	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
 		if (!$this->select) {
 			return parent::select("$this->table.$this->column", $columns, ...$moreColumns);
 		}
 		return parent::select($columns, ...$moreColumns);
 	}
 
-	function order(string|Literal|array $columns, string|Literal ...$moreColumns) {
+	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
 		return parent::order($columns, ...$moreColumns);
 	}
 
-	function group(string|Literal $columns, string|Literal $having = "") {
+	function group(string|Literal $columns, string|Literal $having = ""): static {
 		if ($columns != "") { // group separately for each row of the referenced table
 			$columns = "$this->table.$this->column, $columns";
 		}

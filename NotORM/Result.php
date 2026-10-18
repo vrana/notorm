@@ -57,7 +57,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		unset($this->data);
 	}
 
-	protected function limitString($limit, $offset = null) {
+	protected function limitString(?int $limit, ?int $offset = null): string {
 		$return = "";
 		if (isset($limit) && $this->notORM->driver != "oci" && $this->notORM->driver != "dblib" && $this->notORM->driver != "mssql" && $this->notORM->driver != "sqlsrv") {
 			$return .= " LIMIT $limit";
@@ -68,11 +68,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function removeExtraDots($expression) {
+	protected function removeExtraDots(string $expression): string {
 		return preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $expression); // rewrite tab1.tab2.col
 	}
 
-	protected function whereString() {
+	protected function whereString(): string {
 		$return = "";
 		if ($this->group) {
 			$return .= " GROUP BY $this->group";
@@ -101,7 +101,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function topString($limit, $offset = null) {
+	protected function topString(?int $limit, ?int $offset = null): string {
 		if (isset($limit) && ($this->notORM->driver == "dblib" || $this->notORM->driver == "mssql" || $this->notORM->driver == "sqlsrv")) {
 			return " TOP ($this->limit)"; //! offset is not supported
 		}
@@ -114,7 +114,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? "SELECT * FROM ($query)" : "($query)");
 	}
 
-	protected function createJoins($val) {
+	protected function createJoins(string $val): array {
 		$return = array();
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
 		foreach ($matches[1] as $names) {
@@ -166,7 +166,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function query($query, $parameters) {
+	protected function query(string $query, array $parameters): \PDOStatement|false {
 		if ($this->notORM->debug) {
 			if (!is_callable($this->notORM->debug)) {
 				$debug = "$query;";
@@ -194,14 +194,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function formatValue($val) {
+	protected function formatValue(mixed $val): mixed {
 		if ($val instanceof \DateTime) {
 			return $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
 		return $val;
 	}
 
-	protected function quote($val) {
+	protected function quote(mixed $val): string {
 		if (!isset($val)) {
 			return "NULL";
 		}
@@ -396,7 +396,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string|Literal $columns for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
 	* @return $this fluent interface
 	*/
-	function select(string|Literal $columns, string|Literal ...$moreColumns) {
+	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
 		$this->__destruct();
 		if ($columns != "") {
 			foreach (array_merge(array($columns), $moreColumns) as $column) {
@@ -414,12 +414,12 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param mixed ...$moreParameters scalar values
 	* @return $this fluent interface
 	*/
-	function where(string|array $condition, mixed $parameters = array(), mixed ...$moreParameters) {
+	function where(string|array $condition, mixed $parameters = array(), mixed ...$moreParameters): static {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
 
-	protected function whereOperator($operator, array $args) {
+	protected function whereOperator(string $operator, array $args): static {
 		$condition = $args[0];
 		$parameters = (count($args) > 1 ? $args[1] : array());
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
@@ -481,7 +481,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this;
 	}
 
-	protected function whereIn($condition, $parameters) {
+	protected function whereIn(string $condition, array $parameters): string {
 		if (!$parameters) {
 			// IN () is not supported, it would be NULL for NULL and false otherwise
 			$condition = (preg_match('~^NOT\s+(.+)~is', $condition, $match)
@@ -505,7 +505,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $condition;
 	}
 
-	function __call($name, array $args) {
+	function __call(string $name, array $args): static {
 		$operator = strtoupper($name);
 		switch ($operator) {
 			case "AND":
@@ -519,7 +519,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string|array<string, mixed> $where
 	* @return $this fluent interface
 	*/
-	function __invoke(string|array $where, mixed $parameters = array(), mixed ...$moreParameters) {
+	function __invoke(string|array $where, mixed $parameters = array(), mixed ...$moreParameters): static {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
@@ -528,7 +528,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string|Literal|list<string|Literal> $columns "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
 	* @return $this fluent interface
 	*/
-	function order(string|Literal|array $columns, string|Literal ...$moreColumns) {
+	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
 		$this->rows = null;
 		if ($columns != "") {
 			$columns = (is_array($columns) ? $columns : array_merge(array($columns), $moreColumns));
@@ -550,7 +550,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Set limit clause, more calls rewrite old values
 	* @return $this fluent interface
 	*/
-	function limit(int $limit, ?int $offset = null) {
+	function limit(int $limit, ?int $offset = null): static {
 		$this->rows = null;
 		if ($this->union) {
 			$this->unionLimit = +$limit;
@@ -565,7 +565,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Set group clause, more calls rewrite old values
 	* @return $this fluent interface
 	*/
-	function group(string|Literal $columns, string|Literal $having = "") {
+	function group(string|Literal $columns, string|Literal $having = ""): static {
 		$this->__destruct();
 		$this->group = $columns;
 		$this->having = $having;
@@ -575,7 +575,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Set select FOR UPDATE or LOCK IN SHARE MODE
 	* @return $this fluent interface
 	*/
-	function lock(bool $exclusive = true) {
+	function lock(bool $exclusive = true): static {
 		$this->lock = $exclusive;
 		return $this;
 	}
@@ -583,7 +583,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/**
 	* @return $this fluent interface
 	*/
-	function union(Result $result, bool $all = false) {
+	function union(Result $result, bool $all = false): static {
 		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart($result);
 		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
@@ -711,7 +711,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function access($key, $delete = false): bool {
+	protected function access(?string $key, bool $delete = false): bool {
 		if ($delete) {
 			if (is_array($this->access)) {
 				$this->access[$key] = false;
@@ -763,24 +763,24 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	// ArrayAccess implementation
 
 	/** Test if row exists
-	* @param string|int|array<string, mixed> $key row ID or array for where conditions
+	* @param string|int|array<string, mixed> $offset row ID or array for where conditions
 	*/
-	function offsetExists($key): bool {
-		$row = $this->offsetGet($key);
+	function offsetExists(mixed $offset): bool {
+		$row = $this->offsetGet($offset);
 		return isset($row);
 	}
 
 	/** Get specified row
-	* @param string|int|array<string, mixed> $key row ID or array for where conditions
+	* @param string|int|array<string, mixed> $offset row ID or array for where conditions
 	* @return Row|null null if there is no such row
 	*/
-	function offsetGet($key): mixed {
+	function offsetGet(mixed $offset): mixed {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
-			if (is_array($key)) {
-				$clone->where($key)->limit(1);
+			if (is_array($offset)) {
+				$clone->where($offset)->limit(1);
 			} else {
-				$clone->where($this->primary, $key);
+				$clone->where($this->primary, $offset);
 			}
 			$return = $clone->fetch();
 			if ($return) {
@@ -788,37 +788,37 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			}
 		} else {
 			$this->execute();
-			if (is_array($key)) {
+			if (is_array($offset)) {
 				foreach ($this->data as $row) {
-					foreach ($key as $k => $v) {
+					foreach ($offset as $k => $v) {
 						if ((isset($v) && $row[$k] !== null ? $row[$k] != $v : $row[$k] !== $v)) {
 							continue 2;
 						}
 					}
 					return $row;
 				}
-			} elseif (isset($this->data[$key])) {
-				return $this->data[$key];
+			} elseif (isset($this->data[$offset])) {
+				return $this->data[$offset];
 			}
 		}
 		return null;
 	}
 
 	/** Mimic row
-	* @param string|int|null $key row ID
+	* @param string|int|null $offset row ID
 	* @param Row $value
 	*/
-	function offsetSet($key, $value): void {
+	function offsetSet(mixed $offset, mixed $value): void {
 		$this->execute();
-		$this->data[$key] = $value;
+		$this->data[$offset] = $value;
 	}
 
 	/** Remove row from result set
-	* @param string|int $key row ID
+	* @param string|int $offset row ID
 	*/
-	function offsetUnset($key): void {
+	function offsetUnset(mixed $offset): void {
 		$this->execute();
-		unset($this->data[$key]);
+		unset($this->data[$offset]);
 	}
 
 	// JsonSerializable implementation

@@ -20,7 +20,8 @@ abstract class Base {
 	/** @var class-string<Row> */ protected string $rowClass = Row::class;
 	protected bool $jsonAsArray = false;
 
-	protected function access($key, $delete = false) {
+	/** @return bool|void Result returns bool, Row nothing */
+	protected function access(?string $key, bool $delete = false) {
 	}
 
 }
