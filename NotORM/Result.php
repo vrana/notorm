@@ -279,7 +279,15 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			}
 		}
 		// requires empty $this->parameters
-		$return = $this->query("$command $insert", $parameters);
+		return $this->insertQuery("$command $insert", $parameters);
+	}
+
+	/** Execute INSERT
+	* @param mixed[] $parameters
+	* @return int|false number of affected rows or false in case of an error
+	*/
+	protected function insertQuery(string $query, array $parameters): int|false {
+		$return = $this->query($query, $parameters);
 		if (!$return) {
 			return false;
 		}
@@ -345,12 +353,20 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return int|false number of affected rows or false in case of an error
 	*/
 	function insertUpdate(array $unique, array $insert, array $update = []): int|false {
+		if ($this->notORM->freeze) {
+			return false;
+		}
 		if (!$update) {
 			$update = $insert;
 		}
 		$insert = $unique + $insert;
-		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES " . $this->quote($insert);
-		//! parameters
+		$query = "INSERT INTO $this->table (" . implode(", ", array_keys($insert)) . ") VALUES " . $this->quote($insert);
+		$parameters = [];
+		foreach ($insert as $val) {
+			if ($val instanceof Literal) {
+				$parameters = array_merge($parameters, $val->parameters);
+			}
+		}
 		if ($this->notORM->driver == "mysql") {
 			$set = [];
 			if (!$update) {
@@ -358,15 +374,17 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			}
 			foreach ($update as $key => $val) {
 				$set[] = "$key = " . $this->quote($val);
-				//! parameters
+				if ($val instanceof Literal) {
+					$parameters = array_merge($parameters, $val->parameters);
+				}
 			}
-			return $this->insert("$values ON DUPLICATE KEY UPDATE " . implode(", ", $set));
+			return $this->insertQuery("$query ON DUPLICATE KEY UPDATE " . implode(", ", $set), $parameters);
 		} else {
 			$connection = $this->notORM->connection;
 			$errorMode = $connection->getAttribute(\PDO::ATTR_ERRMODE);
 			$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			try {
-				$return = $this->insert($values);
+				$return = $this->insertQuery($query, $parameters);
 				$connection->setAttribute(\PDO::ATTR_ERRMODE, $errorMode);
 				return $return;
 			} catch (\PDOException $e) {
