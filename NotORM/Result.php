@@ -331,7 +331,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array<string, mixed> $unique ($column => $value)
 	* @param array<string, mixed> $insert ($column => $value)
 	* @param array<string, mixed> $update ($column => $value), empty array means use $insert
-	* @return int|false|null number of affected rows, false or null in case of an error
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function insertUpdate(array $unique, array $insert, array $update = array()) {
 		if (!$update) {
@@ -375,7 +375,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	/** Get last insert ID
