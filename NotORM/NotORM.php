@@ -50,9 +50,12 @@ class NotORM extends Base {
 		}
 		if ($name == "transaction") {
 			switch (strtoupper($value)) {
-				case "BEGIN": return $this->connection->beginTransaction();
-				case "COMMIT": return $this->connection->commit();
-				case "ROLLBACK": return $this->connection->rollback();
+				case "BEGIN":
+					return $this->connection->beginTransaction();
+				case "COMMIT":
+					return $this->connection->commit();
+				case "ROLLBACK":
+					return $this->connection->rollback();
 			}
 		}
 	}

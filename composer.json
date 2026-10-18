@@ -19,6 +19,10 @@
 		"ext-json": "*",
 		"ext-pdo": "*"
 	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "4.0.4",
+		"slevomat/coding-standard": "8.31.1"
+	},
 	"suggest": {
 		"ext-apc": "Needed by NotORM\\Cache\\APC",
 		"ext-memcache": "Needed by NotORM\\Cache\\Memcache",
@@ -30,6 +34,19 @@
 		}
 	},
 	"config": {
-		"lock": false
+		"lock": false,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"check": [
+			"phpcs"
+		],
+		"test": "@php tests/run-tests.php"
+	},
+	"scripts-descriptions": {
+		"check": "Checks the code by phpcs",
+		"test": "Runs the tests in tests/, needs the database from tests/software.sql"
 	}
 }

@@ -68,7 +68,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 		$where = $this->where;
 		if (isset($this->limit) && $this->notORM->driver == "oci") {
-			$where[] = ($where ? " AND " : "") . "(" . ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset) . ")"; //! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
+			//! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
+			$where[] = ($where ? " AND " : "") . "(" . ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset) . ")";
 		}
 		if ($where) {
 			$return = " WHERE " . implode($where) . $return;
@@ -558,7 +559,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this;
 	}
 
-	/** 
+	/**
 	* @param Result
 	* @param bool
 	* @return Result fluent interface
