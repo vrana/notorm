@@ -185,7 +185,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 					}
 				}
 				error_log("$backtrace[file]:$backtrace[line]:$debug\n");
-			} elseif (call_user_func($this->notORM->debug, $query, $parameters) === false) {
+			} elseif (($this->notORM->debug)($query, $parameters) === false) {
 				return false;
 			}
 		}
@@ -194,7 +194,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			$return = false;
 		}
 		if ($this->notORM->debugTimer) {
-			call_user_func($this->notORM->debugTimer);
+			($this->notORM->debugTimer)();
 		}
 		return $return;
 	}
