@@ -1,4 +1,4 @@
-/*!40102 SET storage_engine = InnoDB */;
+/*!50503 SET default_storage_engine = InnoDB */;
 
 CREATE TABLE author (
   id int NOT NULL,
