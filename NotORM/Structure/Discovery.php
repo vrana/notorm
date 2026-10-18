@@ -23,7 +23,7 @@ class Discovery implements \NotORM\Structure {
 	* @param \NotORM\Cache|null $cache
 	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
 	*/
-	function __construct(\PDO $connection, \NotORM\Cache $cache = null, $foreign = '%s') {
+	function __construct(\PDO $connection, ?\NotORM\Cache $cache = null, $foreign = '%s') {
 		$name = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		if (!isset(self::$drivers[$name])) {
 			throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");

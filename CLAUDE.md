@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NotORM is a PHP library for working with a PDO database, centred on easy traversal of table relationships with a minimal number of queries. All classes are in the `NotORM` namespace, one class per file under `NotORM/`, autoloaded by Composer (PSR-4). The entry point is `NotORM\NotORM`.
 
-The minimum is **PHP 7.4** and the code must keep working there. PHP 8 compatibility and native type declarations are planned as separate steps, so don't add type declarations or PHP 8-only syntax as a side effect of other changes. Follow the existing idiom, which `phpcs.xml` enforces: `array()` not `[]`, tabs, `function` without visibility. Global classes are written with a leading backslash (`\PDO`, `\Traversable`), not imported with `use`.
+The minimum is **PHP 8.0**. Native type declarations are planned as a separate step, so don't add them as a side effect of other changes. Follow the existing idiom, which `phpcs.xml` enforces: `array()` not `[]`, tabs, `function` without visibility. Global classes are written with a leading backslash (`\PDO`, `\Traversable`), not imported with `use`.
 
 ## Commands
 
@@ -24,7 +24,7 @@ composer test
 
 - `composer install` installs PHP_CodeSniffer and PHPStan and generates `vendor/autoload.php`, which the tests need. `"lock": false` means no `composer.lock` is ever written.
 - `composer check` runs `phpcs` (config `phpcs.xml`) and `phpstan analyse` (config `phpstan.neon`, level 1 with the strict rules that currently report nothing). Both configs list the rules the code doesn't follow and why; keep them passing without adding new exclusions where a small fix will do.
-- `composer test` runs `tests/run-tests.php`, which runs the tests on MySQL, in-memory SQLite and PostgreSQL, each in its own process; `composer test sqlite` runs them only on one database. `tests/connect.inc.php` takes the database from the first command-line argument (`mysql` by default), also for a single test: `php tests/1-basic.phpt sqlite`. Run the tests with PHP 7.4.
+- `composer test` runs `tests/run-tests.php`, which runs the tests on MySQL, in-memory SQLite and PostgreSQL, each in its own process; `composer test sqlite` runs them only on one database. `tests/connect.inc.php` takes the database from the first command-line argument (`mysql` by default), also for a single test: `php tests/1-basic.phpt sqlite`. Run the tests with PHP 8.0 and the latest PHP.
 
 ## Tests
 

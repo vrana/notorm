@@ -69,7 +69,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	* @param Row|null $value
 	* @return void
 	*/
-	function __set($name, Row $value = null) {
+	function __set($name, ?Row $value = null) {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$this[$column] = $value;
 	}

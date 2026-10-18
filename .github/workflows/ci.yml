@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.0'
           extensions: pdo_mysql, pdo_sqlite, pdo_pgsql
           ini-values: pdo_mysql.default_socket=/var/run/mysqld/mysqld.sock # tests/connect.inc.php connects to localhost
           tools: composer

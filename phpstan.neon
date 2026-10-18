@@ -34,7 +34,7 @@ parameters:
 		- NotORM/
 
 	phpVersion:
-		min: 70400
+		min: 80000
 		max: 80599
 
 	# The strict rules which are not used, with the number of places they report:

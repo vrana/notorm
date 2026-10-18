@@ -4,7 +4,7 @@
 [Official Website](https://www.notorm.com/)
 
 ## Requirements
-- PHP 7.4+
+- PHP 8.0+
 - Any database supported by PDO (tested with MySQL, SQLite, PostgreSQL, MS SQL, Oracle)
 
 ## Installation

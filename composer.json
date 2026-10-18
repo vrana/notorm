@@ -15,8 +15,7 @@
 		}
 	],
 	"require": {
-		"php": ">=7.4",
-		"ext-json": "*",
+		"php": ">=8.0",
 		"ext-pdo": "*"
 	},
 	"require-dev": {
