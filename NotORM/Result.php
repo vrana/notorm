@@ -3,8 +3,8 @@
 namespace NotORM;
 
 /** Filtered table representation
-* @method $this and(mixed $condition, mixed $parameters = array()) Add AND condition
-* @method $this or(mixed $condition, mixed $parameters = array()) Add OR condition
+* @method $this and(mixed $condition, mixed $parameters = []) Add AND condition
+* @method $this or(mixed $condition, mixed $parameters = []) Add OR condition
 * @implements \Iterator<string|int, Row>
 * @implements \ArrayAccess<string|int, Row>
 */
@@ -222,7 +222,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->notORM->connection->quote((string) $val); // (string) - Row
 	}
 
-	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
+	/** Shortcut for call_user_func_array([$this, 'insert'], $rows)
 	* @param list<iterable<string, mixed>|Result|string> $rows
 	* @return int|false number of affected rows or false in case of an error
 	*/
@@ -271,7 +271,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Insert row in a table
-	* @param iterable<string, mixed>|Result|string $data array($column => $value)|Traversable for single row insert or Result|string for INSERT ... SELECT
+	* @param iterable<string, mixed>|Result|string $data [$column => $value]|Traversable for single row insert or Result|string for INSERT ... SELECT
 	* @param iterable<string, mixed> ...$rows used for extended insert
 	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
@@ -410,7 +410,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add where condition, more calls appends with AND
-	* @param string|array<string, mixed> $condition string possibly containing ? or :name; or array($condition => $parameters, ...)
+	* @param string|array<string, mixed> $condition string possibly containing ? or :name; or [$condition => $parameters, ...]
 	* @param mixed $parameters array accepted by PDOStatement::execute or a scalar value
 	* @param mixed ...$moreParameters scalar values
 	* @return $this fluent interface
@@ -423,7 +423,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	protected function whereOperator(string $operator, array $args): static {
 		$condition = $args[0];
 		$parameters = (count($args) > 1 ? $args[1] : []);
-		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
+		if (is_array($condition)) { // where(["column1" => 1, "column2 > ?" => 2])
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
 			}
@@ -432,7 +432,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$this->__destruct();
 		$this->conditions[] = "$operator $condition";
 		$condition = $this->removeExtraDots($condition);
-		if (count($args) != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", array(1, 2))
+		if (count($args) != 2 || strpbrk($condition, "?:")) { // where("column < ? OR column > ?", [1, 2])
 			if (count($args) != 2 || !is_array($parameters)) { // where("column < ? OR column > ?", 1, 2)
 				$parameters = array_slice($args, 1);
 			}
@@ -472,7 +472,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			}
 		} elseif (!is_array($parameters)) { // where("column", "x")
 			$condition .= " = " . $this->quote($parameters);
-		} else { // where("column", array(1, 2))
+		} else { // where("column", [1, 2])
 			$condition = $this->whereIn($condition, $parameters);
 		}
 		$this->where[] = (preg_match('~^\)+$~', $condition)
@@ -526,7 +526,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add order clause, more calls appends to the end
-	* @param string|Literal|list<string|Literal> $columns "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
+	* @param string|Literal|list<string|Literal> $columns "column1, column2 DESC" or ["column1", "column2 DESC"], empty string to reset previous order
 	* @return $this fluent interface
 	*/
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {

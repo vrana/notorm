@@ -73,7 +73,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	/** Get referencing rows
 	* @param string $name table name
-	* @param mixed[] $args (["condition"[, array("value")]])
+	* @param mixed[] $args arguments passed to Result::where()
 	*/
 	function __call(string $name, array $args): MultiResult {
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);

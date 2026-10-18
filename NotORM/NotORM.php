@@ -60,7 +60,7 @@ class NotORM extends Base {
 	}
 
 	/** Get table data
-	* @param mixed[] $where (["condition"[, array("value")]]) passed to Result::where()
+	* @param mixed[] $where arguments passed to Result::where()
 	*/
 	function __call(string $table, array $where): Result {
 		$return = new Result($this->structure->getReferencingTable($table, ''), $this);

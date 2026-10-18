@@ -17,12 +17,12 @@ abstract class Driver {
 
 	/** Get foreign keys pointing to the primary key of $table
 	* @param string $primary primary key of $table
-	* @return list<list<string>> array(referencing table, referencing column)
+	* @return list<list<string>> [referencing table, referencing column]
 	*/
 	abstract function referencingColumns(string $table, string $primary): array;
 
 	/** Get foreign keys in $table
-	* @return list<list<string>> array(column, referenced table)
+	* @return list<list<string>> [column, referenced table]
 	*/
 	abstract function referencedTables(string $table): array;
 
