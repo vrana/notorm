@@ -91,21 +91,29 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		}
 		$return = $this->removeExtraDots($return);
 
-		$where = $this->where;
-		$rownum = (isset($this->limit) && $this->notORM->driver == "oci" && !$this->order && !$this->offset); // UPDATE and DELETE don't support FETCH, ORDER BY or OFFSET in Oracle
-		if ($rownum) {
-			$where[] = ($where ? " AND " : "") . "(rownum <= $this->limit)";
-		}
-		if ($where) {
-			$return = " WHERE " . implode($where) . $return;
+		if ($this->where) {
+			$return = " WHERE " . implode($this->where) . $return;
 		}
 
-		if (!$rownum) {
-			$return .= $this->limitString($this->limit, $this->offset);
-		}
+		$return .= $this->limitString($this->limit, $this->offset);
 		if (isset($this->lock)) {
 			$return .= ($this->lock ? " FOR UPDATE" : " LOCK IN SHARE MODE");
 		}
+		return $return;
+	}
+
+	/** WHERE for UPDATE and DELETE */
+	protected function writeString(): string {
+		if ($this->notORM->driver == "mysql") { // supports ORDER BY and LIMIT in UPDATE and DELETE
+			return $this->whereString();
+		}
+		if (isset($this->limit)) {
+			return " WHERE $this->primary IN (SELECT" . $this->topString($this->limit, $this->offset) . " $this->primary FROM $this->table" . $this->whereString() . ")";
+		}
+		$order = $this->order;
+		$this->order = []; // doesn't matter without LIMIT
+		$return = $this->whereString();
+		$this->order = $order;
 		return $return;
 	}
 
@@ -348,7 +356,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			$parameters = array_merge($parameters, $this->parameters);
 		}
 		// joins in UPDATE are supported only in MySQL
-		$return = $this->query("UPDATE" . $this->topString($this->limit, $this->offset) . " $this->table SET " . implode(", ", $values) . $this->whereString(), $parameters);
+		$return = $this->query("UPDATE $this->table SET " . implode(", ", $values) . $this->writeString(), $parameters);
 		if (!$return) {
 			return false;
 		}
@@ -430,7 +438,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if ($this->notORM->freeze) {
 			return false;
 		}
-		$return = $this->query("DELETE" . $this->topString($this->limit, $this->offset) . " FROM $this->table" . $this->whereString(), $this->parameters);
+		$return = $this->query("DELETE FROM $this->table" . $this->writeString(), $this->parameters);
 		if (!$return) {
 			return false;
 		}
