@@ -1,0 +1,43 @@
+includes:
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+	level: 1
+	# stricter checks which currently report no error
+	checkFunctionNameCase: true
+	reportStaticMethodSignatures: true
+
+	# the strict rules which currently report no error, the others are listed at the end of the file
+	strictRules:
+		allRules: false
+		closureUsesThis: true
+		disallowedBacktick: true
+		disallowedEmpty: true
+		disallowedImplicitArrayCreation: true
+		disallowedShortTernary: true
+		dynamicCallOnStaticMethod: true
+		illegalConstructorMethodCall: true
+		matchingInheritedMethodNames: true
+		noVariableVariables: true
+		numericOperandsInArithmeticOperators: true
+		overwriteVariablesWithLoop: true
+		requireParentConstructorCall: true
+		strictFunctionCalls: true
+		switchConditionsMatchingType: true
+		uselessCast: true
+
+	ignoreErrors:
+		# not real problems
+		- "~^Variable \\$backtrace might not be defined\\.$~" # debug_backtrace() contains at least query()
+
+	paths:
+		- NotORM/
+
+	phpVersion:
+		min: 70400
+		max: 80599
+
+	# The strict rules which are not used, with the number of places they report:
+	# disallowedLooseComparison (44) - $var != "" is used on purpose
+	# booleansInConditions (1) - a truthy value is used on purpose
+	# strictArrayFilter (1) - array_filter() removes the empty values on purpose
