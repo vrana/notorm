@@ -8,9 +8,9 @@ class Discovery implements \NotORM\Structure {
 	protected $foreign;
 
 	/** Create autodisovery structure
-	* @param \PDO
-	* @param \NotORM\Cache
-	* @param string use "%s_id" to access $name . "_id" column in $row->$name
+	* @param \PDO $connection
+	* @param \NotORM\Cache|null $cache
+	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
 	*/
 	function __construct(\PDO $connection, \NotORM\Cache $cache = null, $foreign = '%s') {
 		$this->connection = $connection;

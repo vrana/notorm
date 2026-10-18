@@ -6,13 +6,12 @@ namespace NotORM;
 class Literal {
 	protected $value = '';
 
-	/** @var array */
+	/** @var list<mixed> */
 	public $parameters = array();
 
 	/** Create literal value
-	* @param string
-	* @param mixed parameter
-	* @param mixed ...
+	* @param string $value SQL code, can contain ?
+	* @param mixed ...$parameters values for ?
 	*/
 	function __construct($value) {
 		$this->value = $value;

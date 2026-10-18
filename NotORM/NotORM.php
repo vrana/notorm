@@ -10,18 +10,18 @@
 namespace NotORM;
 
 /** Database representation
-* @property-write mixed $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
+* @property-write bool|callable $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
 * @property-write bool $freeze = false Disable persistence
-* @property-write string $rowClass = 'NotORM\Row' Class used for created objects
+* @property-write class-string<Row> $rowClass = 'NotORM\Row' Class used for created objects
 * @property-write bool $jsonAsArray = false Use array instead of object in Result JSON serialization
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends Base {
 
 	/** Create database representation
-	* @param \PDO
-	* @param Structure or null for new Structure\Convention
-	* @param Cache or null for no cache
+	* @param \PDO $connection
+	* @param Structure|null $structure null for new Structure\Convention
+	* @param Cache|null $cache null for no cache
 	*/
 	function __construct(\PDO $connection, Structure $structure = null, Cache $cache = null) {
 		$this->connection = $connection;
@@ -34,7 +34,7 @@ class NotORM extends Base {
 	}
 
 	/** Get table data to use as $db->table[1]
-	* @param string
+	* @param string $table
 	* @return Result
 	*/
 	function __get($table) {
@@ -42,7 +42,9 @@ class NotORM extends Base {
 	}
 
 	/** Set write-only properties
-	* @return null
+	* @param string $name
+	* @param mixed $value
+	* @return void
 	*/
 	function __set($name, $value) {
 		if ($name == "debug" || $name == "debugTimer" || $name == "freeze" || $name == "rowClass" || $name == "jsonAsArray") {
@@ -61,8 +63,8 @@ class NotORM extends Base {
 	}
 
 	/** Get table data
-	* @param string
-	* @param array (["condition"[, array("value")]]) passed to Result::where()
+	* @param string $table
+	* @param mixed[] $where (["condition"[, array("value")]]) passed to Result::where()
 	* @return Result
 	*/
 	function __call($table, array $where) {

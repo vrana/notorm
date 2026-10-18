@@ -7,10 +7,10 @@ class Convention implements \NotORM\Structure {
 	protected $primary, $foreign, $table, $prefix;
 
 	/** Create conventional structure
-	* @param string %s stands for table name
-	* @param string %1$s stands for key used after ->, %2$s for table name
-	* @param string %1$s stands for key used after ->, %2$s for table name
-	* @param string prefix for all tables
+	* @param string $primary %s stands for table name
+	* @param string $foreign %1$s stands for key used after ->, %2$s for table name
+	* @param string $table %1$s stands for key used after ->, %2$s for table name
+	* @param string $prefix prefix for all tables
 	*/
 	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s', $prefix = '') {
 		$this->primary = $primary;

@@ -2,6 +2,8 @@
 namespace NotORM;
 
 /** Single row representation
+* @implements \IteratorAggregate<string, mixed>
+* @implements \ArrayAccess<string, mixed>
 */
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
 	private $modified = array();
@@ -24,8 +26,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Get referenced row
-	* @param string
-	* @return Row or null if the row does not exist
+	* @param string $name
+	* @return Row|null null if the row does not exist
 	*/
 	function __get($name) {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
@@ -52,7 +54,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Test if referenced row exists
-	* @param string
+	* @param string $name
 	* @return bool
 	*/
 	function __isset($name) {
@@ -60,9 +62,9 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Store referenced value
-	* @param string
-	* @param Row or null
-	* @return null
+	* @param string $name
+	* @param Row|null $value
+	* @return void
 	*/
 	function __set($name, Row $value = null) {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
@@ -70,8 +72,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Remove referenced column from data
-	* @param string
-	* @return null
+	* @param string $name
+	* @return void
 	*/
 	function __unset($name) {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
@@ -79,8 +81,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Get referencing rows
-	* @param string table name
-	* @param array (["condition"[, array("value")]])
+	* @param string $name table name
+	* @param mixed[] $args (["condition"[, array("value")]])
 	* @return MultiResult
 	*/
 	function __call($name, array $args) {
@@ -95,8 +97,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Update row
-	* @param array or null for all modified values
-	* @return int number of affected rows or false in case of an error
+	* @param array<string, mixed>|null $data null for all modified values
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function update($data = null) {
 		// update is an SQL keyword
@@ -110,7 +112,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Delete row
-	* @return int number of affected rows or false in case of an error
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function delete() {
 		// delete is an SQL keyword
@@ -143,7 +145,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	// ArrayAccess implementation
 
 	/** Test if column exists
-	* @param string column name
+	* @param string $key column name
 	* @return bool
 	*/
 	function offsetExists($key) {
@@ -156,8 +158,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Get value of column
-	* @param string column name
-	* @return string
+	* @param string $key column name
+	* @return mixed
 	*/
 	function offsetGet($key) {
 		$this->access($key);
@@ -168,8 +170,9 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Store value in column
-	* @param string column name
-	* @return null
+	* @param string|null $key column name
+	* @param mixed $value
+	* @return void
 	*/
 	function offsetSet($key, $value) {
 		$this->row[$key] = $value;
@@ -177,8 +180,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	/** Remove column from data
-	* @param string column name
-	* @return null
+	* @param string $key column name
+	* @return void
 	*/
 	function offsetUnset($key) {
 		unset($this->row[$key]);

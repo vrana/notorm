@@ -15,8 +15,8 @@ class MultiResult extends Result {
 	}
 
 	/** Specify referencing column
-	* @param string
-	* @return MultiResult fluent interface
+	* @param string $column
+	* @return $this fluent interface
 	*/
 	function via($column) {
 		$this->column = $column;
@@ -104,6 +104,7 @@ class MultiResult extends Result {
 				return $return;
 			}
 		}
+		return null;
 	}
 
 	function count($column = "") {

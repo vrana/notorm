@@ -2,8 +2,10 @@
 namespace NotORM;
 
 /** Filtered table representation
-* @method Result and(mixed $condition, mixed $parameters = array()) Add AND condition
-* @method Result or(mixed $condition, mixed $parameters = array()) Add OR condition
+* @method $this and(mixed $condition, mixed $parameters = array()) Add AND condition
+* @method $this or(mixed $condition, mixed $parameters = array()) Add OR condition
+* @implements \Iterator<string|int, Row>
+* @implements \ArrayAccess<string|int, Row>
 */
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
 	protected $single;
@@ -12,9 +14,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
 
 	/** Create table result
-	* @param string
-	* @param NotORM
-	* @param bool single row
+	* @param string $table
+	* @param NotORM $notORM
+	* @param bool $single single row
 	* @access protected must be public because it is called from NotORM
 	*/
 	function __construct($table, NotORM $notORM, $single = false) {
@@ -197,8 +199,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
-	* @param array
-	* @return int number of affected rows or false in case of an error
+	* @param list<array<string, mixed>|\Traversable<string, mixed>|Result|string> $rows
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function insertMulti(array $rows) {
 		if ($this->notORM->freeze) {
@@ -245,9 +247,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Insert row in a table
-	* @param mixed array($column => $value)|Traversable for single row insert or Result|string for INSERT ... SELECT
-	* @param ... used for extended insert
-	* @return mixed inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
+	* @param array<string, mixed>|\Traversable<string, mixed>|Result|string $data array($column => $value)|Traversable for single row insert or Result|string for INSERT ... SELECT
+	* @param array<string, mixed>|\Traversable<string, mixed> ...$rows used for extended insert
+	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert($data) {
 		$rows = func_get_args();
@@ -265,8 +267,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Update all rows in result set
-	* @param array ($column => $value)
-	* @return int number of affected rows or false in case of an error
+	* @param array<string, mixed> $data ($column => $value)
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function update(array $data) {
 		if ($this->notORM->freeze) {
@@ -296,10 +298,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Insert row or update if it already exists
-	* @param array ($column => $value)
-	* @param array ($column => $value)
-	* @param array ($column => $value), empty array means use $insert
-	* @return int number of affected rows or false in case of an error
+	* @param array<string, mixed> $unique ($column => $value)
+	* @param array<string, mixed> $insert ($column => $value)
+	* @param array<string, mixed> $update ($column => $value), empty array means use $insert
+	* @return int|false|null number of affected rows, false or null in case of an error
 	*/
 	function insertUpdate(array $unique, array $insert, array $update = array()) {
 		if (!$update) {
@@ -343,17 +345,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				}
 			}
 		}
+		return null;
 	}
 
 	/** Get last insert ID
-	* @return string number
+	* @return string|false number
 	*/
 	function insertId() {
 		return $this->notORM->connection->lastInsertId();
 	}
 
 	/** Delete all rows in result set
-	* @return int number of affected rows or false in case of an error
+	* @return int|false number of affected rows or false in case of an error
 	*/
 	function delete() {
 		if ($this->notORM->freeze) {
@@ -367,9 +370,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add select clause, more calls appends to the end
-	* @param string for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
-	* @param string ...
-	* @return Result fluent interface
+	* @param string $columns for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
+	* @param string ...$moreColumns
+	* @return $this fluent interface
 	*/
 	function select($columns) {
 		$this->__destruct();
@@ -384,10 +387,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add where condition, more calls appends with AND
-	* @param mixed string possibly containing ? or :name; or array($condition => $parameters, ...)
-	* @param mixed array accepted by PDOStatement::execute or a scalar value
-	* @param mixed ...
-	* @return Result fluent interface
+	* @param string|array<string, mixed> $condition string possibly containing ? or :name; or array($condition => $parameters, ...)
+	* @param mixed $parameters array accepted by PDOStatement::execute or a scalar value
+	* @param mixed ...$moreParameters scalar values
+	* @return $this fluent interface
 	*/
 	function where($condition, $parameters = array()) {
 		$args = func_get_args();
@@ -487,10 +490,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Shortcut for where()
-	* @param string
-	* @param mixed
-	* @param mixed ...
-	* @return Result fluent interface
+	* @param string|array<string, mixed> $where
+	* @param mixed $parameters
+	* @param mixed ...$moreParameters
+	* @return $this fluent interface
 	*/
 	function __invoke($where, $parameters = array()) {
 		$args = func_get_args();
@@ -498,9 +501,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add order clause, more calls appends to the end
-	* @param mixed "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
-	* @param string ...
-	* @return Result fluent interface
+	* @param string|list<string> $columns "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
+	* @param string ...$moreColumns
+	* @return $this fluent interface
 	*/
 	function order($columns) {
 		$this->rows = null;
@@ -522,9 +525,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set limit clause, more calls rewrite old values
-	* @param int
-	* @param int
-	* @return Result fluent interface
+	* @param int $limit
+	* @param int|null $offset
+	* @return $this fluent interface
 	*/
 	function limit($limit, $offset = null) {
 		$this->rows = null;
@@ -539,9 +542,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set group clause, more calls rewrite old values
-	* @param string
-	* @param string
-	* @return Result fluent interface
+	* @param string $columns
+	* @param string $having
+	* @return $this fluent interface
 	*/
 	function group($columns, $having = "") {
 		$this->__destruct();
@@ -551,8 +554,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set select FOR UPDATE or LOCK IN SHARE MODE
-	* @param bool
-	* @return Result fluent interface
+	* @param bool $exclusive
+	* @return $this fluent interface
 	*/
 	function lock($exclusive = true) {
 		$this->lock = $exclusive;
@@ -560,9 +563,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/**
-	* @param Result
-	* @param bool
-	* @return Result fluent interface
+	* @param Result $result
+	* @param bool $all
+	* @return $this fluent interface
 	*/
 	function union(Result $result, $all = false) {
 		$this->union[] = " UNION " . ($all ? "ALL " : "") . ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $result : "($result)");
@@ -571,8 +574,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Execute aggregation function
-	* @param string
-	* @return string
+	* @param string $function
+	* @return string|int|float|null
 	*/
 	function aggregation($function) {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
@@ -583,11 +586,12 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		foreach ($this->query($query, $this->parameters)->fetch() as $return) {
 			return $return;
 		}
+		return null;
 	}
 
 	/** Count number of rows
-	* @param string
-	* @return int
+	* @param string $column
+	* @return int|string|null
 	*/
 	function count($column = "") {
 		if (!$column) {
@@ -598,31 +602,31 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Return minimum value from a column
-	* @param string
-	* @return int
+	* @param string $column
+	* @return string|int|float|null
 	*/
 	function min($column) {
 		return $this->aggregation("MIN($column)");
 	}
 
 	/** Return maximum value from a column
-	* @param string
-	* @return int
+	* @param string $column
+	* @return string|int|float|null
 	*/
 	function max($column) {
 		return $this->aggregation("MAX($column)");
 	}
 
 	/** Return sum of values in a column
-	* @param string
-	* @return int
+	* @param string $column
+	* @return string|int|float|null
 	*/
 	function sum($column) {
 		return $this->aggregation("SUM($column)");
 	}
 
 	/** Execute the built query
-	* @return null
+	* @return void
 	*/
 	protected function execute() {
 		if (!isset($this->rows)) {
@@ -666,8 +670,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Fetch next row of result
-	* @param string column name to return or an empty string for the whole row
-	* @return mixed string or null with $column, Row without $column, false if there is no row
+	* @param string $column column name to return or an empty string for the whole row
+	* @return mixed value with $column, Row without $column, false if there is no row
 	*/
 	function fetch($column = '') {
 		// no $this->select($column) because next calls can access different columns
@@ -681,9 +685,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Fetch all rows as associative array
-	* @param string
-	* @param string column name used for an array value or an empty string for the whole row
-	* @return array
+	* @param string $key
+	* @param string $value column name used for an array value or an empty string for the whole row
+	* @return mixed[] values of $value or Row without it, indexed by $key
 	*/
 	function fetchPairs($key, $value = '') {
 		$return = array();
@@ -742,7 +746,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->data[current($this->keys)];
 	}
 
-	/** @return string row ID */
+	/** @return string|int row ID */
 	function key() {
 		return current($this->keys);
 	}
@@ -758,7 +762,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	// ArrayAccess implementation
 
 	/** Test if row exists
-	* @param string row ID or array for where conditions
+	* @param string|int|array<string, mixed> $key row ID or array for where conditions
 	* @return bool
 	*/
 	function offsetExists($key) {
@@ -767,8 +771,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Get specified row
-	* @param string row ID or array for where conditions
-	* @return Row or null if there is no such row
+	* @param string|int|array<string, mixed> $key row ID or array for where conditions
+	* @return Row|null null if there is no such row
 	*/
 	function offsetGet($key) {
 		if ($this->single && !isset($this->data)) {
@@ -797,12 +801,13 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				return $this->data[$key];
 			}
 		}
+		return null;
 	}
 
 	/** Mimic row
-	* @param string row ID
-	* @param Row
-	* @return null
+	* @param string|int|null $key row ID
+	* @param Row $value
+	* @return void
 	*/
 	function offsetSet($key, $value) {
 		$this->execute();
@@ -810,8 +815,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Remove row from result set
-	* @param string row ID
-	* @return null
+	* @param string|int $key row ID
+	* @return void
 	*/
 	function offsetUnset($key) {
 		$this->execute();
