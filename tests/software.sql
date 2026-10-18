@@ -1,5 +1,3 @@
-/*!50503 SET default_storage_engine = InnoDB */;
-
 CREATE TABLE author (
   id int NOT NULL,
   name varchar(30) NOT NULL,
@@ -54,4 +52,3 @@ INSERT INTO application_tag (application_id, tag_id) VALUES (4, 21);
 INSERT INTO application_tag (application_id, tag_id) VALUES (1, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (4, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (2, 23);
-

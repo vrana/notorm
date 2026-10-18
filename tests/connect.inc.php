@@ -14,12 +14,13 @@ if ($driver == "sqlite") {
 	};
 	$connection = new PDO("$driver:$dsn", "ODBC", "ODBC");
 	$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author");
+	if ($driver == "mysql") {
+		$connection->exec("SET default_storage_engine = InnoDB"); // foreign keys
+	}
 }
 $structure = ($driver == "pgsql" ? new NotORM\Structure\Convention("id", "%s_id", "%s", "", false) : null); // no table has a sequence
-foreach (preg_split('~;\r?\n~', file_get_contents(__DIR__ . "/software.sql")) as $query) {
-	if (trim($query) != "" && ($driver == "mysql" || !preg_match('~^\s*/\*.*\*/\s*$~s', $query))) { // the MySQL specific comment is not a statement elsewhere
-		$connection->exec($query);
-	}
+foreach (preg_split('~;\r?\n~', file_get_contents(__DIR__ . "/software.sql"), -1, PREG_SPLIT_NO_EMPTY) as $query) {
+	$connection->exec($query);
 }
 $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
