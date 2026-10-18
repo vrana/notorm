@@ -127,16 +127,25 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$return = [];
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
 		foreach ($matches[1] as $names) {
-			$parent = $this->table;
+			$parent = $this->table; // alias
+			$parentTable = $this->table;
 			if ($names != "$parent.") { // case-sensitive
 				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~i', $names, $matches, PREG_SET_ORDER);
 				foreach ($matches as $match) {
 					[, $name, $delimiter] = $match;
-					$table = $this->notORM->structure->getReferencedTable($name, $parent);
-					$column = ($delimiter == ':' ? $this->notORM->structure->getPrimary($parent) : $this->notORM->structure->getReferencedColumn($name, $parent));
-					$primary = ($delimiter == ':' ? $this->notORM->structure->getReferencedColumn($parent, $table) : $this->notORM->structure->getPrimary($table));
+					$structure = $this->notORM->structure;
+					if ($delimiter == ':') { // the same as $row->$name()
+						$table = $structure->getReferencingTable($name, $parentTable);
+						$column = $structure->getPrimary($parentTable);
+						$primary = $structure->getReferencingColumn($table, $parentTable);
+					} else { // the same as $row->$name
+						$table = $structure->getReferencedTable($name, $parentTable);
+						$column = $structure->getReferencedColumn($name, $parentTable);
+						$primary = $structure->getPrimary($table);
+					}
 					$return[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
 					$parent = $name;
+					$parentTable = $table;
 				}
 			}
 		}
