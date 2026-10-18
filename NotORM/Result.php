@@ -371,7 +371,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				return $return;
 			} catch (\PDOException $e) {
 				$connection->setAttribute(\PDO::ATTR_ERRMODE, $errorMode);
-				if ($e->getCode() == "23000" || $e->getCode() == "23505") { // "23000" - duplicate key, "23505" unique constraint pgsql
+				if ($e->getCode() == "23000" || $e->getCode() == "23505" || ($this->notORM->driver == "oci" && ($e->errorInfo[1] ?? null) == 1)) { // duplicate key, "23505" in pgsql, ORA-00001 in oci
 					if (!$update) {
 						return 0;
 					}
