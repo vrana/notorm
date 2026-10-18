@@ -226,7 +226,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->notORM->connection->quote((string) $val); // (string) - Row
 	}
 
-	/** Shortcut for call_user_func_array([$this, 'insert'], $rows)
+	/** Insert rows in one query
 	* @param list<iterable<string, mixed>|Result|string> $rows
 	* @return int|false number of affected rows or false in case of an error
 	*/

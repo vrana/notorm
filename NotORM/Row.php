@@ -70,7 +70,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	/** Get referencing rows
 	* @param string $name table name
-	* @param mixed[] $args arguments passed to Result::where()
+	* @param list<mixed> $args arguments passed to Result::where()
 	*/
 	function __call(string $name, array $args): MultiResult {
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
@@ -78,7 +78,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
 		$return->where("$table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : [$this[$this->result->primary]])); // rows are null after insert
 		if ($args) {
-			call_user_func_array([$return, 'where'], $args);
+			$return->where(...$args);
 		}
 		return $return;
 	}
