@@ -11,14 +11,17 @@ if ($driver == "sqlite") {
 	$dsn = match ($driver) {
 		"sqlsrv" => "Server=localhost;Database=software", // not run by default
 		"oci" => "dbname=//localhost/XEPDB1", // not run by default, the database is a schema
+		"firebird" => "dbname=localhost:software", // not run by default, software is an alias in databases.conf
 		default => "host=localhost;dbname=software",
 	};
 	$connection = new PDO("$driver:$dsn", "ODBC", "ODBC");
 	if ($driver == "oci") {
 		$connection->exec("ALTER SESSION SET CURRENT_SCHEMA = software");
+	}
+	if ($driver == "oci" || $driver == "firebird") {
 		foreach (["application_tag", "application", "tag", "author"] as $table) {
 			try {
-				$connection->exec("DROP TABLE $table"); // IF EXISTS is not supported in Oracle 21
+				$connection->exec("DROP TABLE $table"); // IF EXISTS is not supported in Oracle 21 and Firebird 5
 			} catch (PDOException $exception) {
 			}
 		}
