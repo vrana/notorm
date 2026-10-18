@@ -15,7 +15,6 @@
 
 		<!-- The code style. -->
 		<exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/><!-- an empty line before } of a class -->
-		<exclude name="PSR2.Classes.PropertyDeclaration.Multiple"/>
 		<exclude name="PSR12.Classes.ClassInstantiation.MissingParentheses"/>
 		<exclude name="Squiz.Scope.MethodScope.Missing"/>
 

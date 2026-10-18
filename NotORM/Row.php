@@ -7,7 +7,10 @@ namespace NotORM;
 */
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
 	private $modified = array();
-	protected $row, $result, $primary;
+
+	protected $row;
+	protected $result;
+	protected $primary;
 
 	/** @access protected must be public because it is called from Result */
 	function __construct(array $row, Result $result) {

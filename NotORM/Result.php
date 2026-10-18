@@ -9,9 +9,29 @@ namespace NotORM;
 */
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
 	protected $single;
-	protected $select = array(), $conditions = array(), $where = array(), $parameters = array(), $order = array(), $limit = null, $offset = null, $group = "", $having = "", $lock = null;
-	protected $union = array(), $unionOrder = array(), $unionLimit = null, $unionOffset = null;
-	protected $data, $referencing = array(), $aggregation = array(), $accessed, $access, $keys = array();
+
+	protected $select = array();
+	protected $conditions = array();
+	protected $where = array();
+	protected $parameters = array();
+	protected $order = array();
+	protected $limit = null;
+	protected $offset = null;
+	protected $group = "";
+	protected $having = "";
+	protected $lock = null;
+
+	protected $union = array();
+	protected $unionOrder = array();
+	protected $unionLimit = null;
+	protected $unionOffset = null;
+
+	protected $data;
+	protected $referencing = array();
+	protected $aggregation = array();
+	protected $accessed;
+	protected $access;
+	protected $keys = array();
 
 	/** Create table result
 	* @param string $table

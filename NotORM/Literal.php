@@ -6,8 +6,7 @@ namespace NotORM;
 class Literal {
 	protected $value = '';
 
-	/** @var list<mixed> */
-	public $parameters = array();
+	/** @var list<mixed> */ public $parameters = array();
 
 	/** Create literal value
 	* @param string $value SQL code, can contain ?

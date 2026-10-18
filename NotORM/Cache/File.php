@@ -4,7 +4,8 @@ namespace NotORM\Cache;
 /** Cache using file
 */
 class File implements \NotORM\Cache {
-	private $filename, $data = array();
+	private $filename;
+	private $data = array();
 
 	function __construct($filename) {
 		$this->filename = $filename;

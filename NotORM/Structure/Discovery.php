@@ -4,8 +4,7 @@ namespace NotORM\Structure;
 /** Structure reading meta-informations from the database
 */
 class Discovery implements \NotORM\Structure {
-	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */
-	protected static $drivers = array(
+	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static $drivers = array(
 		"mysql" => Discovery\MySQL::class,
 		"sqlite" => Discovery\SQLite::class,
 		"pgsql" => Discovery\PostgreSQL::class,
@@ -14,7 +13,9 @@ class Discovery implements \NotORM\Structure {
 		"mssql" => Discovery\MSSQL::class,
 		"oci" => Discovery\Oracle::class,
 	);
-	protected $driver, $cache, $structure = array();
+	protected $driver;
+	protected $cache;
+	protected $structure = array();
 	protected $foreign;
 
 	/** Create autodisovery structure
