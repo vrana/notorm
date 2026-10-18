@@ -464,7 +464,7 @@ class NotORM_Result extends NotORM_Abstract implements Iterator, ArrayAccess, Co
 			if ($nulls) {
 				$condition = "$condition OR $column IS NULL";
 			}
-		} else { // http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/expressions014.htm
+		} else { // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
 			$or = array();
 			for ($i=0; $i < count($parameters); $i += 1000) {
 				$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));

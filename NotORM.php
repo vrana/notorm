@@ -1,10 +1,10 @@
 <?php
 /** NotORM - simple reading data from the database
-* @link http://www.notorm.com/
-* @author Jakub Vrana, http://www.vrana.cz/
+* @link https://www.notorm.com/
+* @author Jakub Vrana, https://www.vrana.cz/
 * @copyright 2010 Jakub Vrana
-* @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
-* @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
+* @license https://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+* @license https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
 */
 
 if (!interface_exists('JsonSerializable')) {
