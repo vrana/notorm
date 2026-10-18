@@ -9,16 +9,15 @@ namespace NotORM;
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
 	/** @var array<string, mixed> */ private array $modified = [];
 
-	/** @var array<string, mixed> */ protected array $row;
-	protected Result $result;
 	protected mixed $id = null;
 
 	/** @access protected must be public because it is called from Result
 	* @param array<string, mixed> $row
 	*/
-	function __construct(array $row, Result $result) {
-		$this->row = $row;
-		$this->result = $result;
+	function __construct(
+		protected array $row,
+		protected Result $result,
+	) {
 		$this->id = $row[$result->primary] ?? null;
 	}
 

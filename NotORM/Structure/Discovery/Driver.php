@@ -4,10 +4,9 @@ namespace NotORM\Structure\Discovery;
 
 /** Reading primary and foreign keys from the database metadata, only single-column keys are supported */
 abstract class Driver {
-	protected \PDO $connection;
-
-	function __construct(\PDO $connection) {
-		$this->connection = $connection;
+	function __construct(
+		protected \PDO $connection,
+	) {
 	}
 
 	/** Get columns of the primary key

@@ -4,11 +4,11 @@ namespace NotORM\Cache;
 
 /** Cache using PHP include */
 class IncludeFile implements \NotORM\Cache {
-	private string $filename;
 	/** @var array<string, mixed> */ private array $data;
 
-	function __construct(string $filename) {
-		$this->filename = $filename;
+	function __construct(
+		private string $filename,
+	) {
 		$path = realpath($filename); // realpath() to not include from include_path, false if the file doesn't exist
 		$data = ($path !== false ? @include $path : []); // @ - file may not be readable //! silently falls with syntax error and fails with unreadable file
 		$this->data = (is_array($data) ? $data : []); // empty file returns 1

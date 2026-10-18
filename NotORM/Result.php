@@ -7,8 +7,6 @@ namespace NotORM;
 * @implements \ArrayAccess<string|int, Row>
 */
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
-	protected bool $single;
-
 	/** @var list<string|Literal> */ protected array $select = [];
 	/** @var list<string> */ protected array $conditions = [];
 	/** @var list<string> */ protected array $where = [];
@@ -36,10 +34,13 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param bool $single single row
 	* @access protected must be public because it is called from NotORM
 	*/
-	function __construct(string $table, NotORM $notORM, bool $single = false) {
+	function __construct(
+		string $table,
+		NotORM $notORM,
+		protected bool $single = false,
+	) {
 		$this->table = $table;
 		$this->notORM = $notORM;
-		$this->single = $single;
 		$this->primary = $notORM->structure->getPrimary($table);
 	}
 

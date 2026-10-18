@@ -74,7 +74,13 @@
 	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
 	<rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
 
-	<rule ref="SlevomatCodingStandard.Classes.DisallowConstructorPropertyPromotion"/>
+	<rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion"/>
+	<rule ref="SlevomatCodingStandard.Classes.RequireMultiLineMethodSignature">
+		<properties>
+			<property name="minLineLength" value="201"/><!-- only with promoted properties, longer lines are reported by Generic.Files.LineLength -->
+			<property name="withPromotedProperties" value="true"/>
+		</properties>
+	</rule>
 	<rule ref="SlevomatCodingStandard.Commenting.EmptyComment"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator"/>
@@ -86,6 +92,7 @@
 	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch"/>
 	<rule ref="SlevomatCodingStandard.Functions.DisallowArrowFunction"/>
 	<rule ref="SlevomatCodingStandard.Functions.DisallowNamedArguments"/>
+	<rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure"/>
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>

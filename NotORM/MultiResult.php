@@ -4,16 +4,14 @@ namespace NotORM;
 
 /** Representation of filtered table grouped by some column */
 class MultiResult extends Result {
-	private Result $result;
-	private string $column;
-	private mixed $active;
-
 	/** @access protected must be public because it is called from Row */
-	function __construct(string $table, Result $result, string $column, mixed $active) {
+	function __construct(
+		string $table,
+		private Result $result,
+		private string $column,
+		private mixed $active,
+	) {
 		parent::__construct($table, $result->notORM);
-		$this->result = $result;
-		$this->column = $column;
-		$this->active = $active;
 	}
 
 	/** Specify referencing column

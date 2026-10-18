@@ -4,10 +4,9 @@ namespace NotORM\Cache;
 
 /** Cache using "NotORM." prefix in Memcached */
 class Memcached implements \NotORM\Cache {
-	private \Memcached $memcached;
-
-	function __construct(\Memcached $memcached) {
-		$this->memcached = $memcached;
+	function __construct(
+		private \Memcached $memcached,
+	) {
 	}
 
 	function load(string $key): mixed {

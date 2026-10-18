@@ -14,19 +14,18 @@ class Discovery implements \NotORM\Structure {
 		"oci" => Discovery\Oracle::class,
 	];
 	protected Discovery\Driver $driver;
-	protected ?\NotORM\Cache $cache;
 	/** @var array<string, array<string, mixed>> */ protected array $structure;
-	protected string $foreign;
-
 	/** Create autodisovery structure
 	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
 	*/
-	function __construct(\PDO $connection, ?\NotORM\Cache $cache = null, string $foreign = '%s') {
+	function __construct(
+		\PDO $connection,
+		protected ?\NotORM\Cache $cache = null,
+		protected string $foreign = '%s',
+	) {
 		$name = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		$class = self::$drivers[$name] ?? throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");
 		$this->driver = new $class($connection);
-		$this->cache = $cache;
-		$this->foreign = $foreign;
 		$this->structure = $cache?->load("structure") ?? [];
 	}
 
