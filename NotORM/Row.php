@@ -134,14 +134,14 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	// IteratorAggregate implementation
 
-	function getIterator() {
+	function getIterator(): \Traversable {
 		$this->access(null);
 		return new \ArrayIterator($this->row);
 	}
 
 	// Countable implementation
 
-	function count() {
+	function count(): int {
 		return count($this->row);
 	}
 
@@ -149,9 +149,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	/** Test if column exists
 	* @param string $key column name
-	* @return bool
 	*/
-	function offsetExists($key) {
+	function offsetExists($key): bool {
 		$this->access($key);
 		$return = array_key_exists($key, $this->row);
 		if (!$return) {
@@ -162,9 +161,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	/** Get value of column
 	* @param string $key column name
-	* @return mixed
 	*/
-	function offsetGet($key) {
+	function offsetGet($key): mixed {
 		$this->access($key);
 		if (!array_key_exists($key, $this->row)) {
 			$this->access($key, true);
@@ -175,25 +173,23 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	/** Store value in column
 	* @param string|null $key column name
 	* @param mixed $value
-	* @return void
 	*/
-	function offsetSet($key, $value) {
+	function offsetSet($key, $value): void {
 		$this->row[$key] = $value;
 		$this->modified[$key] = $value;
 	}
 
 	/** Remove column from data
 	* @param string $key column name
-	* @return void
 	*/
-	function offsetUnset($key) {
+	function offsetUnset($key): void {
 		unset($this->row[$key]);
 		unset($this->modified[$key]);
 	}
 
 	// JsonSerializable implementation
 
-	function jsonSerialize() {
+	function jsonSerialize(): mixed {
 		return $this->row;
 	}
 

@@ -629,14 +629,13 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Count number of rows
 	* @param string $column
-	* @return int|string|null
 	*/
-	function count($column = "") {
+	function count($column = ""): int {
 		if (!$column) {
 			$this->execute();
 			return count($this->data);
 		}
-		return $this->aggregation("COUNT($column)");
+		return (int) $this->aggregation("COUNT($column)"); // null in MultiResult without rows
 	}
 
 	/** Return minimum value from a column
@@ -773,27 +772,27 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
 
-	function rewind() {
+	function rewind(): void {
 		$this->execute();
 		$this->keys = array_keys($this->data);
 		reset($this->keys);
 	}
 
 	/** @return Row */
-	function current() {
+	function current(): mixed {
 		return $this->data[current($this->keys)];
 	}
 
 	/** @return string|int row ID */
-	function key() {
+	function key(): mixed {
 		return current($this->keys);
 	}
 
-	function next() {
+	function next(): void {
 		next($this->keys);
 	}
 
-	function valid() {
+	function valid(): bool {
 		return current($this->keys) !== false;
 	}
 
@@ -801,9 +800,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Test if row exists
 	* @param string|int|array<string, mixed> $key row ID or array for where conditions
-	* @return bool
 	*/
-	function offsetExists($key) {
+	function offsetExists($key): bool {
 		$row = $this->offsetGet($key);
 		return isset($row);
 	}
@@ -812,7 +810,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string|int|array<string, mixed> $key row ID or array for where conditions
 	* @return Row|null null if there is no such row
 	*/
-	function offsetGet($key) {
+	function offsetGet($key): mixed {
 		if ($this->single && !isset($this->data)) {
 			$clone = clone $this;
 			if (is_array($key)) {
@@ -845,25 +843,23 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Mimic row
 	* @param string|int|null $key row ID
 	* @param Row $value
-	* @return void
 	*/
-	function offsetSet($key, $value) {
+	function offsetSet($key, $value): void {
 		$this->execute();
 		$this->data[$key] = $value;
 	}
 
 	/** Remove row from result set
 	* @param string|int $key row ID
-	* @return void
 	*/
-	function offsetUnset($key) {
+	function offsetUnset($key): void {
 		$this->execute();
 		unset($this->data[$key]);
 	}
 
 	// JsonSerializable implementation
 
-	function jsonSerialize() {
+	function jsonSerialize(): mixed {
 		$this->execute();
 		if ($this->notORM->jsonAsArray) {
 			return array_values($this->data);

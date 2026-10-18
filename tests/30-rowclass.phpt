@@ -6,11 +6,11 @@ require_once __DIR__ . "/connect.inc.php";
 
 class TestRow extends NotORM\Row {
 
-	function offsetExists($key) {
+	function offsetExists($key): bool {
 		return parent::offsetExists(preg_replace('~^test_~', '', $key));
 	}
 
-	function offsetGet($key) {
+	function offsetGet($key): mixed {
 		return parent::offsetGet(preg_replace('~^test_~', '', $key));
 	}
 

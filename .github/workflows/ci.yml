@@ -13,12 +13,15 @@ permissions:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ '8.0', '8.5' ] # the oldest supported and the latest
 
     steps:
       - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: ${{ matrix.php }}
           extensions: pdo_mysql, pdo_sqlite, pdo_pgsql
           ini-values: pdo_mysql.default_socket=/var/run/mysqld/mysqld.sock # tests/connect.inc.php connects to localhost
           tools: composer

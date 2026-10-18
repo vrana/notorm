@@ -114,11 +114,6 @@ class MultiResult extends Result {
 		return null;
 	}
 
-	function count($column = "") {
-		$return = parent::count($column);
-		return $return ?? 0;
-	}
-
 	protected function execute() {
 		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
