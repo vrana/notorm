@@ -136,9 +136,9 @@ class MultiResult extends Result {
 				foreach ($this->rows as $key => $row) {
 					$referencing[$row[$this->column]][$key] = $row;
 				}
+				$this->data = null; // all rows from parent::execute()
 			}
-			$this->data = &$referencing[$this->active];
-			$this->data ??= [];
+			$this->data ??= $referencing[$this->active] ?? []; // a copy, the pointer of each instance is separate
 		}
 	}
 
