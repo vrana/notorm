@@ -14,14 +14,14 @@ class File implements \NotORM\Cache {
 		}
 	}
 
-	function load($key) {
+	function load(string $key): mixed {
 		if (!isset($this->data[$key])) {
 			return null;
 		}
 		return $this->data[$key];
 	}
 
-	function save($key, $data) {
+	function save(string $key, mixed $data): void {
 		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
 			$this->data[$key] = $data;
 			file_put_contents($this->filename, serialize($this->data), LOCK_EX);

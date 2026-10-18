@@ -11,15 +11,13 @@ class Literal {
 	* @param string $value SQL code, can contain ?
 	* @param mixed ...$parameters values for ?
 	*/
-	function __construct($value, ...$parameters) {
+	function __construct(string $value, mixed ...$parameters) {
 		$this->value = $value;
 		$this->parameters = $parameters;
 	}
 
-	/** Get literal value
-	* @return string
-	*/
-	function __toString() {
+	/** Get literal value */
+	function __toString(): string {
 		return $this->value;
 	}
 

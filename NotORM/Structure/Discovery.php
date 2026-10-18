@@ -18,11 +18,9 @@ class Discovery implements \NotORM\Structure {
 	protected $foreign;
 
 	/** Create autodisovery structure
-	* @param \PDO $connection
-	* @param \NotORM\Cache|null $cache
 	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
 	*/
-	function __construct(\PDO $connection, ?\NotORM\Cache $cache = null, $foreign = '%s') {
+	function __construct(\PDO $connection, ?\NotORM\Cache $cache = null, string $foreign = '%s') {
 		$name = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		if (!isset(self::$drivers[$name])) {
 			throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");
@@ -42,7 +40,7 @@ class Discovery implements \NotORM\Structure {
 		}
 	}
 
-	function getPrimary($table) {
+	function getPrimary(string $table): string {
 		$return = &$this->structure["primary"][$table];
 		if (!isset($return)) {
 			$columns = $this->driver->primaryColumns($table);
@@ -51,7 +49,7 @@ class Discovery implements \NotORM\Structure {
 		return $return;
 	}
 
-	function getReferencingColumn($name, $table) {
+	function getReferencingColumn(string $name, string $table): string {
 		$name = strtolower($name);
 		$return = &$this->structure["referencing"][$table];
 		if (!isset($return[$name])) {
@@ -62,15 +60,15 @@ class Discovery implements \NotORM\Structure {
 		return $return[$name];
 	}
 
-	function getReferencingTable($name, $table) {
+	function getReferencingTable(string $name, string $table): string {
 		return $name;
 	}
 
-	function getReferencedColumn($name, $table) {
+	function getReferencedColumn(string $name, string $table): string {
 		return sprintf($this->foreign, $name);
 	}
 
-	function getReferencedTable($name, $table) {
+	function getReferencedTable(string $name, string $table): string {
 		$column = strtolower($this->getReferencedColumn($name, $table));
 		$return = &$this->structure["referenced"][$table];
 		if (!isset($return[$column])) {
@@ -81,7 +79,7 @@ class Discovery implements \NotORM\Structure {
 		return $return[$column];
 	}
 
-	function getSequence($table) {
+	function getSequence(string $table): string|null|false {
 		$return = &$this->structure["sequence"][$table];
 		if (!isset($return)) {
 			$return = $this->driver->sequence($table, $this->getPrimary($table));

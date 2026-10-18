@@ -16,17 +16,16 @@ class MultiResult extends Result {
 	}
 
 	/** Specify referencing column
-	* @param string $column
 	* @return $this fluent interface
 	*/
-	function via($column) {
+	function via(string $column) {
 		$this->column = $column;
 		$this->conditions[0] = "$this->table.$column AND";
 		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this->active))) . ")"; // rows are null after insert
 		return $this;
 	}
 
-	function insertMulti(array $rows) {
+	function insertMulti(array $rows): int|false {
 		$args = array();
 		foreach ($rows as $data) {
 			if ($data instanceof \Traversable && !$data instanceof Result) {
@@ -40,16 +39,16 @@ class MultiResult extends Result {
 		return parent::insertMulti($args);
 	}
 
-	function insertUpdate(array $unique, array $insert, array $update = array()) {
+	function insertUpdate(array $unique, array $insert, array $update = array()): int|false {
 		$unique[$this->column] = $this->active;
 		return parent::insertUpdate($unique, $insert, $update);
 	}
 
-	protected function single() {
+	protected function single(): void {
 		$this->where[0] = "($this->column = " . $this->quote($this->active) . ")";
 	}
 
-	function update(array $data) {
+	function update(array $data): int|false {
 		$where = $this->where;
 		$this->single();
 		$return = parent::update($data);
@@ -57,7 +56,7 @@ class MultiResult extends Result {
 		return $return;
 	}
 
-	function delete() {
+	function delete(): int|false {
 		$where = $this->where;
 		$this->single();
 		$return = parent::delete();
@@ -65,28 +64,28 @@ class MultiResult extends Result {
 		return $return;
 	}
 
-	function select($columns, ...$moreColumns) {
+	function select(string|Literal $columns, string|Literal ...$moreColumns) {
 		if (!$this->select) {
 			return parent::select("$this->table.$this->column", $columns, ...$moreColumns);
 		}
 		return parent::select($columns, ...$moreColumns);
 	}
 
-	function order($columns, ...$moreColumns) {
+	function order(string|Literal|array $columns, string|Literal ...$moreColumns) {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
 		return parent::order($columns, ...$moreColumns);
 	}
 
-	function group($columns, $having = "") {
+	function group(string|Literal $columns, string|Literal $having = "") {
 		if ($columns != "") { // group separately for each row of the referenced table
 			$columns = "$this->table.$this->column, $columns";
 		}
 		return parent::group($columns, $having);
 	}
 
-	function aggregation($function) {
+	function aggregation(string $function): string|int|float|null {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
 		$column = ($join ? "$this->table." : "") . $this->column;
 		$query = "SELECT $function, $column FROM $this->table" . implode($join);
@@ -113,7 +112,7 @@ class MultiResult extends Result {
 		return null;
 	}
 
-	protected function execute() {
+	protected function execute(): void {
 		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {

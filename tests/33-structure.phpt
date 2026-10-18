@@ -5,7 +5,7 @@ Structure for non-conventional column
 require_once __DIR__ . "/connect.inc.php";
 
 class SoftwareConvention extends NotORM\Structure\Convention {
-	function getReferencedTable($name, $table) {
+	function getReferencedTable($name, $table): string {
 		switch ($name) {
 			case 'maintainer': return parent::getReferencedTable('author', $table);
 		}

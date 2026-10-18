@@ -9,7 +9,7 @@ class Database implements \NotORM\Cache {
 		$this->connection = $connection;
 	}
 
-	function load($key) {
+	function load(string $key): mixed {
 		$result = $this->connection->prepare("SELECT data FROM notorm WHERE id = ?");
 		$result->execute(array($key));
 		$return = $result->fetchColumn();
@@ -19,7 +19,7 @@ class Database implements \NotORM\Cache {
 		return unserialize($return);
 	}
 
-	function save($key, $data) {
+	function save(string $key, mixed $data): void {
 		// REPLACE is not supported by PostgreSQL and MS SQL
 		$parameters = array(serialize($data), $key);
 		$result = $this->connection->prepare("UPDATE notorm SET data = ? WHERE id = ?");

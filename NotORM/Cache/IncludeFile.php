@@ -14,14 +14,14 @@ class IncludeFile implements \NotORM\Cache {
 		}
 	}
 
-	function load($key) {
+	function load(string $key): mixed {
 		if (!isset($this->data[$key])) {
 			return null;
 		}
 		return $this->data[$key];
 	}
 
-	function save($key, $data) {
+	function save(string $key, mixed $data): void {
 		if (!isset($this->data[$key]) || $this->data[$key] !== $data) {
 			$this->data[$key] = $data;
 			file_put_contents($this->filename, '<?php return ' . var_export($this->data, true) . ';', LOCK_EX);

@@ -4,14 +4,14 @@ namespace NotORM\Cache;
 /** Cache using $_SESSION["NotORM"] */
 class Session implements \NotORM\Cache {
 
-	function load($key) {
+	function load(string $key): mixed {
 		if (!isset($_SESSION["NotORM"][$key])) {
 			return null;
 		}
 		return $_SESSION["NotORM"][$key];
 	}
 
-	function save($key, $data) {
+	function save(string $key, mixed $data): void {
 		$_SESSION["NotORM"][$key] = $data;
 	}
 

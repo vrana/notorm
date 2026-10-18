@@ -5,47 +5,37 @@ namespace NotORM\Structure\Discovery;
 abstract class Driver {
 	protected $connection;
 
-	/**
-	* @param \PDO $connection
-	*/
 	function __construct(\PDO $connection) {
 		$this->connection = $connection;
 	}
 
 	/** Get columns of the primary key
-	* @param string $table
 	* @return list<string>
 	*/
-	abstract function primaryColumns($table);
+	abstract function primaryColumns(string $table): array;
 
 	/** Get foreign keys pointing to the primary key of $table
-	* @param string $table
 	* @param string $primary primary key of $table
 	* @return list<list<string>> array(referencing table, referencing column)
 	*/
-	abstract function referencingColumns($table, $primary);
+	abstract function referencingColumns(string $table, string $primary): array;
 
 	/** Get foreign keys in $table
-	* @param string $table
 	* @return list<list<string>> array(column, referenced table)
 	*/
-	abstract function referencedTables($table);
+	abstract function referencedTables(string $table): array;
 
 	/** Get sequence of the primary key, used by insert
-	* @param string $table
-	* @param string $primary
 	* @return string|null|false null if the name is not needed, false if there is none
 	*/
-	function sequence($table, $primary) {
+	function sequence(string $table, string $primary): string|false|null {
 		return null;
 	}
 
 	/** Execute a metadata query
-	* @param string $query
-	* @param string ...$parameters
 	* @return list<list<mixed>>
 	*/
-	protected function rows($query, ...$parameters) {
+	protected function rows(string $query, string ...$parameters): array {
 		$result = $this->connection->prepare($query);
 		$result->execute($parameters);
 		return $result->fetchAll(\PDO::FETCH_NUM);
@@ -55,7 +45,7 @@ abstract class Driver {
 	* @param list<list<mixed>> $rows
 	* @return list<string>
 	*/
-	protected function column(array $rows) {
+	protected function column(array $rows): array {
 		$return = array();
 		foreach ($rows as $row) {
 			$return[] = (string) $row[0];

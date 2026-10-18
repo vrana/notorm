@@ -4,7 +4,7 @@ namespace NotORM\Structure\Discovery;
 /** Keys from Oracle user_constraints, the names are lowercased */
 class Oracle extends Driver {
 
-	function primaryColumns($table) {
+	function primaryColumns(string $table): array {
 		return $this->column($this->rows("
 			SELECT LOWER(cc.column_name)
 			FROM user_constraints c
@@ -14,7 +14,7 @@ class Oracle extends Driver {
 		", $table));
 	}
 
-	function referencingColumns($table, $primary) {
+	function referencingColumns(string $table, string $primary): array {
 		return $this->rows("
 			SELECT LOWER(c.table_name), LOWER(cc.column_name)
 			FROM user_constraints c
@@ -24,7 +24,7 @@ class Oracle extends Driver {
 		", $table); //! may not reference primary key
 	}
 
-	function referencedTables($table) {
+	function referencedTables(string $table): array {
 		return $this->rows("
 			SELECT LOWER(cc.column_name), LOWER(r.table_name)
 			FROM user_constraints c

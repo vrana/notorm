@@ -4,7 +4,7 @@ namespace NotORM\Structure\Discovery;
 /** Keys from MS SQL sys tables */
 class MSSQL extends Driver {
 
-	function primaryColumns($table) {
+	function primaryColumns(string $table): array {
 		return $this->column($this->rows("
 			SELECT c.name
 			FROM sys.indexes i
@@ -15,7 +15,7 @@ class MSSQL extends Driver {
 		", $table));
 	}
 
-	function referencingColumns($table, $primary) {
+	function referencingColumns(string $table, string $primary): array {
 		return $this->rows("
 			SELECT OBJECT_NAME(parent_object_id), COL_NAME(parent_object_id, parent_column_id)
 			FROM sys.foreign_key_columns
@@ -23,7 +23,7 @@ class MSSQL extends Driver {
 		", $table); //! may not reference primary key
 	}
 
-	function referencedTables($table) {
+	function referencedTables(string $table): array {
 		return $this->rows("
 			SELECT COL_NAME(parent_object_id, parent_column_id), OBJECT_NAME(referenced_object_id)
 			FROM sys.foreign_key_columns

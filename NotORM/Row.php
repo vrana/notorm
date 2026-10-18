@@ -21,18 +21,15 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		}
 	}
 
-	/** Get primary key value
-	* @return string
-	*/
-	function __toString() {
+	/** Get primary key value */
+	function __toString(): string {
 		return (string) $this[$this->result->primary]; // (string) - PostgreSQL returns int
 	}
 
 	/** Get referenced row
-	* @param string $name
 	* @return Row|null null if the row does not exist
 	*/
-	function __get($name) {
+	function __get(string $name): ?Row {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
@@ -56,29 +53,19 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		return $referenced[$this[$column]];
 	}
 
-	/** Test if referenced row exists
-	* @param string $name
-	* @return bool
-	*/
-	function __isset($name) {
+	/** Test if referenced row exists */
+	function __isset(string $name): bool {
 		return ($this->__get($name) !== null);
 	}
 
-	/** Store referenced value
-	* @param string $name
-	* @param Row|null $value
-	* @return void
-	*/
-	function __set($name, ?Row $value = null) {
+	/** Store referenced value */
+	function __set(string $name, ?Row $value = null): void {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$this[$column] = $value;
 	}
 
-	/** Remove referenced column from data
-	* @param string $name
-	* @return void
-	*/
-	function __unset($name) {
+	/** Remove referenced column from data */
+	function __unset(string $name): void {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		unset($this[$column]);
 	}
@@ -86,9 +73,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	/** Get referencing rows
 	* @param string $name table name
 	* @param mixed[] $args (["condition"[, array("value")]])
-	* @return MultiResult
 	*/
-	function __call($name, array $args) {
+	function __call(string $name, array $args): MultiResult {
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
 		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
@@ -103,7 +89,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	* @param array<string, mixed>|null $data null for all modified values
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function update($data = null) {
+	function update(?array $data = null): int|false {
 		// update is an SQL keyword
 		if (!isset($data)) {
 			$data = $this->modified;
@@ -117,7 +103,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	/** Delete row
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function delete() {
+	function delete(): int|false {
 		// delete is an SQL keyword
 		$result = new Result($this->result->table, $this->result->notORM);
 		$return = $result->where($this->result->primary, $this->primary)->delete();
@@ -125,7 +111,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		return $return;
 	}
 
-	protected function access($key, $delete = false) {
+	protected function access($key, $delete = false): void {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
 			$id = $this->primary ?? $this->row;
 			$this->row = $this->result[$id]->row;
@@ -172,9 +158,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	/** Store value in column
 	* @param string|null $key column name
-	* @param mixed $value
 	*/
-	function offsetSet($key, $value): void {
+	function offsetSet($key, mixed $value): void {
 		$this->row[$key] = $value;
 		$this->modified[$key] = $value;
 	}

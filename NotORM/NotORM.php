@@ -20,7 +20,6 @@ namespace NotORM;
 class NotORM extends Base {
 
 	/** Create database representation
-	* @param \PDO $connection
 	* @param Structure|null $structure null for new Structure\Convention
 	* @param Cache|null $cache null for no cache
 	*/
@@ -34,41 +33,35 @@ class NotORM extends Base {
 		$this->cache = $cache;
 	}
 
-	/** Get table data to use as $db->table[1]
-	* @param string $table
-	* @return Result
-	*/
-	function __get($table) {
+	/** Get table data to use as $db->table[1] */
+	function __get(string $table): Result {
 		return new Result($this->structure->getReferencingTable($table, ''), $this, true);
 	}
 
-	/** Set write-only properties
-	* @param string $name
-	* @param mixed $value
-	* @return void
-	*/
-	function __set($name, $value) {
+	/** Set write-only properties */
+	function __set(string $name, mixed $value): void {
 		if ($name == "debug" || $name == "debugTimer" || $name == "freeze" || $name == "rowClass" || $name == "jsonAsArray") {
 			$this->$name = $value;
 		}
 		if ($name == "transaction") {
 			switch (strtoupper($value)) {
 				case "BEGIN":
-					return $this->connection->beginTransaction();
+					$this->connection->beginTransaction();
+					break;
 				case "COMMIT":
-					return $this->connection->commit();
+					$this->connection->commit();
+					break;
 				case "ROLLBACK":
-					return $this->connection->rollback();
+					$this->connection->rollback();
+					break;
 			}
 		}
 	}
 
 	/** Get table data
-	* @param string $table
 	* @param mixed[] $where (["condition"[, array("value")]]) passed to Result::where()
-	* @return Result
 	*/
-	function __call($table, array $where) {
+	function __call(string $table, array $where): Result {
 		$return = new Result($this->structure->getReferencingTable($table, ''), $this);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);

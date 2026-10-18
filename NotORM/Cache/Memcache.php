@@ -9,7 +9,7 @@ class Memcache implements \NotORM\Cache {
 		$this->memcache = $memcache;
 	}
 
-	function load($key) {
+	function load(string $key): mixed {
 		$return = $this->memcache->get("NotORM.$key");
 		if ($return === false) {
 			return null;
@@ -17,7 +17,7 @@ class Memcache implements \NotORM\Cache {
 		return $return;
 	}
 
-	function save($key, $data) {
+	function save(string $key, mixed $data): void {
 		$this->memcache->set("NotORM.$key", $data);
 	}
 

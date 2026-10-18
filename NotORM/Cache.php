@@ -5,16 +5,11 @@ namespace NotORM;
 interface Cache {
 
 	/** Load stored data
-	* @param string $key
 	* @return mixed null if not found
 	*/
-	function load($key);
+	function load(string $key): mixed;
 
-	/** Save data
-	* @param string $key
-	* @param mixed $data
-	* @return void
-	*/
-	function save($key, $data);
+	/** Save data */
+	function save(string $key, mixed $data): void;
 
 }

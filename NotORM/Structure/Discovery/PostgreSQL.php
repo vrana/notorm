@@ -4,7 +4,7 @@ namespace NotORM\Structure\Discovery;
 /** Keys from PostgreSQL pg_constraint */
 class PostgreSQL extends Driver {
 
-	function primaryColumns($table) {
+	function primaryColumns(string $table): array {
 		return $this->column($this->rows("
 			SELECT a.attname
 			FROM pg_constraint c
@@ -13,7 +13,7 @@ class PostgreSQL extends Driver {
 		", $table));
 	}
 
-	function referencingColumns($table, $primary) {
+	function referencingColumns(string $table, string $primary): array {
 		return $this->rows("
 			SELECT CAST(c.conrelid AS regclass), a.attname
 			FROM pg_constraint c
@@ -22,7 +22,7 @@ class PostgreSQL extends Driver {
 		", $table); //! may not reference primary key
 	}
 
-	function referencedTables($table) {
+	function referencedTables(string $table): array {
 		return $this->rows("
 			SELECT a.attname, CAST(c.confrelid AS regclass)
 			FROM pg_constraint c
@@ -31,7 +31,7 @@ class PostgreSQL extends Driver {
 		", $table);
 	}
 
-	function sequence($table, $primary) {
+	function sequence(string $table, string $primary): string|false|null {
 		$rows = $this->rows("
 			SELECT pg_get_serial_sequence(CAST(CAST(attrelid AS regclass) AS text), attname)
 			FROM pg_attribute

@@ -4,44 +4,24 @@ namespace NotORM;
 /** Information about tables and columns structure */
 interface Structure {
 
-	/** Get primary key of a table in $db->$table()
-	* @param string $table
-	* @return string
-	*/
-	function getPrimary($table);
+	/** Get primary key of a table in $db->$table() */
+	function getPrimary(string $table): string;
 
-	/** Get column holding foreign key in $table[$id]->$name()
-	* @param string $name
-	* @param string $table
-	* @return string
-	*/
-	function getReferencingColumn($name, $table);
+	/** Get column holding foreign key in $table[$id]->$name() */
+	function getReferencingColumn(string $name, string $table): string;
 
-	/** Get target table in $table[$id]->$name()
-	* @param string $name
-	* @param string $table
-	* @return string
-	*/
-	function getReferencingTable($name, $table);
+	/** Get target table in $table[$id]->$name() */
+	function getReferencingTable(string $name, string $table): string;
 
-	/** Get column holding foreign key in $table[$id]->$name
-	* @param string $name
-	* @param string $table
-	* @return string
-	*/
-	function getReferencedColumn($name, $table);
+	/** Get column holding foreign key in $table[$id]->$name */
+	function getReferencedColumn(string $name, string $table): string;
 
-	/** Get table holding foreign key in $table[$id]->$name
-	* @param string $name
-	* @param string $table
-	* @return string
-	*/
-	function getReferencedTable($name, $table);
+	/** Get table holding foreign key in $table[$id]->$name */
+	function getReferencedTable(string $name, string $table): string;
 
 	/** Get sequence name, used by insert
-	* @param string $table
 	* @return string|null|false null if the name is not needed, false to not get the inserted ID
 	*/
-	function getSequence($table);
+	function getSequence(string $table): string|false|null;
 
 }

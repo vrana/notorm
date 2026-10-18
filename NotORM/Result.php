@@ -34,12 +34,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	protected $keys = array();
 
 	/** Create table result
-	* @param string $table
-	* @param NotORM $notORM
 	* @param bool $single single row
 	* @access protected must be public because it is called from NotORM
 	*/
-	function __construct($table, NotORM $notORM, $single = false) {
+	function __construct(string $table, NotORM $notORM, bool $single = false) {
 		$this->table = $table;
 		$this->notORM = $notORM;
 		$this->single = $single;
@@ -110,11 +108,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return "";
 	}
 
-	/** Wrap a part of UNION so that it can contain ORDER BY and LIMIT
-	* @param string $query
-	* @return string
-	*/
-	protected function unionPart($query) {
+	/** Wrap a part of UNION so that it can contain ORDER BY and LIMIT */
+	protected function unionPart(string $query): string {
 		// SQLite and Oracle don't support parentheses around the parts
 		return ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? "SELECT * FROM ($query)" : "($query)");
 	}
@@ -139,10 +134,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	/** Get SQL query
-	* @return string
-	*/
-	function __toString() {
+	/** Get SQL query */
+	function __toString(): string {
 		$return = "SELECT" . $this->topString($this->limit, $this->offset) . " ";
 		$join = $this->createJoins(implode(",", $this->conditions) . "," . implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order));
 		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
@@ -229,10 +222,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
-	* @param list<array<string, mixed>|\Traversable<string, mixed>|Result|string> $rows
+	* @param list<iterable<string, mixed>|Result|string> $rows
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function insertMulti(array $rows) {
+	function insertMulti(array $rows): int|false {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -277,11 +270,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Insert row in a table
-	* @param array<string, mixed>|\Traversable<string, mixed>|Result|string $data array($column => $value)|Traversable for single row insert or Result|string for INSERT ... SELECT
-	* @param array<string, mixed>|\Traversable<string, mixed> ...$rows used for extended insert
+	* @param iterable<string, mixed>|Result|string $data array($column => $value)|Traversable for single row insert or Result|string for INSERT ... SELECT
+	* @param iterable<string, mixed> ...$rows used for extended insert
 	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
-	function insert($data, ...$rows) {
+	function insert(iterable|Result|string $data, iterable ...$rows): Row|int|false {
 		$return = $this->insertMulti(array_merge(array($data), $rows));
 		if (!$return) {
 			return false;
@@ -300,7 +293,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array<string, mixed> $data ($column => $value)
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function update(array $data) {
+	function update(array $data): int|false {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -333,7 +326,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array<string, mixed> $update ($column => $value), empty array means use $insert
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function insertUpdate(array $unique, array $insert, array $update = array()) {
+	function insertUpdate(array $unique, array $insert, array $update = array()): int|false {
 		if (!$update) {
 			$update = $insert;
 		}
@@ -381,14 +374,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Get last insert ID
 	* @return string|false number
 	*/
-	function insertId() {
+	function insertId(): string|false {
 		return $this->notORM->connection->lastInsertId();
 	}
 
 	/** Delete all rows in result set
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function delete() {
+	function delete(): int|false {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -400,11 +393,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Add select clause, more calls appends to the end
-	* @param string $columns for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
-	* @param string ...$moreColumns
+	* @param string|Literal $columns for example "column, MD5(column) AS column_md5", empty string to reset previously set columns
 	* @return $this fluent interface
 	*/
-	function select($columns, ...$moreColumns) {
+	function select(string|Literal $columns, string|Literal ...$moreColumns) {
 		$this->__destruct();
 		if ($columns != "") {
 			foreach (array_merge(array($columns), $moreColumns) as $column) {
@@ -422,7 +414,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param mixed ...$moreParameters scalar values
 	* @return $this fluent interface
 	*/
-	function where($condition, $parameters = array(), ...$moreParameters) {
+	function where(string|array $condition, mixed $parameters = array(), mixed ...$moreParameters) {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
@@ -525,21 +517,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Shortcut for where()
 	* @param string|array<string, mixed> $where
-	* @param mixed $parameters
-	* @param mixed ...$moreParameters
 	* @return $this fluent interface
 	*/
-	function __invoke($where, $parameters = array(), ...$moreParameters) {
+	function __invoke(string|array $where, mixed $parameters = array(), mixed ...$moreParameters) {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
 
 	/** Add order clause, more calls appends to the end
-	* @param string|list<string> $columns "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
-	* @param string ...$moreColumns
+	* @param string|Literal|list<string|Literal> $columns "column1, column2 DESC" or array("column1", "column2 DESC"), empty string to reset previous order
 	* @return $this fluent interface
 	*/
-	function order($columns, ...$moreColumns) {
+	function order(string|Literal|array $columns, string|Literal ...$moreColumns) {
 		$this->rows = null;
 		if ($columns != "") {
 			$columns = (is_array($columns) ? $columns : array_merge(array($columns), $moreColumns));
@@ -559,11 +548,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set limit clause, more calls rewrite old values
-	* @param int $limit
-	* @param int|null $offset
 	* @return $this fluent interface
 	*/
-	function limit($limit, $offset = null) {
+	function limit(int $limit, ?int $offset = null) {
 		$this->rows = null;
 		if ($this->union) {
 			$this->unionLimit = +$limit;
@@ -576,11 +563,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set group clause, more calls rewrite old values
-	* @param string $columns
-	* @param string $having
 	* @return $this fluent interface
 	*/
-	function group($columns, $having = "") {
+	function group(string|Literal $columns, string|Literal $having = "") {
 		$this->__destruct();
 		$this->group = $columns;
 		$this->having = $having;
@@ -588,30 +573,24 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Set select FOR UPDATE or LOCK IN SHARE MODE
-	* @param bool $exclusive
 	* @return $this fluent interface
 	*/
-	function lock($exclusive = true) {
+	function lock(bool $exclusive = true) {
 		$this->lock = $exclusive;
 		return $this;
 	}
 
 	/**
-	* @param Result $result
-	* @param bool $all
 	* @return $this fluent interface
 	*/
-	function union(Result $result, $all = false) {
+	function union(Result $result, bool $all = false) {
 		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart($result);
 		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
 	}
 
-	/** Execute aggregation function
-	* @param string $function
-	* @return string|int|float|null
-	*/
-	function aggregation($function) {
+	/** Execute aggregation function */
+	function aggregation(string $function): string|int|float|null {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
 		$query = "SELECT $function FROM $this->table" . implode($join);
 		if ($this->where) {
@@ -626,10 +605,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return null;
 	}
 
-	/** Count number of rows
-	* @param string $column
-	*/
-	function count($column = ""): int {
+	/** Count number of rows */
+	function count(string $column = ""): int {
 		if (!$column) {
 			$this->execute();
 			return count($this->data);
@@ -637,34 +614,23 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return (int) $this->aggregation("COUNT($column)"); // null in MultiResult without rows
 	}
 
-	/** Return minimum value from a column
-	* @param string $column
-	* @return string|int|float|null
-	*/
-	function min($column) {
+	/** Return minimum value from a column */
+	function min(string $column): string|int|float|null {
 		return $this->aggregation("MIN($column)");
 	}
 
-	/** Return maximum value from a column
-	* @param string $column
-	* @return string|int|float|null
-	*/
-	function max($column) {
+	/** Return maximum value from a column */
+	function max(string $column): string|int|float|null {
 		return $this->aggregation("MAX($column)");
 	}
 
-	/** Return sum of values in a column
-	* @param string $column
-	* @return string|int|float|null
-	*/
-	function sum($column) {
+	/** Return sum of values in a column */
+	function sum(string $column): string|int|float|null {
 		return $this->aggregation("SUM($column)");
 	}
 
-	/** Execute the built query
-	* @return void
-	*/
-	protected function execute() {
+	/** Execute the built query */
+	protected function execute(): void {
 		if (!isset($this->rows)) {
 			$result = false;
 			$exception = null;
@@ -709,7 +675,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string $column column name to return or an empty string for the whole row
 	* @return mixed value with $column, Row without $column, false if there is no row
 	*/
-	function fetch($column = '') {
+	function fetch(string $column = ''): mixed {
 		// no $this->select($column) because next calls can access different columns
 		$this->execute();
 		$return = current($this->data);
@@ -721,11 +687,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Fetch all rows as associative array
-	* @param string $key
 	* @param string $value column name used for an array value or an empty string for the whole row
 	* @return mixed[] values of $value or Row without it, indexed by $key
 	*/
-	function fetchPairs($key, $value = '') {
+	function fetchPairs(string $key, string $value = ''): array {
 		$return = array();
 		$clone = clone $this;
 		if ($value != "") {
@@ -746,7 +711,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function access($key, $delete = false) {
+	protected function access($key, $delete = false): bool {
 		if ($delete) {
 			if (is_array($this->access)) {
 				$this->access[$key] = false;
@@ -766,7 +731,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return false;
 	}
 
-	protected function single() {
+	protected function single(): void {
 	}
 
 	// Iterator implementation (not IteratorAggregate because $this->data can be changed during iteration)
