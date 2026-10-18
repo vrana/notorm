@@ -90,8 +90,12 @@ class NotORM_MultiResult extends NotORM_Result {
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = array();
-			foreach ($this->query($query, $this->parameters) as $row) {
-				$aggregation[$row[$this->column]] = $row;
+			$result = $this->query($query, $this->parameters);
+			if ($result) {
+				$result->setFetchMode(PDO::FETCH_ASSOC);
+				foreach ($result as $row) {
+					$aggregation[$row[$this->column]] = $row;
+				}
 			}
 		}
 		if (isset($aggregation[$this->active])) {
