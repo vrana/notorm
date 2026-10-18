@@ -3,9 +3,9 @@ namespace NotORM;
 
 /** Representation of filtered table grouped by some column */
 class MultiResult extends Result {
-	private $result;
-	private $column;
-	private $active;
+	private Result $result;
+	private string $column;
+	private mixed $active;
 
 	/** @access protected must be public because it is called from Row */
 	function __construct($table, Result $result, $column, $active) {

@@ -3,22 +3,22 @@ namespace NotORM;
 
 // friend visibility emulation
 abstract class Base {
-	protected $connection;
-	protected $driver;
-	protected $structure;
-	protected $cache;
+	protected \PDO $connection;
+	protected string $driver;
+	protected Structure $structure;
+	protected ?Cache $cache;
 
-	protected $notORM;
-	protected $table;
-	protected $primary;
-	protected $rows;
-	protected $referenced = array();
+	protected NotORM $notORM;
+	protected string $table;
+	protected string $primary;
+	protected ?array $rows = null;
+	protected array $referenced = array();
 
-	protected $debug = false;
-	protected $debugTimer;
-	protected $freeze = false;
-	/** @var class-string<Row> */ protected $rowClass = Row::class;
-	protected $jsonAsArray = false;
+	/** @var bool|callable */ protected $debug = false;
+	/** @var callable|null */ protected $debugTimer = null;
+	protected bool $freeze = false;
+	/** @var class-string<Row> */ protected string $rowClass = Row::class;
+	protected bool $jsonAsArray = false;
 
 	protected function access($key, $delete = false) {
 	}

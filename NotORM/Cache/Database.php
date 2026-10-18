@@ -3,7 +3,7 @@ namespace NotORM\Cache;
 
 /** Cache storing data to the "notorm" table in database */
 class Database implements \NotORM\Cache {
-	private $connection;
+	private \PDO $connection;
 
 	function __construct(\PDO $connection) {
 		$this->connection = $connection;

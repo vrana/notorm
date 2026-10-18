@@ -3,7 +3,7 @@ namespace NotORM\Cache;
 
 /** Cache using "NotORM." prefix in Memcache */
 class Memcache implements \NotORM\Cache {
-	private $memcache;
+	private \Memcache $memcache;
 
 	function __construct(\Memcache $memcache) {
 		$this->memcache = $memcache;

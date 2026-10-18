@@ -3,11 +3,11 @@ namespace NotORM\Structure;
 
 /** Structure described by some rules */
 class Convention implements \NotORM\Structure {
-	protected $primary;
-	protected $foreign;
-	protected $table;
-	protected $prefix;
-	protected $sequence;
+	protected string $primary;
+	protected string $foreign;
+	protected string $table;
+	protected string $prefix;
+	protected string|null|false $sequence;
 
 	/** Create conventional structure
 	* @param string $primary %s stands for table name

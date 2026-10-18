@@ -3,15 +3,13 @@ namespace NotORM\Cache;
 
 /** Cache using file */
 class File implements \NotORM\Cache {
-	private $filename;
-	private $data;
+	private string $filename;
+	private array $data;
 
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = unserialize((string) @file_get_contents($filename)); // @ - file may not exist
-		if (!is_array($this->data)) { // the file doesn't exist or is not readable
-			$this->data = array();
-		}
+		$data = unserialize((string) @file_get_contents($filename)); // @ - file may not exist
+		$this->data = (is_array($data) ? $data : array()); // the file doesn't exist or is not readable
 	}
 
 	function load(string $key): mixed {

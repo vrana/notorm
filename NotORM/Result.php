@@ -8,30 +8,30 @@ namespace NotORM;
 * @implements \ArrayAccess<string|int, Row>
 */
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
-	protected $single;
+	protected bool $single;
 
-	protected $select = array();
-	protected $conditions = array();
-	protected $where = array();
-	protected $parameters = array();
-	protected $order = array();
-	protected $limit = null;
-	protected $offset = null;
-	protected $group = "";
-	protected $having = "";
-	protected $lock = null;
+	protected array $select = array();
+	protected array $conditions = array();
+	protected array $where = array();
+	protected array $parameters = array();
+	protected array $order = array();
+	protected ?int $limit = null;
+	protected ?int $offset = null;
+	protected string|Literal $group = "";
+	protected string|Literal $having = "";
+	protected ?bool $lock = null;
 
-	protected $union = array();
-	protected $unionOrder = array();
-	protected $unionLimit = null;
-	protected $unionOffset = null;
+	protected array $union = array();
+	protected array $unionOrder = array();
+	protected ?int $unionLimit = null;
+	protected ?int $unionOffset = null;
 
-	protected $data;
-	protected $referencing = array();
-	protected $aggregation = array();
-	protected $accessed;
-	protected $access;
-	protected $keys = array();
+	protected ?array $data = null;
+	protected array $referencing = array();
+	protected array $aggregation = array();
+	protected array|string|null $accessed = null;
+	protected array|string|null $access = null;
+	protected array $keys = array();
 
 	/** Create table result
 	* @param bool $single single row

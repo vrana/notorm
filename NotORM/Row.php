@@ -6,18 +6,18 @@ namespace NotORM;
 * @implements \ArrayAccess<string, mixed>
 */
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
-	private $modified = array();
+	private array $modified = array();
 
-	protected $row;
-	protected $result;
-	protected $primary;
+	protected array $row;
+	protected Result $result;
+	protected mixed $id = null;
 
 	/** @access protected must be public because it is called from Result */
 	function __construct(array $row, Result $result) {
 		$this->row = $row;
 		$this->result = $result;
 		if (array_key_exists($result->primary, $row)) {
-			$this->primary = $row[$result->primary];
+			$this->id = $row[$result->primary];
 		}
 	}
 
@@ -95,8 +95,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 			$data = $this->modified;
 		}
 		$result = new Result($this->result->table, $this->result->notORM);
-		$return = $result->where($this->result->primary, $this->primary)->update($data);
-		$this->primary = $this[$this->result->primary];
+		$return = $result->where($this->result->primary, $this->id)->update($data);
+		$this->id = $this[$this->result->primary];
 		return $return;
 	}
 
@@ -106,14 +106,14 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function delete(): int|false {
 		// delete is an SQL keyword
 		$result = new Result($this->result->table, $this->result->notORM);
-		$return = $result->where($this->result->primary, $this->primary)->delete();
-		$this->primary = $this[$this->result->primary];
+		$return = $result->where($this->result->primary, $this->id)->delete();
+		$this->id = $this[$this->result->primary];
 		return $return;
 	}
 
 	protected function access($key, $delete = false): void {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
-			$id = $this->primary ?? $this->row;
+			$id = $this->id ?? $this->row;
 			$this->row = $this->result[$id]->row;
 		}
 	}

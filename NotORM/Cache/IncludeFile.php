@@ -3,15 +3,13 @@ namespace NotORM\Cache;
 
 /** Cache using PHP include */
 class IncludeFile implements \NotORM\Cache {
-	private $filename;
-	private $data = array();
+	private string $filename;
+	private array $data = array();
 
 	function __construct($filename) {
 		$this->filename = $filename;
-		$this->data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path //! silently falls with syntax error and fails with unreadable file
-		if (!is_array($this->data)) { // empty file returns 1
-			$this->data = array();
-		}
+		$data = @include realpath($filename); // @ - file may not exist, realpath() to not include from include_path //! silently falls with syntax error and fails with unreadable file
+		$this->data = (is_array($data) ? $data : array()); // empty file returns 1
 	}
 
 	function load(string $key): mixed {

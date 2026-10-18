@@ -3,7 +3,7 @@ namespace NotORM\Structure\Discovery;
 
 /** Reading primary and foreign keys from the database metadata, only single-column keys are supported */
 abstract class Driver {
-	protected $connection;
+	protected \PDO $connection;
 
 	function __construct(\PDO $connection) {
 		$this->connection = $connection;

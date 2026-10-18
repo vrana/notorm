@@ -3,7 +3,7 @@ namespace NotORM\Structure;
 
 /** Structure reading meta-informations from the database */
 class Discovery implements \NotORM\Structure {
-	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static $drivers = array(
+	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static array $drivers = array(
 		"mysql" => Discovery\MySQL::class,
 		"sqlite" => Discovery\SQLite::class,
 		"pgsql" => Discovery\PostgreSQL::class,
@@ -12,10 +12,10 @@ class Discovery implements \NotORM\Structure {
 		"mssql" => Discovery\MSSQL::class,
 		"oci" => Discovery\Oracle::class,
 	);
-	protected $driver;
-	protected $cache;
-	protected $structure = array();
-	protected $foreign;
+	protected Discovery\Driver $driver;
+	protected ?\NotORM\Cache $cache;
+	protected array $structure = array();
+	protected string $foreign;
 
 	/** Create autodisovery structure
 	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
@@ -29,7 +29,7 @@ class Discovery implements \NotORM\Structure {
 		$this->cache = $cache;
 		$this->foreign = $foreign;
 		if ($cache) {
-			$this->structure = $cache->load("structure");
+			$this->structure = $cache->load("structure") ?? array();
 		}
 	}
 
