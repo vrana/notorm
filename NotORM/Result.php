@@ -91,6 +91,15 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return "";
 	}
 
+	/** Wrap a part of UNION so that it can contain ORDER BY and LIMIT
+	* @param string $query
+	* @return string
+	*/
+	protected function unionPart($query) {
+		// SQLite and Oracle don't support parentheses around the parts
+		return ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? "SELECT * FROM ($query)" : "($query)");
+	}
+
 	protected function createJoins($val) {
 		$return = array();
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
@@ -132,7 +141,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		}
 		$return .= " FROM $this->table" . implode($join) . $this->whereString();
 		if ($this->union) {
-			$return = ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $return : "($return)") . implode($this->union);
+			$return = $this->unionPart($return) . implode($this->union);
 			if ($this->unionOrder) {
 				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
 			}
@@ -569,7 +578,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return $this fluent interface
 	*/
 	function union(Result $result, $all = false) {
-		$this->union[] = " UNION " . ($all ? "ALL " : "") . ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? $result : "($result)");
+		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart($result);
 		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
 	}
