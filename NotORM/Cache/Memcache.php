@@ -1,11 +1,12 @@
 <?php
+namespace NotORM\Cache;
 
 /** Cache using "NotORM." prefix in Memcache
 */
-class NotORM_Cache_Memcache implements NotORM_Cache {
+class Memcache implements \NotORM\Cache {
 	private $memcache;
 	
-	function __construct(Memcache $memcache) {
+	function __construct(\Memcache $memcache) {
 		$this->memcache = $memcache;
 	}
 	

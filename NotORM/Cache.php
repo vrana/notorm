@@ -1,8 +1,9 @@
 <?php
+namespace NotORM;
 
 /** Loading and saving data, it's only cache so load() does not need to block until save()
 */
-interface NotORM_Cache {
+interface Cache {
 	
 	/** Load stored data
 	* @param string

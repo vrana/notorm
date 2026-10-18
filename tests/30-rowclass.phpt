@@ -4,7 +4,7 @@ Custom row class
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-class TestRow extends NotORM_Row {
+class TestRow extends NotORM\Row {
 	
 	function offsetExists($key) {
 		return parent::offsetExists(preg_replace('~^test_~', '', $key));
@@ -22,7 +22,7 @@ $application = $software->application[1];
 echo "$application[test_title]\n";
 echo $application->author["test_name"] . "\n";
 
-$software->rowClass = 'NotORM_Row';
+$software->rowClass = 'NotORM\Row';
 ?>
 --EXPECTF--
 Adminer

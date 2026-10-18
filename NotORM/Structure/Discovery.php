@@ -1,17 +1,18 @@
 <?php
+namespace NotORM\Structure;
 
 /** Structure reading meta-informations from the database
 */
-class NotORM_Structure_Discovery implements NotORM_Structure {
+class Discovery implements \NotORM\Structure {
 	protected $connection, $cache, $structure = array();
 	protected $foreign;
 	
 	/** Create autodisovery structure
-	* @param PDO
-	* @param NotORM_Cache
+	* @param \PDO
+	* @param \NotORM\Cache
 	* @param string use "%s_id" to access $name . "_id" column in $row->$name
 	*/
-	function __construct(PDO $connection, NotORM_Cache $cache = null, $foreign = '%s') {
+	function __construct(\PDO $connection, \NotORM\Cache $cache = null, $foreign = '%s') {
 		$this->connection = $connection;
 		$this->cache = $cache;
 		$this->foreign = $foreign;
@@ -32,7 +33,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 		$return = &$this->structure["primary"][$table];
 		if (!isset($return)) {
 			$return = "";
-			foreach ($this->connection->query("EXPLAIN $table", PDO::FETCH_NUM) as $column) {
+			foreach ($this->connection->query("EXPLAIN $table", \PDO::FETCH_NUM) as $column) {
 				if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
 					if ($return != "") {
 						$return = ""; // multi-column primary key is not supported
@@ -56,7 +57,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
 				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)),  //! may not reference primary key
-				PDO::FETCH_NUM
+				\PDO::FETCH_NUM
 			) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
@@ -82,7 +83,7 @@ class NotORM_Structure_Discovery implements NotORM_Structure {
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND TABLE_NAME = " . $this->connection->quote($table) . "
-			", PDO::FETCH_NUM) as $row) {
+			", \PDO::FETCH_NUM) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}

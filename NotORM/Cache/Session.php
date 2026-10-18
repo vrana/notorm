@@ -1,8 +1,9 @@
 <?php
+namespace NotORM\Cache;
 
 /** Cache using $_SESSION["NotORM"]
 */
-class NotORM_Cache_Session implements NotORM_Cache {
+class Session implements \NotORM\Cache {
 	
 	function load($key) {
 		if (!isset($_SESSION["NotORM"][$key])) {

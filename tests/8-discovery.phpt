@@ -3,7 +3,7 @@ Discovery test
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-$discovery = new NotORM($connection, new NotORM_Structure_Discovery($connection));
+$discovery = new NotORM\NotORM($connection, new NotORM\Structure\Discovery($connection));
 
 foreach ($discovery->application() as $application) {
 	echo "$application[title] (" . $application->author_id["name"] . ")\n";

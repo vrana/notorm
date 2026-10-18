@@ -1,8 +1,9 @@
 <?php
+namespace NotORM;
 
 /** Information about tables and columns structure
 */
-interface NotORM_Structure {
+interface Structure {
 	
 	/** Get primary key of a table in $db->$table()
 	* @param string

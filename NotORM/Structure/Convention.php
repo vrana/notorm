@@ -1,8 +1,9 @@
 <?php
+namespace NotORM\Structure;
 
 /** Structure described by some rules
 */
-class NotORM_Structure_Convention implements NotORM_Structure {
+class Convention implements \NotORM\Structure {
 	protected $primary, $foreign, $table, $prefix;
 	
 	/** Create conventional structure

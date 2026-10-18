@@ -1,12 +1,13 @@
 <?php
+namespace NotORM;
 
 /** Representation of filtered table grouped by some column
 */
-class NotORM_MultiResult extends NotORM_Result {
+class MultiResult extends Result {
 	private $result, $column, $active;
 	
 	/** @access protected must be public because it is called from Row */
-	function __construct($table, NotORM_Result $result, $column, $active) {
+	function __construct($table, Result $result, $column, $active) {
 		parent::__construct($table, $result->notORM);
 		$this->result = $result;
 		$this->column = $column;
@@ -15,7 +16,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	
 	/** Specify referencing column
 	* @param string
-	* @return NotORM_MultiResult fluent interface
+	* @return MultiResult fluent interface
 	*/
 	function via($column) {
 		$this->column = $column;
@@ -27,7 +28,7 @@ class NotORM_MultiResult extends NotORM_Result {
 	function insert_multi(array $rows) {
 		$args = array();
 		foreach ($rows as $data) {
-			if ($data instanceof Traversable && !$data instanceof NotORM_Result) {
+			if ($data instanceof \Traversable && !$data instanceof Result) {
 				$data = iterator_to_array($data);
 			}
 			if (is_array($data)) {
@@ -92,7 +93,7 @@ class NotORM_MultiResult extends NotORM_Result {
 			$aggregation = array();
 			$result = $this->query($query, $this->parameters);
 			if ($result) {
-				$result->setFetchMode(PDO::FETCH_ASSOC);
+				$result->setFetchMode(\PDO::FETCH_ASSOC);
 				foreach ($result as $row) {
 					$aggregation[$row[$this->column]] = $row;
 				}

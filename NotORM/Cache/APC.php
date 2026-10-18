@@ -1,8 +1,9 @@
 <?php
+namespace NotORM\Cache;
 
 /** Cache using "NotORM." prefix in APC
 */
-class NotORM_Cache_APC implements NotORM_Cache {
+class APC implements \NotORM\Cache {
 	
 	function load($key) {
 		$return = apc_fetch("NotORM.$key", $success);

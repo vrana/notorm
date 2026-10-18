@@ -20,12 +20,14 @@
 		"ext-pdo": "*"
 	},
 	"suggest": {
-		"ext-apc": "Needed by NotORM_Cache_APC",
-		"ext-memcache": "Needed by NotORM_Cache_Memcache",
-		"ext-session": "Needed by NotORM_Cache_Session"
+		"ext-apc": "Needed by NotORM\\Cache\\APC",
+		"ext-memcache": "Needed by NotORM\\Cache\\Memcache",
+		"ext-session": "Needed by NotORM\\Cache\\Session"
 	},
 	"autoload": {
-		"files": ["NotORM/NotORM.php"]
+		"psr-4": {
+			"NotORM\\": "NotORM/"
+		}
 	},
 	"config": {
 		"lock": false

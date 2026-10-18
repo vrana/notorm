@@ -1,11 +1,12 @@
 <?php
+namespace NotORM\Cache;
 
 /** Cache storing data to the "notorm" table in database
 */
-class NotORM_Cache_Database implements NotORM_Cache {
+class Database implements \NotORM\Cache {
 	private $connection;
 	
-	function __construct(PDO $connection) {
+	function __construct(\PDO $connection) {
 		$this->connection = $connection;
 	}
 	
@@ -28,7 +29,7 @@ class NotORM_Cache_Database implements NotORM_Cache {
 			$result = $this->connection->prepare("INSERT INTO notorm (data, id) VALUES (?, ?)");
 			try {
 				@$result->execute($parameters); // @ - ignore duplicate key error
-			} catch (PDOException $e) {
+			} catch (\PDOException $e) {
 				if ($e->getCode() != "23000") { // "23000" - duplicate key
 					throw $e;
 				}

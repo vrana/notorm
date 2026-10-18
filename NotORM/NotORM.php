@@ -7,41 +7,27 @@
 * @license https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
 */
 
-include_once dirname(__FILE__) . "/Base.php";
-include_once dirname(__FILE__) . "/Structure.php";
-include_once dirname(__FILE__) . "/Structure/Convention.php";
-include_once dirname(__FILE__) . "/Structure/Discovery.php";
-include_once dirname(__FILE__) . "/Cache.php";
-include_once dirname(__FILE__) . "/Cache/Session.php";
-include_once dirname(__FILE__) . "/Cache/File.php";
-include_once dirname(__FILE__) . "/Cache/IncludeFile.php";
-include_once dirname(__FILE__) . "/Cache/Database.php";
-include_once dirname(__FILE__) . "/Cache/Memcache.php";
-include_once dirname(__FILE__) . "/Cache/APC.php";
-include_once dirname(__FILE__) . "/Literal.php";
-include_once dirname(__FILE__) . "/Result.php";
-include_once dirname(__FILE__) . "/MultiResult.php";
-include_once dirname(__FILE__) . "/Row.php";
+namespace NotORM;
 
 /** Database representation
 * @property-write mixed $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
 * @property-write bool $freeze = false Disable persistence
-* @property-write string $rowClass = 'NotORM_Row' Class used for created objects
+* @property-write string $rowClass = 'NotORM\Row' Class used for created objects
 * @property-write bool $jsonAsArray = false Use array instead of object in Result JSON serialization
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
-class NotORM extends NotORM_Abstract {
+class NotORM extends Base {
 	
 	/** Create database representation
-	* @param PDO
-	* @param NotORM_Structure or null for new NotORM_Structure_Convention
-	* @param NotORM_Cache or null for no cache
+	* @param \PDO
+	* @param Structure or null for new Structure\Convention
+	* @param Cache or null for no cache
 	*/
-	function __construct(PDO $connection, NotORM_Structure $structure = null, NotORM_Cache $cache = null) {
+	function __construct(\PDO $connection, Structure $structure = null, Cache $cache = null) {
 		$this->connection = $connection;
-		$this->driver = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$this->driver = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		if (!isset($structure)) {
-			$structure = new NotORM_Structure_Convention;
+			$structure = new Structure\Convention;
 		}
 		$this->structure = $structure;
 		$this->cache = $cache;
@@ -49,10 +35,10 @@ class NotORM extends NotORM_Abstract {
 	
 	/** Get table data to use as $db->table[1]
 	* @param string
-	* @return NotORM_Result
+	* @return Result
 	*/
 	function __get($table) {
-		return new NotORM_Result($this->structure->getReferencingTable($table, ''), $this, true);
+		return new Result($this->structure->getReferencingTable($table, ''), $this, true);
 	}
 	
 	/** Set write-only properties
@@ -73,11 +59,11 @@ class NotORM extends NotORM_Abstract {
 	
 	/** Get table data
 	* @param string
-	* @param array (["condition"[, array("value")]]) passed to NotORM_Result::where()
-	* @return NotORM_Result
+	* @param array (["condition"[, array("value")]]) passed to Result::where()
+	* @return Result
 	*/
 	function __call($table, array $where) {
-		$return = new NotORM_Result($this->structure->getReferencingTable($table, ''), $this);
+		$return = new Result($this->structure->getReferencingTable($table, ''), $this);
 		if ($where) {
 			call_user_func_array(array($return, 'where'), $where);
 		}
