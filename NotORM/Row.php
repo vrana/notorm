@@ -31,6 +31,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	*/
 	function __get(string $name): ?Row {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
+		$value = $this[$column]; // re-executes the result with all columns if the column isn't in the cache
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
 			$keys = [];
@@ -47,7 +48,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 				$referenced = [];
 			}
 		}
-		return $referenced[$this[$column]] ?? null; // referenced row may not exist
+		return $referenced[$value] ?? null; // referenced row may not exist
 	}
 
 	/** Test if referenced row exists */
