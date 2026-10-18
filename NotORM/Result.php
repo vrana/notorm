@@ -3,8 +3,6 @@
 namespace NotORM;
 
 /** Filtered table representation
-* @method $this and(mixed $condition, mixed $parameters = []) Add AND condition
-* @method $this or(mixed $condition, mixed $parameters = []) Add OR condition
 * @implements \Iterator<string|int, Row>
 * @implements \ArrayAccess<string|int, Row>
 */
@@ -426,6 +424,24 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->whereOperator("AND", $args);
 	}
 
+	/** Add AND condition, same as where()
+	* @param string|array<string, mixed> $condition
+	* @return $this fluent interface
+	*/
+	function and(string|array $condition, mixed $parameters = [], mixed ...$moreParameters): static {
+		$args = func_get_args();
+		return $this->whereOperator("AND", $args);
+	}
+
+	/** Add OR condition
+	* @param string|array<string, mixed> $condition
+	* @return $this fluent interface
+	*/
+	function or(string|array $condition, mixed $parameters = [], mixed ...$moreParameters): static {
+		$args = func_get_args();
+		return $this->whereOperator("OR", $args);
+	}
+
 	/**
 	* @param list<mixed> $args
 	* @return $this
@@ -515,17 +531,6 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			$condition = implode(" OR ", $or);
 		}
 		return $condition;
-	}
-
-	/** @param list<mixed> $args */
-	function __call(string $name, array $args): static {
-		$operator = strtoupper($name);
-		switch ($operator) {
-			case "AND":
-			case "OR":
-				return $this->whereOperator($operator, $args);
-		}
-		throw new \BadMethodCallException("Call to undefined method " . static::class . "::$name()");
 	}
 
 	/** Shortcut for where()
