@@ -27,6 +27,7 @@
 	"suggest": {
 		"ext-apcu": "Needed by NotORM\\Cache\\APCu",
 		"ext-memcache": "Needed by NotORM\\Cache\\Memcache",
+		"ext-memcached": "Needed by NotORM\\Cache\\Memcached",
 		"ext-session": "Needed by NotORM\\Cache\\Session"
 	},
 	"autoload": {
