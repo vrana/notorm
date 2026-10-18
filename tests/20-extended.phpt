@@ -4,7 +4,6 @@ Extended insert
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-$driver = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 echo ($driver == "oci" ? "Not supported in $driver.\n" : "");
 ?>
 --FILE--

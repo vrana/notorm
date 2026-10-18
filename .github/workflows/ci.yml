@@ -19,16 +19,19 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          extensions: pdo_mysql, pdo_sqlite
+          extensions: pdo_mysql, pdo_sqlite, pdo_pgsql
           ini-values: pdo_mysql.default_socket=/var/run/mysqld/mysqld.sock # tests/connect.inc.php connects to localhost
           tools: composer
       - run: composer install --no-interaction --no-progress
       - run: composer check
-      - name: Create the test database
+      - name: Create the test databases # the tests create the tables from tests/software.sql
         run: |
           sudo systemctl start mysql.service
           read -r user password < <(sed -n 's/.*new PDO("mysql:dbname=software", "\([^"]*\)", "\([^"]*\)").*/\1 \2/p' tests/connect.inc.php)
           mysql -uroot -proot -e "CREATE DATABASE software; CREATE USER '$user'@'localhost' IDENTIFIED BY '$password'; GRANT ALL ON software.* TO '$user'@'localhost'"
-          mysql -uroot -proot software < tests/software.sql
+          sudo systemctl start postgresql.service
+          read -r user password < <(sed -n 's/.*new PDO("pgsql:host=localhost;dbname=software", "\([^"]*\)", "\([^"]*\)").*/\1 \2/p' tests/connect.inc.php)
+          sudo -u postgres psql -c "CREATE ROLE \"$user\" LOGIN PASSWORD '$password'" -c "CREATE DATABASE software OWNER \"$user\""
       - run: composer test
       - run: composer test sqlite
+      - run: composer test pgsql

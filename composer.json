@@ -50,6 +50,6 @@
 	},
 	"scripts-descriptions": {
 		"check": "Checks the code by phpcs and phpstan",
-		"test": "Runs the tests in tests/ on MySQL (needs the database from tests/software.sql), or on in-memory SQLite by: composer test sqlite"
+		"test": "Runs the tests in tests/ on MySQL, or on another database by: composer test sqlite|pgsql"
 	}
 }

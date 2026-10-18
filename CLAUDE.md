@@ -24,11 +24,11 @@ composer test
 
 - `composer install` installs PHP_CodeSniffer and PHPStan and generates `vendor/autoload.php`, which the tests need. `"lock": false` means no `composer.lock` is ever written.
 - `composer check` runs `phpcs` (config `phpcs.xml`) and `phpstan analyse` (config `phpstan.neon`, level 1 with the strict rules that currently report nothing). Both configs list the rules the code doesn't follow and why; keep them passing without adding new exclusions where a small fix will do.
-- `composer test` runs `tests/run-tests.php` on MySQL, `composer test sqlite` on in-memory SQLite. `tests/connect.inc.php` takes the database from the first command-line argument (`mysql` by default), also for a single test: `php tests/1-basic.phpt sqlite`. Run the tests with PHP 7.4.
+- `composer test` runs `tests/run-tests.php` on MySQL, `composer test sqlite` on in-memory SQLite, `composer test pgsql` on PostgreSQL. `tests/connect.inc.php` takes the database from the first command-line argument (`mysql` by default), also for a single test: `php tests/1-basic.phpt sqlite`. Run the tests with PHP 7.4.
 
 ## Tests
 
-Tests need a MySQL database `software` loaded from `tests/software.sql`, with credentials in `tests/connect.inc.php`.
+`tests/connect.inc.php` recreates the tables from `tests/software.sql` on every run, so MySQL and PostgreSQL only need an empty database `software` accessible with the credentials there.
 
 - The runner `include`s every `tests/*.phpt` in natural order **in one PHP process**: each file is plain PHP that echoes its literal `--TEST--`/`--EXPECTF--` text, and the runner compares the `--FILE--` output to the `--EXPECTF--` section **byte-for-byte** (no `%s`-style placeholders despite the name). It prints only `failed …`/`skipped …` lines plus the total time and memory; no other output means all passed.
 - Because files are included into the same scope, `$connection` and `$software` from `connect.inc.php` (pulled in with `include_once`) are shared across tests. A `--SKIPIF--` section that echoes something skips the test (used for driver-specific tests). A test that changes connection attributes must restore them.
