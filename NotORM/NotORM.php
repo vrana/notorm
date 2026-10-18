@@ -11,6 +11,7 @@ namespace NotORM;
 
 /** Database representation
 * @property bool|callable $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
+* @property callable|null $debugTimer Callback called after executing each query, e.g. to measure its time
 * @property bool $freeze = false Disable persistence
 * @property class-string<Row> $rowClass = 'NotORM\Row' Class used for created objects
 * @property bool $jsonAsArray = false Use array instead of object in Result JSON serialization
