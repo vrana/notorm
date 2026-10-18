@@ -280,7 +280,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert(iterable|Result|string $data, iterable ...$rows): Row|int|false {
-		$return = $this->insertMulti(array_merge([$data], $rows));
+		$return = $this->insertMulti([$data, ...$rows]);
 		if (!$return) {
 			return false;
 		}
@@ -404,7 +404,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
 		$this->__destruct();
 		if ($columns != "") {
-			foreach (array_merge([$columns], $moreColumns) as $column) {
+			foreach ([$columns, ...$moreColumns] as $column) {
 				$this->select[] = $column;
 			}
 		} else {
@@ -549,7 +549,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
 		$this->rows = null;
 		if ($columns != "") {
-			$columns = (is_array($columns) ? $columns : array_merge([$columns], $moreColumns));
+			$columns = (is_array($columns) ? $columns : [$columns, ...$moreColumns]);
 			foreach ($columns as $column) {
 				if ($this->union) {
 					$this->unionOrder[] = $column;
