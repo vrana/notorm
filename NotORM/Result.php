@@ -179,7 +179,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 						break;
 					}
 				}
-				error_log("$backtrace[file]:$backtrace[line]:$debug\n", 0);
+				error_log("$backtrace[file]:$backtrace[line]:$debug\n");
 			} elseif (call_user_func($this->notORM->debug, $query, $parameters) === false) {
 				return false;
 			}
