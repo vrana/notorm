@@ -2,7 +2,10 @@
 
 namespace NotORM\Cache;
 
-/** Cache storing data to the "notorm" table in database */
+/** Cache storing data to the "notorm" table in database
+* CREATE TABLE notorm (id varchar(255) NOT NULL, data text NOT NULL, PRIMARY KEY (id))
+* Oracle doesn't support text, use varchar2(4000) there
+*/
 class Database implements \NotORM\Cache {
 	function __construct(
 		private \PDO $connection,
