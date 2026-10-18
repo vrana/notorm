@@ -27,10 +27,7 @@ class NotORM extends Base {
 	function __construct(\PDO $connection, ?Structure $structure = null, ?Cache $cache = null) {
 		$this->connection = $connection;
 		$this->driver = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
-		if (!isset($structure)) {
-			$structure = new Structure\Convention;
-		}
-		$this->structure = $structure;
+		$this->structure = $structure ?? new Structure\Convention;
 		$this->cache = $cache;
 	}
 

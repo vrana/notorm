@@ -23,10 +23,8 @@ class Discovery implements \NotORM\Structure {
 	*/
 	function __construct(\PDO $connection, ?\NotORM\Cache $cache = null, string $foreign = '%s') {
 		$name = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
-		if (!isset(self::$drivers[$name])) {
-			throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");
-		}
-		$this->driver = new self::$drivers[$name]($connection);
+		$class = self::$drivers[$name] ?? throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");
+		$this->driver = new $class($connection);
 		$this->cache = $cache;
 		$this->foreign = $foreign;
 		$this->structure = $cache?->load("structure") ?? [];
@@ -77,11 +75,8 @@ class Discovery implements \NotORM\Structure {
 	}
 
 	function getSequence(string $table): string|null|false {
-		$return = &$this->structure["sequence"][$table];
-		if (!isset($return)) {
-			$return = $this->driver->sequence($table, $this->getPrimary($table));
-		}
-		return $return;
+		$this->structure["sequence"][$table] ??= $this->driver->sequence($table, $this->getPrimary($table));
+		return $this->structure["sequence"][$table];
 	}
 
 }

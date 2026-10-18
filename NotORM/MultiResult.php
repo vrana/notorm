@@ -106,10 +106,8 @@ class MultiResult extends Result {
 				}
 			}
 		}
-		if (isset($aggregation[$this->active])) {
-			foreach ($aggregation[$this->active] as $return) {
-				return $return;
-			}
+		foreach ($aggregation[$this->active] ?? [] as $return) {
+			return $return;
 		}
 		return null;
 	}
@@ -118,12 +116,12 @@ class MultiResult extends Result {
 		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
-				if (!$this->limit || count((array) $this->result->rows) <= 1 || $this->union) { // rows are null after insert
+				if (!$this->limit || count($this->result->rows ?? []) <= 1 || $this->union) { // rows are null after insert
 					parent::execute();
 				} else { //! doesn't work with union
 					$result = clone $this;
 					$first = true;
-					foreach ((array) $this->result->rows as $val) {
+					foreach ($this->result->rows ?? [] as $val) {
 						if ($first) {
 							$result->where[0] = "$this->column = " . $this->quote($val);
 							$first = false;
@@ -142,9 +140,7 @@ class MultiResult extends Result {
 				}
 			}
 			$this->data = &$referencing[$this->active];
-			if (!isset($this->data)) {
-				$this->data = [];
-			}
+			$this->data ??= [];
 		}
 	}
 

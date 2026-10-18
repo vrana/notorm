@@ -802,8 +802,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 					}
 					return $row;
 				}
-			} elseif (isset($this->data[$offset])) {
-				return $this->data[$offset];
+			} else {
+				return $this->data[$offset] ?? null;
 			}
 		}
 		return null;

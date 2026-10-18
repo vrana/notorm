@@ -17,9 +17,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function __construct(array $row, Result $result) {
 		$this->row = $row;
 		$this->result = $result;
-		if (array_key_exists($result->primary, $row)) {
-			$this->id = $row[$result->primary];
-		}
+		$this->id = $row[$result->primary] ?? null;
 	}
 
 	/** Get primary key value */
@@ -48,10 +46,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 				$referenced = [];
 			}
 		}
-		if (!isset($referenced[$this[$column]])) { // referenced row may not exist
-			return null;
-		}
-		return $referenced[$this[$column]];
+		return $referenced[$this[$column]] ?? null; // referenced row may not exist
 	}
 
 	/** Test if referenced row exists */
@@ -92,9 +87,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	*/
 	function update(?array $data = null): int|false {
 		// update is an SQL keyword
-		if (!isset($data)) {
-			$data = $this->modified;
-		}
+		$data ??= $this->modified;
 		$result = new Result($this->result->table, $this->result->notORM);
 		$return = $result->where($this->result->primary, $this->id)->update($data);
 		$this->id = $this[$this->result->primary];
