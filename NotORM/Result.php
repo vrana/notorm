@@ -471,7 +471,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	protected function whereIn($condition, $parameters) {
 		if (!$parameters) {
-			$condition = "($condition) IS NOT NULL AND $condition IS NULL";
+			// IN () is not supported, it would be NULL for NULL and false otherwise
+			$condition = (preg_match('~^NOT\s+(.+)~is', $condition, $match)
+				? "$match[1] IS NOT NULL" // NOT is not applicable to other types than bool in PostgreSQL
+				: "($condition) IS NOT NULL AND $condition IS NULL"
+			);
 		} elseif ($this->notORM->driver != "oci") {
 			$column = $condition;
 			$condition .= " IN " . $this->quote($parameters);
