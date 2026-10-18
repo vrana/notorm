@@ -32,4 +32,13 @@ class PostgreSQL extends Driver {
 		", $table);
 	}
 
+	function sequence($table, $primary) {
+		$rows = $this->rows("
+			SELECT pg_get_serial_sequence(CAST(CAST(attrelid AS regclass) AS text), attname)
+			FROM pg_attribute
+			WHERE attrelid = CAST(? AS regclass) AND attname = ?
+		", $table, $primary); // pg_get_serial_sequence() would fail for a non-existing column
+		return ($rows && $rows[0][0] !== null ? $rows[0][0] : false); // LASTVAL() would return a value of another sequence or fail and abort the transaction
+	}
+
 }

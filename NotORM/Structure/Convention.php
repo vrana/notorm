@@ -4,19 +4,21 @@ namespace NotORM\Structure;
 /** Structure described by some rules
 */
 class Convention implements \NotORM\Structure {
-	protected $primary, $foreign, $table, $prefix;
+	protected $primary, $foreign, $table, $prefix, $sequence;
 
 	/** Create conventional structure
 	* @param string $primary %s stands for table name
 	* @param string $foreign %1$s stands for key used after ->, %2$s for table name
 	* @param string $table %1$s stands for key used after ->, %2$s for table name
 	* @param string $prefix prefix for all tables
+	* @param string|null|false $sequence %s stands for table name, e.g. "%s_id_seq" in PostgreSQL; null if the name is not needed, false to not get the inserted ID
 	*/
-	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s', $prefix = '') {
+	function __construct($primary = 'id', $foreign = '%s_id', $table = '%s', $prefix = '', $sequence = null) {
 		$this->primary = $primary;
 		$this->foreign = $foreign;
 		$this->table = $table;
 		$this->prefix = $prefix;
+		$this->sequence = $sequence;
 	}
 
 	function getPrimary($table) {
@@ -40,7 +42,7 @@ class Convention implements \NotORM\Structure {
 	}
 
 	function getSequence($table) {
-		return null;
+		return (is_string($this->sequence) ? sprintf($this->sequence, $table) : $this->sequence);
 	}
 
 	protected function getColumnFromTable($name) {

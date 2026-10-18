@@ -83,7 +83,11 @@ class Discovery implements \NotORM\Structure {
 	}
 
 	function getSequence($table) {
-		return null;
+		$return = &$this->structure["sequence"][$table];
+		if (!isset($return)) {
+			$return = $this->driver->sequence($table, $this->getPrimary($table));
+		}
+		return $return;
 	}
 
 }

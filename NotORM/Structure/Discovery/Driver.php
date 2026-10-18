@@ -32,6 +32,15 @@ abstract class Driver {
 	*/
 	abstract function referencedTables($table);
 
+	/** Get sequence of the primary key, used by insert
+	* @param string $table
+	* @param string $primary
+	* @return string|null|false null if the name is not needed, false if there is none
+	*/
+	function sequence($table, $primary) {
+		return null;
+	}
+
 	/** Execute a metadata query
 	* @param string $query
 	* @param string ...$parameters

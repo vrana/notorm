@@ -41,7 +41,7 @@ interface Structure {
 
 	/** Get sequence name, used by insert
 	* @param string $table
-	* @return string|null
+	* @return string|null|false null if the name is not needed, false to not get the inserted ID
 	*/
 	function getSequence($table);
 

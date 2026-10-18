@@ -270,7 +270,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if (!is_array($data)) {
 			return $return;
 		}
-		if (!isset($data[$this->primary]) && ($id = $this->notORM->connection->lastInsertId($this->notORM->structure->getSequence($this->table)))) {
+		$sequence = $this->notORM->structure->getSequence($this->table);
+		if (!isset($data[$this->primary]) && $sequence !== false && ($id = $this->notORM->connection->lastInsertId($sequence))) {
 			$data[$this->primary] = $id;
 		}
 		return new $this->notORM->rowClass($data, $this);
