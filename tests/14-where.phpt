@@ -12,6 +12,7 @@ foreach (array(
 	$software->application("id", null),
 	$software->application("id", $software->application()),
 	$software->application("id < ?", 4)->where("maintainer_id IS NOT NULL"),
+	$software->application("NOT maintainer_id", null),
 	$software->application(array("id < ?" => 4, "author_id" => 12)),
 ) as $result) {
 	echo implode(", ", array_keys(iterator_to_array($result->order("id")))) . "\n"; // aggregation("GROUP_CONCAT(id)") is not available in all drivers
@@ -25,4 +26,5 @@ foreach (array(
 
 1, 2, 3, 4
 1, 3
+1, 3, 4
 3
