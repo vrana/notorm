@@ -58,4 +58,4 @@ composer test
 ## Repository conventions
 
 - Commit subjects are short imperative sentences, prefixed with a group where one fits (`Tests: …`, `PHPStan: …`, `MultiResult: …`), with `(fixes #N)` / `(closes #N)` when tied to a GitHub issue.
-- `todo.txt` lists known open ideas (multi-column primary keys, deferred row creation).
+- `todo.txt` lists known open ideas (multi-column primary keys).

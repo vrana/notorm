@@ -1,2 +1,1 @@
 multi-column primary key - Structure methods could return array
-defer NotORM_Row creation to save memory
