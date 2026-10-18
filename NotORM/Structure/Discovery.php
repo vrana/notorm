@@ -50,15 +50,14 @@ class Discovery implements \NotORM\Structure {
 		$name = strtolower($name);
 		$return = &$this->structure["referencing"][$table];
 		if (!isset($return[$name])) {
-			foreach ($this->connection->query("
+			$query = "
 				SELECT TABLE_NAME, COLUMN_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_NAME = " . $this->connection->quote($table) . "
-				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)),  //! may not reference primary key
-				\PDO::FETCH_NUM
-			) as $row) {
+				AND REFERENCED_COLUMN_NAME = " . $this->connection->quote($this->getPrimary($table)); //! may not reference primary key
+			foreach ($this->connection->query($query, \PDO::FETCH_NUM) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}
@@ -77,13 +76,14 @@ class Discovery implements \NotORM\Structure {
 		$column = strtolower($this->getReferencedColumn($name, $table));
 		$return = &$this->structure["referenced"][$table];
 		if (!isset($return[$column])) {
-			foreach ($this->connection->query("
+			$query = "
 				SELECT COLUMN_NAME, REFERENCED_TABLE_NAME
 				FROM information_schema.KEY_COLUMN_USAGE
 				WHERE TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_SCHEMA = DATABASE()
 				AND TABLE_NAME = " . $this->connection->quote($table) . "
-			", \PDO::FETCH_NUM) as $row) {
+			";
+			foreach ($this->connection->query($query, \PDO::FETCH_NUM) as $row) {
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}
