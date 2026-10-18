@@ -29,7 +29,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Save data to cache and empty result
 	*/
 	function __destruct() {
-		if ($this->notORM->cache && !$this->select && isset($this->rows)) {
+		if ($this->notORM->cache && !$this->select && !$this->group && isset($this->rows)) {
 			$access = $this->access;
 			if (is_array($access)) {
 				$access = array_filter($access);
@@ -123,6 +123,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		}
 		if ($this->select) {
 			$return .= $this->removeExtraDots(implode(", ", $this->select));
+		} elseif ($this->group) { // other columns are not allowed with ONLY_FULL_GROUP_BY and in other databases
+			$return .= $this->removeExtraDots($this->group);
 		} elseif ($this->accessed) {
 			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
 		} else {
@@ -643,7 +645,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				// handled later
 			}
 			if (!$result) {
-				if (!$this->select && $this->accessed) {
+				if (!$this->select && !$this->group && $this->accessed) {
 					$this->accessed = '';
 					$this->access = array();
 					$result = $this->query($this->__toString(), $parameters);
@@ -721,7 +723,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		} elseif (!is_string($this->access)) {
 			$this->access[$key] = true;
 		}
-		if (!$this->select && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
+		if (!$this->select && !$this->group && $this->accessed && (!isset($key) || !isset($this->accessed[$key]))) {
 			$this->accessed = '';
 			$this->rows = null;
 			return true;

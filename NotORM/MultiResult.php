@@ -78,6 +78,13 @@ class MultiResult extends Result {
 		return parent::order($columns, ...$moreColumns);
 	}
 
+	function group($columns, $having = "") {
+		if ($columns != "") { // group separately for each row of the referenced table
+			$columns = "$this->table.$this->column, $columns";
+		}
+		return parent::group($columns, $having);
+	}
+
 	function aggregation($function) {
 		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
 		$column = ($join ? "$this->table." : "") . $this->column;

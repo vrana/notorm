@@ -9,8 +9,7 @@ foreach ($software->application()->order("author.name, title") as $application) 
 }
 echo "\n";
 
-// SELECT application_tag.* with GROUP BY tag_id requires sql_mode without ONLY_FULL_GROUP_BY (default since MySQL 5.7.5)
-foreach ($software->application_tag("application.author.name", "Jakub Vrana")->group("application_tag.tag_id") as $application_tag) {
+foreach ($software->application_tag("application.author.name", "Jakub Vrana")->group("application_tag.tag_id")->order("application_tag.tag_id") as $application_tag) {
 	echo $application_tag->tag["name"] . "\n";
 }
 ?>
