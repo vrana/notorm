@@ -163,6 +163,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$return .= " FROM $this->table" . implode($join) . $this->whereString();
 		if ($this->union) {
 			$return = $this->unionPart($return) . implode($this->union);
+			if ($this->unionOrder && $this->notORM->driver == "oci") {
+				$return = "SELECT * FROM ($return)"; // Oracle doesn't find the columns of the SELECT * parts in ORDER BY
+			}
 			if ($this->unionOrder) {
 				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
 			}
