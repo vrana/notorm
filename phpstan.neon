@@ -2,7 +2,7 @@ includes:
 	- vendor/phpstan/phpstan-strict-rules/rules.neon
 
 parameters:
-	level: 5
+	level: 6
 	# stricter checks which currently report no error
 	checkFunctionNameCase: true
 	reportStaticMethodSignatures: true
@@ -22,6 +22,7 @@ parameters:
 		numericOperandsInArithmeticOperators: true
 		overwriteVariablesWithLoop: true
 		requireParentConstructorCall: true
+		strictArrayFilter: true
 		strictFunctionCalls: true
 		switchConditionsMatchingType: true
 		uselessCast: true
@@ -29,7 +30,8 @@ parameters:
 	ignoreErrors:
 		# not real problems
 		- "~^Variable \\$backtrace might not be defined\\.$~" # debug_backtrace() contains at least query()
-		- "~^Access to protected property NotORM\\\\Literal\\|NotORM\\\\Result::\\$parameters\\.$~" # Result can access it, PHPStan checks the union as a whole
+		- "~^Access to protected property \\$this\\(NotORM\\\\Result\\)\\|NotORM\\\\Literal::\\$parameters\\.$~" # Result can access it, PHPStan checks the union as a whole
+		- "~^Variable \\$(aggregation|referencing|referenced) in isset\\(\\) always exists and is not nullable\\.$~" # a reference to a missing element creates it as null
 
 	paths:
 		- NotORM/
@@ -40,5 +42,4 @@ parameters:
 
 	# The strict rules which are not used, with the number of places they report:
 	# disallowedLooseComparison (38) - $var != "" is used on purpose
-	# booleansInConditions (66) - truthy values are used on purpose
-	# strictArrayFilter (1) - array_filter() removes the empty values on purpose
+	# booleansInConditions (67) - truthy values are used on purpose

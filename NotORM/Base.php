@@ -12,8 +12,8 @@ abstract class Base {
 	protected NotORM $notORM;
 	protected string $table;
 	protected string $primary;
-	protected ?array $rows = null;
-	protected array $referenced = [];
+	/** @var array<Row>|null */ protected ?array $rows = null;
+	/** @var array<string, Result|array{}> */ protected array $referenced = [];
 
 	/** @var bool|callable */ protected $debug = false;
 	/** @var callable|null */ protected $debugTimer = null;

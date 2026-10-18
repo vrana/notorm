@@ -11,28 +11,28 @@ namespace NotORM;
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
 	protected bool $single;
 
-	protected array $select = [];
-	protected array $conditions = [];
-	protected array $where = [];
-	protected array $parameters = [];
-	protected array $order = [];
+	/** @var list<string|Literal> */ protected array $select = [];
+	/** @var list<string> */ protected array $conditions = [];
+	/** @var list<string> */ protected array $where = [];
+	/** @var mixed[] */ protected array $parameters = [];
+	/** @var list<string|Literal> */ protected array $order = [];
 	protected ?int $limit = null;
 	protected ?int $offset = null;
 	protected string|Literal $group = "";
 	protected string|Literal $having = "";
 	protected ?bool $lock = null;
 
-	protected array $union = [];
-	protected array $unionOrder = [];
+	/** @var list<string> */ protected array $union = [];
+	/** @var list<string|Literal> */ protected array $unionOrder = [];
 	protected ?int $unionLimit = null;
 	protected ?int $unionOffset = null;
 
-	protected ?array $data = null;
-	protected array $referencing = [];
-	protected array $aggregation = [];
-	protected array|string|null $accessed = null;
-	protected array|string|null $access = null;
-	protected array $keys = [];
+	/** @var array<Row>|null */ protected ?array $data = null;
+	/** @var array<string, array<array<Row>>> */ protected array $referencing = []; // SQL => referencing column value => rows
+	/** @var array<string, array<array<string, mixed>>> */ protected array $aggregation = []; // SQL => referencing column value => row
+	/** @var array<bool>|''|null */ protected array|string|null $accessed = null;
+	/** @var array<bool>|''|null */ protected array|string|null $access = null;
+	/** @var list<string|int> */ protected array $keys = [];
 
 	/** Create table result
 	* @param bool $single single row
@@ -119,6 +119,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return (in_array($this->notORM->driver, ["sqlite", "oci", "dblib", "mssql", "sqlsrv"], true) ? "SELECT * FROM ($query) t" : "($query)");
 	}
 
+	/** @return array<string, string> */
 	protected function createJoins(string $val): array {
 		$return = [];
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
@@ -171,6 +172,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
+	/** @param mixed[] $parameters */
 	protected function query(string $query, array $parameters): \PDOStatement|false {
 		if ($this->notORM->debug) {
 			if (!is_callable($this->notORM->debug)) {
@@ -424,7 +426,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->whereOperator("AND", $args);
 	}
 
-	/** @return $this */
+	/**
+	* @param list<mixed> $args
+	* @return $this
+	*/
 	protected function whereOperator(string $operator, array $args): static {
 		$condition = $args[0];
 		$parameters = (count($args) > 1 ? $args[1] : []);
@@ -487,6 +492,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this;
 	}
 
+	/** @param mixed[] $parameters */
 	protected function whereIn(string $condition, array $parameters): string {
 		if (!$parameters) {
 			// IN () is not supported, it would be NULL for NULL and false otherwise
@@ -511,6 +517,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $condition;
 	}
 
+	/** @param list<mixed> $args */
 	function __call(string $name, array $args): static {
 		$operator = strtoupper($name);
 		switch ($operator) {
