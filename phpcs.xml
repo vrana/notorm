@@ -76,9 +76,9 @@
 
 	<rule ref="SlevomatCodingStandard.Classes.DisallowConstructorPropertyPromotion"/>
 	<rule ref="SlevomatCodingStandard.Commenting.EmptyComment"/>
-	<rule ref="SlevomatCodingStandard.ControlStructures.DisallowNullSafeObjectOperator"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator"/>
+	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullSafeObjectOperator"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.UselessIfConditionWithReturn"/>
 	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator"/>
 	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch"/>

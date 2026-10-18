@@ -15,7 +15,7 @@ class Discovery implements \NotORM\Structure {
 	);
 	protected Discovery\Driver $driver;
 	protected ?\NotORM\Cache $cache;
-	protected array $structure = array();
+	protected array $structure;
 	protected string $foreign;
 
 	/** Create autodisovery structure
@@ -29,16 +29,12 @@ class Discovery implements \NotORM\Structure {
 		$this->driver = new self::$drivers[$name]($connection);
 		$this->cache = $cache;
 		$this->foreign = $foreign;
-		if ($cache) {
-			$this->structure = $cache->load("structure") ?? array();
-		}
+		$this->structure = $cache?->load("structure") ?? array();
 	}
 
 	/** Save data to cache */
 	function __destruct() {
-		if ($this->cache) {
-			$this->cache->save("structure", $this->structure);
-		}
+		$this->cache?->save("structure", $this->structure);
 	}
 
 	function getPrimary(string $table): string {
