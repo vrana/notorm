@@ -66,14 +66,15 @@ class MultiResult extends Result {
 	}
 
 	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
-		if (!$this->select) {
+		if (!$this->select && !array_intersect([$columns, ...$moreColumns], [$this->column, "$this->table.$this->column"])) { // MS SQL doesn't allow ORDER BY a column selected twice
 			return parent::select("$this->table.$this->column", $columns, ...$moreColumns);
 		}
 		return parent::select($columns, ...$moreColumns);
 	}
 
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
-		if (!$this->order) { // improve index utilization
+		$column = '~^(' . preg_quote("$this->table.") . ')?' . preg_quote($this->column) . '(\s+(ASC|DESC))?$~i';
+		if (!$this->order && !preg_grep($column, (is_array($columns) ? $columns : [$columns, ...$moreColumns]))) { // improve index utilization, MS SQL doesn't allow ORDER BY a column twice
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', (is_array($columns) ? implode(", ", $columns) : (string) $columns)) ? " DESC" : "");
 		}
 		return parent::order($columns, ...$moreColumns);

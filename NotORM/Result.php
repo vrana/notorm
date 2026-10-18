@@ -700,7 +700,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$clone = clone $this;
 		if ($value != "") {
 			$clone->select = [];
-			$clone->select("$key, $value"); // MultiResult adds its column
+			$clone->select($key == $value ? $key : "$key, $value"); // MultiResult adds its column, MS SQL doesn't allow ORDER BY a column selected twice
 		} elseif ($clone->select) {
 			array_unshift($clone->select, $key);
 		} else {
