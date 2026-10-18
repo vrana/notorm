@@ -6,7 +6,7 @@ namespace NotORM\Structure;
 class Discovery implements \NotORM\Structure {
 	protected $connection, $cache, $structure = array();
 	protected $foreign;
-	
+
 	/** Create autodisovery structure
 	* @param \PDO
 	* @param \NotORM\Cache
@@ -20,7 +20,7 @@ class Discovery implements \NotORM\Structure {
 			$this->structure = $cache->load("structure");
 		}
 	}
-	
+
 	/** Save data to cache
 	*/
 	function __destruct() {
@@ -28,7 +28,7 @@ class Discovery implements \NotORM\Structure {
 			$this->cache->save("structure", $this->structure);
 		}
 	}
-	
+
 	function getPrimary($table) {
 		$return = &$this->structure["primary"][$table];
 		if (!isset($return)) {
@@ -45,7 +45,7 @@ class Discovery implements \NotORM\Structure {
 		}
 		return $return;
 	}
-	
+
 	function getReferencingColumn($name, $table) {
 		$name = strtolower($name);
 		$return = &$this->structure["referencing"][$table];
@@ -63,15 +63,15 @@ class Discovery implements \NotORM\Structure {
 		}
 		return $return[$name];
 	}
-	
+
 	function getReferencingTable($name, $table) {
 		return $name;
 	}
-	
+
 	function getReferencedColumn($name, $table) {
 		return sprintf($this->foreign, $name);
 	}
-	
+
 	function getReferencedTable($name, $table) {
 		$column = strtolower($this->getReferencedColumn($name, $table));
 		$return = &$this->structure["referenced"][$table];
@@ -89,9 +89,9 @@ class Discovery implements \NotORM\Structure {
 		}
 		return $return[$column];
 	}
-	
+
 	function getSequence($table) {
 		return null;
 	}
-	
+
 }

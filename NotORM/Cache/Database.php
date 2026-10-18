@@ -5,11 +5,11 @@ namespace NotORM\Cache;
 */
 class Database implements \NotORM\Cache {
 	private $connection;
-	
+
 	function __construct(\PDO $connection) {
 		$this->connection = $connection;
 	}
-	
+
 	function load($key) {
 		$result = $this->connection->prepare("SELECT data FROM notorm WHERE id = ?");
 		$result->execute(array($key));
@@ -19,7 +19,7 @@ class Database implements \NotORM\Cache {
 		}
 		return unserialize($return);
 	}
-	
+
 	function save($key, $data) {
 		// REPLACE is not supported by PostgreSQL and MS SQL
 		$parameters = array(serialize($data), $key);
@@ -36,5 +36,5 @@ class Database implements \NotORM\Cache {
 			}
 		}
 	}
-	
+
 }

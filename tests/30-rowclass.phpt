@@ -5,15 +5,15 @@ Custom row class
 include_once dirname(__FILE__) . "/connect.inc.php";
 
 class TestRow extends NotORM\Row {
-	
+
 	function offsetExists($key) {
 		return parent::offsetExists(preg_replace('~^test_~', '', $key));
 	}
-	
+
 	function offsetGet($key) {
 		return parent::offsetGet(preg_replace('~^test_~', '', $key));
 	}
-	
+
 }
 
 $software->rowClass = 'TestRow';

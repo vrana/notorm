@@ -6,7 +6,7 @@ namespace NotORM;
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
 	private $modified = array();
 	protected $row, $result, $primary;
-	
+
 	/** @access protected must be public because it is called from Result */
 	function __construct(array $row, Result $result) {
 		$this->row = $row;
@@ -15,14 +15,14 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 			$this->primary = $row[$result->primary];
 		}
 	}
-	
+
 	/** Get primary key value
 	* @return string
 	*/
 	function __toString() {
 		return (string) $this[$this->result->primary]; // (string) - PostgreSQL returns int
 	}
-	
+
 	/** Get referenced row
 	* @param string
 	* @return Row or null if the row does not exist
@@ -50,7 +50,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		}
 		return $referenced[$this[$column]];
 	}
-	
+
 	/** Test if referenced row exists
 	* @param string
 	* @return bool
@@ -58,7 +58,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function __isset($name) {
 		return ($this->__get($name) !== null);
 	}
-	
+
 	/** Store referenced value
 	* @param string
 	* @param Row or null
@@ -68,7 +68,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$this[$column] = $value;
 	}
-	
+
 	/** Remove referenced column from data
 	* @param string
 	* @return null
@@ -77,7 +77,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		unset($this[$column]);
 	}
-	
+
 	/** Get referencing rows
 	* @param string table name
 	* @param array (["condition"[, array("value")]])
@@ -93,7 +93,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		}
 		return $return;
 	}
-	
+
 	/** Update row
 	* @param array or null for all modified values
 	* @return int number of affected rows or false in case of an error
@@ -108,7 +108,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$this->primary = $this[$this->result->primary];
 		return $return;
 	}
-	
+
 	/** Delete row
 	* @return int number of affected rows or false in case of an error
 	*/
@@ -119,29 +119,29 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$this->primary = $this[$this->result->primary];
 		return $return;
 	}
-	
+
 	protected function access($key, $delete = false) {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
 			$id = (isset($this->primary) ? $this->primary : $this->row);
 			$this->row = $this->result[$id]->row;
 		}
 	}
-	
+
 	// IteratorAggregate implementation
-	
+
 	function getIterator() {
 		$this->access(null);
 		return new \ArrayIterator($this->row);
 	}
-	
+
 	// Countable implementation
-	
+
 	function count() {
 		return count($this->row);
 	}
-	
+
 	// ArrayAccess implementation
-	
+
 	/** Test if column exists
 	* @param string column name
 	* @return bool
@@ -154,7 +154,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		}
 		return $return;
 	}
-	
+
 	/** Get value of column
 	* @param string column name
 	* @return string
@@ -166,7 +166,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		}
 		return $this->row[$key];
 	}
-	
+
 	/** Store value in column
 	* @param string column name
 	* @return null
@@ -175,7 +175,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$this->row[$key] = $value;
 		$this->modified[$key] = $value;
 	}
-	
+
 	/** Remove column from data
 	* @param string column name
 	* @return null
@@ -184,11 +184,11 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		unset($this->row[$key]);
 		unset($this->modified[$key]);
 	}
-	
+
 	// JsonSerializable implementation
-	
+
 	function jsonSerialize() {
 		return $this->row;
 	}
-	
+
 }

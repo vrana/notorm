@@ -17,7 +17,7 @@ namespace NotORM;
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends Base {
-	
+
 	/** Create database representation
 	* @param \PDO
 	* @param Structure or null for new Structure\Convention
@@ -32,7 +32,7 @@ class NotORM extends Base {
 		$this->structure = $structure;
 		$this->cache = $cache;
 	}
-	
+
 	/** Get table data to use as $db->table[1]
 	* @param string
 	* @return Result
@@ -40,7 +40,7 @@ class NotORM extends Base {
 	function __get($table) {
 		return new Result($this->structure->getReferencingTable($table, ''), $this, true);
 	}
-	
+
 	/** Set write-only properties
 	* @return null
 	*/
@@ -56,7 +56,7 @@ class NotORM extends Base {
 			}
 		}
 	}
-	
+
 	/** Get table data
 	* @param string
 	* @param array (["condition"[, array("value")]]) passed to Result::where()
@@ -69,5 +69,5 @@ class NotORM extends Base {
 		}
 		return $return;
 	}
-	
+
 }
