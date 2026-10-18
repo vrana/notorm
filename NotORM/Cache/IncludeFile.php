@@ -10,8 +10,8 @@ class IncludeFile implements \NotORM\Cache {
 	function __construct(string $filename) {
 		$this->filename = $filename;
 		$path = realpath($filename); // realpath() to not include from include_path, false if the file doesn't exist
-		$data = ($path !== false ? @include $path : array()); // @ - file may not be readable //! silently falls with syntax error and fails with unreadable file
-		$this->data = (is_array($data) ? $data : array()); // empty file returns 1
+		$data = ($path !== false ? @include $path : []); // @ - file may not be readable //! silently falls with syntax error and fails with unreadable file
+		$this->data = (is_array($data) ? $data : []); // empty file returns 1
 	}
 
 	function load(string $key): mixed {

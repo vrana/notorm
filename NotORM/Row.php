@@ -7,7 +7,7 @@ namespace NotORM;
 * @implements \ArrayAccess<string, mixed>
 */
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
-	private array $modified = array();
+	private array $modified = [];
 
 	protected array $row;
 	protected Result $result;
@@ -34,8 +34,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
-			$keys = array();
-			foreach ($this->result->rows ?? array($this) as $row) { // rows are null after insert
+			$keys = [];
+			foreach ($this->result->rows ?? [$this] as $row) { // rows are null after insert
 				if ($row[$column] !== null) {
 					$keys[$row[$column]] = null;
 				}
@@ -45,7 +45,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 				$referenced = new Result($table, $this->result->notORM);
 				$referenced->where("$table." . $this->result->notORM->structure->getPrimary($table), array_keys($keys));
 			} else {
-				$referenced = array();
+				$referenced = [];
 			}
 		}
 		if (!isset($referenced[$this[$column]])) { // referenced row may not exist
@@ -79,9 +79,9 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
 		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
-		$return->where("$table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this[$this->result->primary]))); // rows are null after insert
+		$return->where("$table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : [$this[$this->result->primary]])); // rows are null after insert
 		if ($args) {
-			call_user_func_array(array($return, 'where'), $args);
+			call_user_func_array([$return, 'where'], $args);
 		}
 		return $return;
 	}

@@ -34,7 +34,7 @@
 		</properties>
 	</rule>
 
-	<rule ref="Generic.Arrays.DisallowShortArraySyntax"/>
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 	<rule ref="Generic.Classes.OpeningBraceSameLine"/>
 	<rule ref="Generic.CodeAnalysis.EmptyPHPStatement"/>
 	<rule ref="Generic.CodeAnalysis.EmptyStatement">
@@ -89,6 +89,7 @@
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>
 	<rule ref="SlevomatCodingStandard.Operators.RequireCombinedAssignmentOperator"/>
+	<rule ref="SlevomatCodingStandard.PHP.ShortList"/>
 	<rule ref="SlevomatCodingStandard.PHP.TypeCast"/>
 	<rule ref="SlevomatCodingStandard.PHP.UselessSemicolon"/>
 	<rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">

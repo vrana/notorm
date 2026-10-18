@@ -65,7 +65,7 @@ class NotORM extends Base {
 	function __call(string $table, array $where): Result {
 		$return = new Result($this->structure->getReferencingTable($table, ''), $this);
 		if ($where) {
-			call_user_func_array(array($return, 'where'), $where);
+			call_user_func_array([$return, 'where'], $where);
 		}
 		return $return;
 	}

@@ -4,7 +4,7 @@ namespace NotORM\Structure;
 
 /** Structure reading meta-informations from the database */
 class Discovery implements \NotORM\Structure {
-	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static array $drivers = array(
+	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static array $drivers = [
 		"mysql" => Discovery\MySQL::class,
 		"sqlite" => Discovery\SQLite::class,
 		"pgsql" => Discovery\PostgreSQL::class,
@@ -12,7 +12,7 @@ class Discovery implements \NotORM\Structure {
 		"dblib" => Discovery\MSSQL::class,
 		"mssql" => Discovery\MSSQL::class,
 		"oci" => Discovery\Oracle::class,
-	);
+	];
 	protected Discovery\Driver $driver;
 	protected ?\NotORM\Cache $cache;
 	protected array $structure;
@@ -29,7 +29,7 @@ class Discovery implements \NotORM\Structure {
 		$this->driver = new self::$drivers[$name]($connection);
 		$this->cache = $cache;
 		$this->foreign = $foreign;
-		$this->structure = $cache?->load("structure") ?? array();
+		$this->structure = $cache?->load("structure") ?? [];
 	}
 
 	/** Save data to cache */

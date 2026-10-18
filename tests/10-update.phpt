@@ -5,14 +5,14 @@ Insert, update, delete
 require_once __DIR__ . "/connect.inc.php";
 
 $id = 5; // auto_increment is disabled in demo
-$application = $software->application()->insert(array(
+$application = $software->application()->insert([
 	"id" => $id,
 	"author_id" => $software->author[12],
 	"title" => new NotORM\Literal("'Texy'"),
 	"web" => "",
 	"slogan" => "The best humane Web text generator",
-));
-$application_tag = $application->application_tag()->insert(array("tag_id" => 21));
+]);
+$application_tag = $application->application_tag()->insert(["tag_id" => 21]);
 
 // retrieve the really stored value
 $application = $software->application[$id];

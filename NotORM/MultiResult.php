@@ -22,12 +22,12 @@ class MultiResult extends Result {
 	function via(string $column): static {
 		$this->column = $column;
 		$this->conditions[0] = "$this->table.$column AND";
-		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this->active))) . ")"; // rows are null after insert
+		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : [$this->active])) . ")"; // rows are null after insert
 		return $this;
 	}
 
 	function insertMulti(array $rows): int|false {
-		$args = array();
+		$args = [];
 		foreach ($rows as $data) {
 			if ($data instanceof \Traversable && !$data instanceof Result) {
 				$data = iterator_to_array($data);
@@ -40,7 +40,7 @@ class MultiResult extends Result {
 		return parent::insertMulti($args);
 	}
 
-	function insertUpdate(array $unique, array $insert, array $update = array()): int|false {
+	function insertUpdate(array $unique, array $insert, array $update = []): int|false {
 		$unique[$this->column] = $this->active;
 		return parent::insertUpdate($unique, $insert, $update);
 	}
@@ -96,7 +96,7 @@ class MultiResult extends Result {
 		$query .= " GROUP BY $column";
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
-			$aggregation = array();
+			$aggregation = [];
 			$result = $this->query($query, $this->parameters);
 			if ($result) {
 				$result->setFetchMode(\PDO::FETCH_ASSOC);
@@ -135,14 +135,14 @@ class MultiResult extends Result {
 					$result->execute();
 					$this->rows = $result->rows;
 				}
-				$referencing = array();
+				$referencing = [];
 				foreach ($this->rows as $key => $row) {
 					$referencing[$row[$this->column]][$key] = $row;
 				}
 			}
 			$this->data = &$referencing[$this->active];
 			if (!isset($this->data)) {
-				$this->data = array();
+				$this->data = [];
 			}
 		}
 	}

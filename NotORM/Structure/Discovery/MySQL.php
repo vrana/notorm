@@ -6,7 +6,7 @@ namespace NotORM\Structure\Discovery;
 class MySQL extends Driver {
 
 	function primaryColumns(string $table): array {
-		$return = array();
+		$return = [];
 		foreach ($this->connection->query("EXPLAIN $table", \PDO::FETCH_NUM) as $column) {
 			if ($column[3] == "PRI") { // 3 - "Key" is not compatible with PDO::CASE_LOWER
 				$return[] = $column[0];

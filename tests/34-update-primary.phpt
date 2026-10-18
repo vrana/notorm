@@ -4,7 +4,7 @@ Update primary key of a row
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$application = $software->tag()->insert(array('id' => 24, 'name' => 'HTML'));
+$application = $software->tag()->insert(['id' => 24, 'name' => 'HTML']);
 echo "$application[id]\n";
 $application['id'] = 25;
 echo "$application[id]\n";

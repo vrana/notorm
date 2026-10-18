@@ -11,28 +11,28 @@ namespace NotORM;
 class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonSerializable {
 	protected bool $single;
 
-	protected array $select = array();
-	protected array $conditions = array();
-	protected array $where = array();
-	protected array $parameters = array();
-	protected array $order = array();
+	protected array $select = [];
+	protected array $conditions = [];
+	protected array $where = [];
+	protected array $parameters = [];
+	protected array $order = [];
 	protected ?int $limit = null;
 	protected ?int $offset = null;
 	protected string|Literal $group = "";
 	protected string|Literal $having = "";
 	protected ?bool $lock = null;
 
-	protected array $union = array();
-	protected array $unionOrder = array();
+	protected array $union = [];
+	protected array $unionOrder = [];
 	protected ?int $unionLimit = null;
 	protected ?int $unionOffset = null;
 
 	protected ?array $data = null;
-	protected array $referencing = array();
-	protected array $aggregation = array();
+	protected array $referencing = [];
+	protected array $aggregation = [];
 	protected array|string|null $accessed = null;
 	protected array|string|null $access = null;
-	protected array $keys = array();
+	protected array $keys = [];
 
 	/** Create table result
 	* @param bool $single single row
@@ -116,14 +116,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	protected function createJoins(string $val): array {
-		$return = array();
+		$return = [];
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
 		foreach ($matches[1] as $names) {
 			$parent = $this->table;
 			if ($names != "$parent.") { // case-sensitive
 				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~i', $names, $matches, PREG_SET_ORDER);
 				foreach ($matches as $match) {
-					list(, $name, $delimiter) = $match;
+					[, $name, $delimiter] = $match;
 					$table = $this->notORM->structure->getReferencedTable($name, $parent);
 					$column = ($delimiter == ':' ? $this->notORM->structure->getPrimary($parent) : $this->notORM->structure->getReferencedColumn($name, $parent));
 					$primary = ($delimiter == ':' ? $this->notORM->structure->getReferencedColumn($parent, $table) : $this->notORM->structure->getPrimary($table));
@@ -172,7 +172,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			if (!is_callable($this->notORM->debug)) {
 				$debug = "$query;";
 				if ($parameters) {
-					$debug .= " -- " . implode(", ", array_map(array($this, 'quote'), $parameters));
+					$debug .= " -- " . implode(", ", array_map([$this, 'quote'], $parameters));
 				}
 				$pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
@@ -186,7 +186,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			}
 		}
 		$return = $this->notORM->connection->prepare($query);
-		if (!$return || !$return->execute(array_map(array($this, 'formatValue'), $parameters))) {
+		if (!$return || !$return->execute(array_map([$this, 'formatValue'], $parameters))) {
 			$return = false;
 		}
 		if ($this->notORM->debugTimer) {
@@ -207,7 +207,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			return "NULL";
 		}
 		if (is_array($val)) { // (a, b) IN ((1, 2), (3, 4))
-			return "(" . implode(", ", array_map(array($this, 'quote'), $val)) . ")";
+			return "(" . implode(", ", array_map([$this, 'quote'], $val)) . ")";
 		}
 		$val = $this->formatValue($val);
 		if (is_float($val)) {
@@ -234,7 +234,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			return 0;
 		}
 		$data = reset($rows);
-		$parameters = array();
+		$parameters = [];
 		if ($data instanceof Result) {
 			$parameters = $data->parameters; //! other parameters
 			$data = (string) $data;
@@ -243,7 +243,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		}
 		$insert = $data;
 		if (is_array($data)) {
-			$values = array();
+			$values = [];
 			foreach ($rows as $value) {
 				if ($value instanceof \Traversable) {
 					$value = iterator_to_array($value);
@@ -276,7 +276,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
 	function insert(iterable|Result|string $data, iterable ...$rows): Row|int|false {
-		$return = $this->insertMulti(array_merge(array($data), $rows));
+		$return = $this->insertMulti(array_merge([$data], $rows));
 		if (!$return) {
 			return false;
 		}
@@ -301,8 +301,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if (!$data) {
 			return 0;
 		}
-		$values = array();
-		$parameters = array();
+		$values = [];
+		$parameters = [];
 		foreach ($data as $key => $val) {
 			// doesn't use binding because $this->parameters can be filled by ? or :name
 			$values[] = "$key = " . $this->quote($val);
@@ -327,7 +327,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array<string, mixed> $update ($column => $value), empty array means use $insert
 	* @return int|false number of affected rows or false in case of an error
 	*/
-	function insertUpdate(array $unique, array $insert, array $update = array()): int|false {
+	function insertUpdate(array $unique, array $insert, array $update = []): int|false {
 		if (!$update) {
 			$update = $insert;
 		}
@@ -335,7 +335,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$values = "(" . implode(", ", array_keys($insert)) . ") VALUES " . $this->quote($insert);
 		//! parameters
 		if ($this->notORM->driver == "mysql") {
-			$set = array();
+			$set = [];
 			if (!$update) {
 				$update = $unique;
 			}
@@ -400,11 +400,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
 		$this->__destruct();
 		if ($columns != "") {
-			foreach (array_merge(array($columns), $moreColumns) as $column) {
+			foreach (array_merge([$columns], $moreColumns) as $column) {
 				$this->select[] = $column;
 			}
 		} else {
-			$this->select = array();
+			$this->select = [];
 		}
 		return $this;
 	}
@@ -415,14 +415,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param mixed ...$moreParameters scalar values
 	* @return $this fluent interface
 	*/
-	function where(string|array $condition, mixed $parameters = array(), mixed ...$moreParameters): static {
+	function where(string|array $condition, mixed $parameters = [], mixed ...$moreParameters): static {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
 
 	protected function whereOperator(string $operator, array $args): static {
 		$condition = $args[0];
-		$parameters = (count($args) > 1 ? $args[1] : array());
+		$parameters = (count($args) > 1 ? $args[1] : []);
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
@@ -452,7 +452,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				$condition .= " IN ($clone)";
 				$this->parameters = array_merge($this->parameters, $clone->parameters);
 			} else {
-				$in = array();
+				$in = [];
 				foreach ($clone as $row) {
 					$row = array_values(iterator_to_array($row));
 					if ($clone instanceof MultiResult && count($row) > 1) {
@@ -497,7 +497,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				$condition = "$condition OR $column IS NULL";
 			}
 		} else { // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
-			$or = array();
+			$or = [];
 			for ($i=0; $i < count($parameters); $i += 1000) {
 				$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
 			}
@@ -520,7 +520,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string|array<string, mixed> $where
 	* @return $this fluent interface
 	*/
-	function __invoke(string|array $where, mixed $parameters = array(), mixed ...$moreParameters): static {
+	function __invoke(string|array $where, mixed $parameters = [], mixed ...$moreParameters): static {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
@@ -532,7 +532,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
 		$this->rows = null;
 		if ($columns != "") {
-			$columns = (is_array($columns) ? $columns : array_merge(array($columns), $moreColumns));
+			$columns = (is_array($columns) ? $columns : array_merge([$columns], $moreColumns));
 			foreach ($columns as $column) {
 				if ($this->union) {
 					$this->unionOrder[] = $column;
@@ -541,9 +541,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				}
 			}
 		} elseif ($this->union) {
-			$this->unionOrder = array();
+			$this->unionOrder = [];
 		} else {
-			$this->order = array();
+			$this->order = [];
 		}
 		return $this;
 	}
@@ -635,8 +635,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if (!isset($this->rows)) {
 			$result = false;
 			$exception = null;
-			$parameters = array();
-			foreach (array_merge($this->select, array($this, $this->group, $this->having), $this->order, $this->unionOrder) as $val) {
+			$parameters = [];
+			foreach (array_merge($this->select, [$this, $this->group, $this->having], $this->order, $this->unionOrder) as $val) {
 				if (($val instanceof Literal || $val instanceof self) && $val->parameters) {
 					$parameters = array_merge($parameters, $val->parameters);
 				}
@@ -649,13 +649,13 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			if (!$result) {
 				if (!$this->select && !$this->group && $this->accessed) {
 					$this->accessed = '';
-					$this->access = array();
+					$this->access = [];
 					$result = $this->query($this->__toString(), $parameters);
 				} elseif ($exception) {
 					throw $exception;
 				}
 			}
-			$this->rows = array();
+			$this->rows = [];
 			if ($result) {
 				$result->setFetchMode(\PDO::FETCH_ASSOC);
 				foreach ($result as $key => $row) {
@@ -692,15 +692,15 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return mixed[] values of $value or Row without it, indexed by $key
 	*/
 	function fetchPairs(string $key, string $value = ''): array {
-		$return = array();
+		$return = [];
 		$clone = clone $this;
 		if ($value != "") {
-			$clone->select = array();
+			$clone->select = [];
 			$clone->select("$key, $value"); // MultiResult adds its column
 		} elseif ($clone->select) {
 			array_unshift($clone->select, $key);
 		} else {
-			$clone->select = array("$key, $this->table.*");
+			$clone->select = ["$key, $this->table.*"];
 		}
 		foreach ($clone as $row) {
 			$values = array_values(iterator_to_array($row));

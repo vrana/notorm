@@ -47,7 +47,7 @@ abstract class Driver {
 	* @return list<string>
 	*/
 	protected function column(array $rows): array {
-		$return = array();
+		$return = [];
 		foreach ($rows as $row) {
 			$return[] = (string) $row[0];
 		}

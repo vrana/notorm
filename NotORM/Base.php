@@ -13,7 +13,7 @@ abstract class Base {
 	protected string $table;
 	protected string $primary;
 	protected ?array $rows = null;
-	protected array $referenced = array();
+	protected array $referenced = [];
 
 	/** @var bool|callable */ protected $debug = false;
 	/** @var callable|null */ protected $debugTimer = null;

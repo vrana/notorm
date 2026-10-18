@@ -4,10 +4,10 @@ Array offset
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$where = array(
+$where = [
 	"author_id" => "11",
 	"maintainer_id" => null,
-);
+];
 
 echo $software->application[$where]["id"] . "\n";
 

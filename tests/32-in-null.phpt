@@ -4,7 +4,7 @@ IN with NULL value
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-foreach ($software->application("maintainer_id", array(11, null))->order("id") as $application) {
+foreach ($software->application("maintainer_id", [11, null])->order("id") as $application) {
 	echo "$application[id]\n";
 }
 ?>

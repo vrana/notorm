@@ -4,10 +4,10 @@ File caches starting without the file
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-foreach (array(NotORM\Cache\File::class, NotORM\Cache\IncludeFile::class) as $class) {
+foreach ([NotORM\Cache\File::class, NotORM\Cache\IncludeFile::class] as $class) {
 	$filename = sys_get_temp_dir() . "/notorm-" . getmypid() . ".php";
 	@unlink($filename); // @ - file may not exist
-	foreach (array("not exists", "exists") as $state) {
+	foreach (["not exists", "exists"] as $state) {
 		$cache = new NotORM\NotORM($connection, null, new $class($filename));
 		$applications = $cache->application();
 		$application = $applications->fetch();
