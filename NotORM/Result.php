@@ -253,6 +253,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		} elseif ($data instanceof \Traversable) {
 			$data = iterator_to_array($data);
 		}
+		$command = "INSERT INTO $this->table";
 		$insert = $data;
 		if (is_array($data)) {
 			$values = [];
@@ -267,14 +268,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 					}
 				}
 			}
-			//! driver specific extended insert
+			$columns = "(" . implode(", ", array_keys($data)) . ")";
 			$insert = ($data || $this->notORM->driver == "mysql"
-				? "(" . implode(", ", array_keys($data)) . ") VALUES " . implode(", ", $values)
+				? "$columns VALUES " . implode(", ", $values)
 				: "DEFAULT VALUES"
 			);
+			if ($this->notORM->driver == "oci" && count($values) > 1) { // more rows in VALUES are supported since Oracle 23
+				$command = "INSERT ALL INTO $this->table";
+				$insert = "$columns VALUES " . implode(" INTO $this->table $columns VALUES ", $values) . " SELECT * FROM DUAL";
+			}
 		}
 		// requires empty $this->parameters
-		$return = $this->query("INSERT INTO $this->table $insert", $parameters);
+		$return = $this->query("$command $insert", $parameters);
 		if (!$return) {
 			return false;
 		}
