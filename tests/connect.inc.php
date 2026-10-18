@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 require __DIR__ . "/../vendor/autoload.php";
 
 $driver = $argv[1] ?? "mysql"; // e.g. php tests/run-tests.php sqlite
