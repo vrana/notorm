@@ -1,5 +1,5 @@
 --TEST--
-Relations of an inserted row
+Relations of an inserted row (bug #77)
 --FILE--
 <?php
 require_once __DIR__ . "/connect.inc.php";

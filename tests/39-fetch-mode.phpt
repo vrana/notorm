@@ -1,5 +1,5 @@
 --TEST--
-Default fetch mode
+Default fetch mode (bug #108)
 --FILE--
 <?php
 require_once __DIR__ . "/connect.inc.php";

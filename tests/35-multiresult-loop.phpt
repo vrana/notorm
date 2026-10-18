@@ -1,5 +1,5 @@
 --TEST--
-Using the same MultiResult several times
+Using the same MultiResult several times (bug #12)
 --FILE--
 <?php
 require_once __DIR__ . "/connect.inc.php";
