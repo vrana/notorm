@@ -597,8 +597,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if ($this->where) {
 			$query .= " WHERE " . implode($this->where);
 		}
-		foreach ($this->query($query, $this->parameters)->fetch() as $return) {
-			return $return;
+		$result = $this->query($query, $this->parameters);
+		if ($result) {
+			foreach ($result->fetch() as $return) {
+				return $return;
+			}
 		}
 		return null;
 	}
