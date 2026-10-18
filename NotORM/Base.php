@@ -21,7 +21,7 @@ abstract class Base {
 	protected bool $jsonAsArray = false;
 
 	/** @return bool|void Result returns bool, Row nothing */
-	protected function access(?string $key, bool $delete = false) {
+	protected function access(string|int|null $key, bool $delete = false) {
 	}
 
 }

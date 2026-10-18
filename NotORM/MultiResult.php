@@ -73,7 +73,7 @@ class MultiResult extends Result {
 
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
 		if (!$this->order) { // improve index utilization
-			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
+			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', (is_array($columns) ? implode(", ", $columns) : (string) $columns)) ? " DESC" : "");
 		}
 		return parent::order($columns, ...$moreColumns);
 	}

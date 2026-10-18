@@ -111,7 +111,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		return $return;
 	}
 
-	protected function access(?string $key, bool $delete = false): void {
+	protected function access(string|int|null $key, bool $delete = false): void {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
 			$id = $this->id ?? $this->row;
 			$this->row = $this->result[$id]->row;

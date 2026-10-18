@@ -145,7 +145,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if ($this->select) {
 			$return .= $this->removeExtraDots(implode(", ", $this->select));
 		} elseif ($this->group) { // other columns are not allowed with ONLY_FULL_GROUP_BY and in other databases
-			$return .= $this->removeExtraDots($this->group);
+			$return .= $this->removeExtraDots((string) $this->group); // (string) - Literal
 		} elseif ($this->accessed) {
 			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
 		} else {
@@ -218,7 +218,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if (is_int($val) || $val instanceof Literal) { // number or SQL code - for example "NOW()"
 			return (string) $val;
 		}
-		return $this->notORM->connection->quote($val);
+		return $this->notORM->connection->quote((string) $val); // (string) - Row
 	}
 
 	/** Shortcut for call_user_func_array(array($this, 'insert'), $rows)
@@ -584,7 +584,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return $this fluent interface
 	*/
 	function union(Result $result, bool $all = false): static {
-		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart($result);
+		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart((string) $result);
 		$this->parameters = array_merge($this->parameters, $result->parameters);
 		return $this;
 	}
@@ -711,7 +711,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $return;
 	}
 
-	protected function access(?string $key, bool $delete = false): bool {
+	protected function access(string|int|null $key, bool $delete = false): bool {
 		if ($delete) {
 			if (is_array($this->access)) {
 				$this->access[$key] = false;
