@@ -23,7 +23,7 @@ class MultiResult extends Result {
 	function via($column) {
 		$this->column = $column;
 		$this->conditions[0] = "$this->table.$column AND";
-		$this->where[0] = "(" . $this->whereIn("$this->table.$column", array_keys((array) $this->result->rows)) . ")";
+		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this->active))) . ")"; // rows are null after insert
 		return $this;
 	}
 
@@ -123,7 +123,7 @@ class MultiResult extends Result {
 		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
-				if (!$this->limit || count($this->result->rows) <= 1 || $this->union) {
+				if (!$this->limit || count((array) $this->result->rows) <= 1 || $this->union) { // rows are null after insert
 					parent::execute();
 				} else { //! doesn't work with union
 					$result = clone $this;

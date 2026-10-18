@@ -37,7 +37,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$referenced = &$this->result->referenced[$name];
 		if (!isset($referenced)) {
 			$keys = array();
-			foreach ($this->result->rows as $row) {
+			foreach ($this->result->rows ?? array($this) as $row) { // rows are null after insert
 				if ($row[$column] !== null) {
 					$keys[$row[$column]] = null;
 				}
@@ -92,7 +92,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
 		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
-		$return->where("$table.$column", array_keys((array) $this->result->rows)); // (array) - is null after insert
+		$return->where("$table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : array($this[$this->result->primary]))); // rows are null after insert
 		if ($args) {
 			call_user_func_array(array($return, 'where'), $args);
 		}
