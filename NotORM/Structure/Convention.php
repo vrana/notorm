@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure;
 
-/** Structure described by some rules
-*/
+/** Structure described by some rules */
 class Convention implements \NotORM\Structure {
 	protected $primary;
 	protected $foreign;

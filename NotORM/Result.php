@@ -46,8 +46,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$this->primary = $notORM->structure->getPrimary($table);
 	}
 
-	/** Save data to cache and empty result
-	*/
+	/** Save data to cache and empty result */
 	function __destruct() {
 		if ($this->notORM->cache && !$this->select && !$this->group && isset($this->rows)) {
 			$access = $this->access;

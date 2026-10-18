@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure\Discovery;
 
-/** Keys from SQLite pragmas
-*/
+/** Keys from SQLite pragmas */
 class SQLite extends Driver {
 
 	function primaryColumns($table) {

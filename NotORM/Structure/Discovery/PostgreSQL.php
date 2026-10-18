@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure\Discovery;
 
-/** Keys from PostgreSQL pg_constraint
-*/
+/** Keys from PostgreSQL pg_constraint */
 class PostgreSQL extends Driver {
 
 	function primaryColumns($table) {

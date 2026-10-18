@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Cache;
 
-/** Cache using file
-*/
+/** Cache using file */
 class File implements \NotORM\Cache {
 	private $filename;
 	private $data;

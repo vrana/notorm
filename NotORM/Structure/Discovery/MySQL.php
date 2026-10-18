@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure\Discovery;
 
-/** Keys from MySQL information_schema
-*/
+/** Keys from MySQL information_schema */
 class MySQL extends Driver {
 
 	function primaryColumns($table) {

@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Cache;
 
-/** Cache using "NotORM." prefix in Memcache
-*/
+/** Cache using "NotORM." prefix in Memcache */
 class Memcache implements \NotORM\Cache {
 	private $memcache;
 

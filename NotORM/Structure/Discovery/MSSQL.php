@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure\Discovery;
 
-/** Keys from MS SQL sys tables
-*/
+/** Keys from MS SQL sys tables */
 class MSSQL extends Driver {
 
 	function primaryColumns($table) {

@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure\Discovery;
 
-/** Keys from Oracle user_constraints, the names are lowercased
-*/
+/** Keys from Oracle user_constraints, the names are lowercased */
 class Oracle extends Driver {
 
 	function primaryColumns($table) {

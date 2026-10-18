@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Structure;
 
-/** Structure reading meta-informations from the database
-*/
+/** Structure reading meta-informations from the database */
 class Discovery implements \NotORM\Structure {
 	/** @var array<string, class-string<Discovery\Driver>> PDO driver name => class */ protected static $drivers = array(
 		"mysql" => Discovery\MySQL::class,
@@ -36,8 +35,7 @@ class Discovery implements \NotORM\Structure {
 		}
 	}
 
-	/** Save data to cache
-	*/
+	/** Save data to cache */
 	function __destruct() {
 		if ($this->cache) {
 			$this->cache->save("structure", $this->structure);

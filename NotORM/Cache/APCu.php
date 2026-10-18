@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Cache;
 
-/** Cache using "NotORM." prefix in APCu
-*/
+/** Cache using "NotORM." prefix in APCu */
 class APCu implements \NotORM\Cache {
 
 	function load($key) {

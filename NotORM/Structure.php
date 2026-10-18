@@ -1,8 +1,7 @@
 <?php
 namespace NotORM;
 
-/** Information about tables and columns structure
-*/
+/** Information about tables and columns structure */
 interface Structure {
 
 	/** Get primary key of a table in $db->$table()

@@ -1,8 +1,7 @@
 <?php
 namespace NotORM;
 
-/** SQL literal value
-*/
+/** SQL literal value */
 class Literal {
 	protected $value = '';
 

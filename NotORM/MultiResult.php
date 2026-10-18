@@ -1,8 +1,7 @@
 <?php
 namespace NotORM;
 
-/** Representation of filtered table grouped by some column
-*/
+/** Representation of filtered table grouped by some column */
 class MultiResult extends Result {
 	private $result;
 	private $column;

@@ -1,8 +1,7 @@
 <?php
 namespace NotORM\Cache;
 
-/** Cache using PHP include
-*/
+/** Cache using PHP include */
 class IncludeFile implements \NotORM\Cache {
 	private $filename;
 	private $data = array();
