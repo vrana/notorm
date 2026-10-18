@@ -521,7 +521,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			case "OR":
 				return $this->whereOperator($operator, $args);
 		}
-		trigger_error("Call to undefined method NotORM\\Result::$name()", E_USER_ERROR);
+		throw new \BadMethodCallException("Call to undefined method " . static::class . "::$name()");
 	}
 
 	/** Shortcut for where()
