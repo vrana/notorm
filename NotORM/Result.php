@@ -529,19 +529,21 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				? "$match[1] IS NOT NULL" // NOT is not applicable to other types than bool in PostgreSQL
 				: "($condition) IS NOT NULL AND $condition IS NULL"
 			);
-		} elseif ($this->notORM->driver != "oci") {
+		} else {
 			$column = $condition;
-			$condition .= " IN " . $this->quote($parameters);
+			if ($this->notORM->driver != "oci") {
+				$condition .= " IN " . $this->quote($parameters);
+			} else { // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
+				$or = [];
+				for ($i=0; $i < count($parameters); $i += 1000) {
+					$or[] = "$column IN " . $this->quote(array_slice($parameters, $i, 1000));
+				}
+				$condition = implode(" OR ", $or);
+			}
 			$nulls = array_filter($parameters, 'is_null');
 			if ($nulls) {
 				$condition = "$condition OR $column IS NULL";
 			}
-		} else { // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
-			$or = [];
-			for ($i=0; $i < count($parameters); $i += 1000) {
-				$or[] = "$condition IN " . $this->quote(array_slice($parameters, $i, 1000));
-			}
-			$condition = implode(" OR ", $or);
 		}
 		return $condition;
 	}
