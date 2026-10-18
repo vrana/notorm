@@ -59,8 +59,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	protected function limitString(?int $limit, ?int $offset = null): string {
 		$return = "";
-		if (isset($limit) && $this->notORM->driver != "oci") {
-			if (!in_array($this->notORM->driver, ["dblib", "mssql", "sqlsrv"], true)) {
+		if (isset($limit)) {
+			if ($this->notORM->driver == "oci") {
+				$return .= ($offset ? " OFFSET $offset ROWS" : "") . " FETCH NEXT $limit ROWS ONLY";
+			} elseif (!in_array($this->notORM->driver, ["dblib", "mssql", "sqlsrv"], true)) {
 				$return .= " LIMIT $limit";
 				if ($offset) {
 					$return .= " OFFSET $offset";
@@ -90,15 +92,17 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$return = $this->removeExtraDots($return);
 
 		$where = $this->where;
-		if (isset($this->limit) && $this->notORM->driver == "oci") {
-			//! rownum > doesn't work - requires subselect (see adminer/drivers/oracle.inc.php)
-			$where[] = ($where ? " AND " : "") . "(" . ($this->offset ? "rownum > $this->offset AND " : "") . "rownum <= " . ($this->limit + $this->offset) . ")";
+		$rownum = (isset($this->limit) && $this->notORM->driver == "oci" && !$this->order && !$this->offset); // UPDATE and DELETE don't support FETCH, ORDER BY or OFFSET in Oracle
+		if ($rownum) {
+			$where[] = ($where ? " AND " : "") . "(rownum <= $this->limit)";
 		}
 		if ($where) {
 			$return = " WHERE " . implode($where) . $return;
 		}
 
-		$return .= $this->limitString($this->limit, $this->offset);
+		if (!$rownum) {
+			$return .= $this->limitString($this->limit, $this->offset);
+		}
 		if (isset($this->lock)) {
 			$return .= ($this->lock ? " FOR UPDATE" : " LOCK IN SHARE MODE");
 		}
