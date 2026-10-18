@@ -1,13 +1,9 @@
 --TEST--
 Complex UNION
---SKIPIF--
+--FILE--
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-echo ($driver == "oci" ? "Not supported in $driver.\n" : "");
-?>
---FILE--
-<?php
 $applications = $software->application()->select("id")->order("id DESC")->limit(2);
 $tags = $software->tag()->select("id")->order("id")->limit(2);
 foreach ($applications->union($tags)->order("id DESC") as $row) {

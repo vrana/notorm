@@ -301,7 +301,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			return $return;
 		}
 		$sequence = $this->notORM->structure->getSequence($this->table);
-		if (!isset($data[$this->primary]) && $sequence !== false && ($id = $this->notORM->connection->lastInsertId($sequence))) {
+		if (!isset($data[$this->primary]) && $sequence !== false && $this->notORM->driver != "oci" && ($id = $this->notORM->connection->lastInsertId($sequence))) { // not supported by oci
 			$data[$this->primary] = $id;
 		}
 		return new $this->notORM->rowClass($data, $this);

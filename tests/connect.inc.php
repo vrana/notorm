@@ -10,10 +10,21 @@ if ($driver == "sqlite") {
 } else {
 	$dsn = match ($driver) {
 		"sqlsrv" => "Server=localhost;Database=software", // not run by default
+		"oci" => "dbname=//localhost/XEPDB1", // not run by default, the database is a schema
 		default => "host=localhost;dbname=software",
 	};
 	$connection = new PDO("$driver:$dsn", "ODBC", "ODBC");
-	$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author");
+	if ($driver == "oci") {
+		$connection->exec("ALTER SESSION SET CURRENT_SCHEMA = software");
+		foreach (["application_tag", "application", "tag", "author"] as $table) {
+			try {
+				$connection->exec("DROP TABLE $table"); // IF EXISTS is not supported in Oracle 21
+			} catch (PDOException $exception) {
+			}
+		}
+	} else {
+		$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author");
+	}
 	if ($driver == "mysql") {
 		$connection->exec("SET default_storage_engine = InnoDB"); // foreign keys
 	}
