@@ -111,8 +111,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Wrap a part of UNION so that it can contain ORDER BY and LIMIT */
 	protected function unionPart(string $query): string {
-		// SQLite and Oracle don't support parentheses around the parts
-		return ($this->notORM->driver == "sqlite" || $this->notORM->driver == "oci" ? "SELECT * FROM ($query)" : "($query)");
+		// SQLite and Oracle don't support parentheses around the parts, MS SQL doesn't support ORDER BY in them
+		return (in_array($this->notORM->driver, ["sqlite", "oci", "dblib", "mssql", "sqlsrv"], true) ? "SELECT * FROM ($query) t" : "($query)");
 	}
 
 	protected function createJoins(string $val): array {
