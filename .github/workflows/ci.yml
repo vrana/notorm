@@ -29,7 +29,7 @@ jobs:
       - run: composer check
       - name: Create the test databases # the tests create the tables from tests/software.sql
         run: |
-          read -r user password < <(sed -n 's/.*new PDO("\$driver:host=localhost;dbname=software", "\([^"]*\)", "\([^"]*\)").*/\1 \2/p' tests/connect.inc.php)
+          read -r user password < <(sed -n 's/.*new PDO("\$driver:\$dsn", "\([^"]*\)", "\([^"]*\)").*/\1 \2/p' tests/connect.inc.php)
           sudo systemctl start mysql.service
           mysql -uroot -proot -e "CREATE DATABASE software; CREATE USER '$user'@'localhost' IDENTIFIED BY '$password'; GRANT ALL ON software.* TO '$user'@'localhost'"
           sudo systemctl start postgresql.service

@@ -8,7 +8,11 @@ if ($driver == "sqlite") {
 	$connection = new PDO("sqlite::memory:");
 	$connection->exec("PRAGMA foreign_keys = ON"); // ON DELETE CASCADE in software.sql
 } else {
-	$connection = new PDO("$driver:host=localhost;dbname=software", "ODBC", "ODBC");
+	$dsn = match ($driver) {
+		"sqlsrv" => "Server=localhost;Database=software", // not run by default
+		default => "host=localhost;dbname=software",
+	};
+	$connection = new PDO("$driver:$dsn", "ODBC", "ODBC");
 	$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author");
 }
 $structure = ($driver == "pgsql" ? new NotORM\Structure\Convention("id", "%s_id", "%s", "", false) : null); // no table has a sequence
