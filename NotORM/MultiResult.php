@@ -114,7 +114,7 @@ class MultiResult extends Result {
 
 	function count($column = "") {
 		$return = parent::count($column);
-		return (isset($return) ? $return : 0);
+		return $return ?? 0;
 	}
 
 	protected function execute() {
