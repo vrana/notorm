@@ -32,7 +32,8 @@ class Database implements \NotORM\Cache {
 			try {
 				@$result->execute($parameters); // @ - ignore duplicate key error
 			} catch (\PDOException $e) {
-				if ($e->getCode() != "23000") { // "23000" - duplicate key
+				$oracle = ($this->connection->getAttribute(\PDO::ATTR_DRIVER_NAME) == "oci" && ($e->errorInfo[1] ?? null) == 1); // ORA-00001 reported as "HY000"
+				if ($e->getCode() != "23000" && $e->getCode() != "23505" && !$oracle) { // duplicate key, "23505" in pgsql
 					throw $e;
 				}
 			}
