@@ -17,6 +17,8 @@
 		<!-- The code style. -->
 		<exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/><!-- an empty line before } of a class -->
 		<exclude name="PSR12.Classes.ClassInstantiation.MissingParentheses"/>
+		<exclude name="PSR12.Files.FileHeader.IncorrectOrder"/><!-- the file-level doc-comment after <?php declare(strict_types=1); -->
+		<exclude name="PSR12.Files.OpenTag.NotAlone"/><!-- <?php declare(strict_types=1); -->
 		<exclude name="Squiz.Scope.MethodScope.Missing"/>
 
 		<!-- More readable. -->
@@ -89,6 +91,12 @@
 	<rule ref="SlevomatCodingStandard.Operators.RequireCombinedAssignmentOperator"/>
 	<rule ref="SlevomatCodingStandard.PHP.TypeCast"/>
 	<rule ref="SlevomatCodingStandard.PHP.UselessSemicolon"/>
+	<rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+		<properties>
+			<property name="declareOnFirstLine" value="true"/>
+			<property name="spacesCountAroundEqualsSign" value="0"/>
+		</properties>
+	</rule>
 	<rule ref="SlevomatCodingStandard.TypeHints.LongTypeHints"/>
 	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
 		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/><!-- array item types are documented where useful -->

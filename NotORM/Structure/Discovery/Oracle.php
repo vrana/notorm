@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NotORM\Structure\Discovery;
 
 /** Keys from Oracle user_constraints, the names are lowercased */

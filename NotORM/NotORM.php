@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 /** NotORM - simple reading data from the database
 * @link https://www.notorm.com/
 * @author Jakub Vrana, https://www.vrana.cz/

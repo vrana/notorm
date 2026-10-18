@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 if (!isset($argv[1])) {
 	// each database in a separate process because the tests declare classes and connect.inc.php is included once
 	$failures = 0;

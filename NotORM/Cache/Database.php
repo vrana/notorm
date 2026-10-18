@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NotORM\Cache;
 
 /** Cache storing data to the "notorm" table in database */

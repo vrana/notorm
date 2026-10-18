@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NotORM;
 
 /** Loading and saving data, it's only cache so load() does not need to block until save() */

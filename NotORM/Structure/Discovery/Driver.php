@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NotORM\Structure\Discovery;
 
 /** Reading primary and foreign keys from the database metadata, only single-column keys are supported */

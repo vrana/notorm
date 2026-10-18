@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NotORM\Structure;
 
 /** Structure reading meta-informations from the database */
