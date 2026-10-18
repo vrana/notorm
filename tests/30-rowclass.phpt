@@ -2,7 +2,7 @@
 Custom row class
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 class TestRow extends NotORM\Row {
 

@@ -2,7 +2,7 @@
 GROUP BY selects the grouped columns
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 echo $software->application()->group("author_id") . "\n";
 echo $software->application()->group("author.name") . "\n";

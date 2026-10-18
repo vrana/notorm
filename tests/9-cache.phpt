@@ -3,7 +3,7 @@ Session cache
 --FILE--
 <?php
 $_SESSION = array(); // not session_start() - headers already sent
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 $cache = new NotORM\NotORM($connection, null, new NotORM\Cache\Session);
 
 $applications = $cache->application();

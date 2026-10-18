@@ -2,7 +2,7 @@
 via()
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 foreach ($software->author() as $author) {
 	$applications = $author->application()->via("maintainer_id");

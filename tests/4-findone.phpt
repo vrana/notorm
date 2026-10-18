@@ -2,7 +2,7 @@
 Find one item by title
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $application = $software->application("title", "Adminer")->fetch();
 foreach ($application->application_tag("tag_id", 21) as $application_tag) {

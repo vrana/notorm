@@ -31,7 +31,7 @@ composer test
 `tests/connect.inc.php` recreates the tables from `tests/software.sql` on every run, so MySQL and PostgreSQL only need an empty database `software` accessible with the credentials there.
 
 - The runner `include`s every `tests/*.phpt` in natural order **in one PHP process**: each file is plain PHP that echoes its literal `--TEST--`/`--EXPECTF--` text, and the runner compares the `--FILE--` output to the `--EXPECTF--` section **byte-for-byte** (no `%s`-style placeholders despite the name). It prints only `failed …`/`skipped …` lines plus the total time and memory; no other output means all passed.
-- Because files are included into the same scope, `$connection` and `$software` from `connect.inc.php` (pulled in with `include_once`) are shared across tests. A `--SKIPIF--` section that echoes something skips the test (used for driver-specific tests). A test that changes connection attributes must restore them.
+- Because files are included into the same scope, `$connection` and `$software` from `connect.inc.php` (pulled in with `require_once`) are shared across tests. A `--SKIPIF--` section that echoes something skips the test (used for driver-specific tests). A test that changes connection attributes must restore them.
 - To run one test, execute it directly and compare its printed output against its `--EXPECTF--` block by eye: `php tests/1-basic.phpt`.
 - Tests that write (`10-update`, `22-insert-update`, …) must leave the fixture data as they found it, since later tests depend on it.
 - Many tests assert generated SQL by echoing a result object (`echo "$applications"` → `NotORM\Result::__toString()`); expected output therefore pins exact query text. Without `ORDER BY` the row order is not guaranteed.

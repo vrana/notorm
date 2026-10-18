@@ -2,7 +2,7 @@
 IN operator
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 echo $software->application("maintainer_id", array())->count("*") . "\n";
 echo $software->application("maintainer_id", array(11))->count("*") . "\n";

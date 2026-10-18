@@ -2,7 +2,7 @@
 fetchPairs()
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 print_r($software->application()->order("title")->fetchPairs("id", "title"));
 print_r($software->application()->order("id")->fetchPairs("id", "id"));

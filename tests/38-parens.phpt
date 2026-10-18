@@ -2,7 +2,7 @@
 Calling or()
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $applications = $software->application()
 	->where("(author_id", 11)->and("maintainer_id", 11)->where(")")

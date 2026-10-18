@@ -2,7 +2,7 @@
 Limit and offset
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $application = $software->application[1];
 foreach ($application->application_tag()->order("tag_id")->limit(1, 1) as $application_tag) {

@@ -161,7 +161,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				if ($parameters) {
 					$debug .= " -- " . implode(", ", array_map(array($this, 'quote'), $parameters));
 				}
-				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
+				$pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
 					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) { // stop on first file outside NotORM source codes
 						break;

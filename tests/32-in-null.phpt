@@ -2,7 +2,7 @@
 IN with NULL value
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 foreach ($software->application("maintainer_id", array(11, null))->order("id") as $application) {
 	echo "$application[id]\n";

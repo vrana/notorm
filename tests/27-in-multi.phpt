@@ -2,7 +2,7 @@
 IN operator with MultiResult
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 foreach ($software->author()->order("id") as $author) {
 	foreach ($software->application_tag("application_id", $author->application())->order("application_id, tag_id") as $application_tag) {

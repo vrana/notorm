@@ -2,7 +2,7 @@
 Insert, update, delete
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $id = 5; // auto_increment is disabled in demo
 $application = $software->application()->insert(array(

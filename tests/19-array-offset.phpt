@@ -2,7 +2,7 @@
 Array offset
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $where = array(
 	"author_id" => "11",

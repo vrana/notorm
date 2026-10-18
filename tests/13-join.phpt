@@ -2,7 +2,7 @@
 ORDER from other table
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 foreach ($software->application()->order("author.name, title") as $application) {
 	echo $application->author["name"] . ": $application[title]\n";

@@ -2,7 +2,7 @@
 Update primary key of a row
 --FILE--
 <?php
-include_once dirname(__FILE__) . "/connect.inc.php";
+require_once __DIR__ . "/connect.inc.php";
 
 $application = $software->tag()->insert(array('id' => 24, 'name' => 'HTML'));
 echo "$application[id]\n";
