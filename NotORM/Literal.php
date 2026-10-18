@@ -13,10 +13,9 @@ class Literal {
 	* @param string $value SQL code, can contain ?
 	* @param mixed ...$parameters values for ?
 	*/
-	function __construct($value) {
+	function __construct($value, ...$parameters) {
 		$this->value = $value;
-		$this->parameters = func_get_args();
-		array_shift($this->parameters);
+		$this->parameters = $parameters;
 	}
 
 	/** Get literal value

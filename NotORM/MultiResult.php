@@ -64,20 +64,18 @@ class MultiResult extends Result {
 		return $return;
 	}
 
-	function select($columns) {
-		$args = func_get_args();
+	function select($columns, ...$moreColumns) {
 		if (!$this->select) {
-			array_unshift($args, "$this->table.$this->column");
+			return parent::select("$this->table.$this->column", $columns, ...$moreColumns);
 		}
-		return call_user_func_array(array($this, 'parent::select'), $args);
+		return parent::select($columns, ...$moreColumns);
 	}
 
-	function order($columns) {
+	function order($columns, ...$moreColumns) {
 		if (!$this->order) { // improve index utilization
 			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', $columns) ? " DESC" : "");
 		}
-		$args = func_get_args();
-		return call_user_func_array(array($this, 'parent::order'), $args);
+		return parent::order($columns, ...$moreColumns);
 	}
 
 	function aggregation($function) {

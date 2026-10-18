@@ -251,9 +251,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array<string, mixed>|\Traversable<string, mixed> ...$rows used for extended insert
 	* @return Row|int|false inserted Row or false in case of an error or number of affected rows for INSERT ... SELECT
 	*/
-	function insert($data) {
-		$rows = func_get_args();
-		$return = $this->insertMulti($rows);
+	function insert($data, ...$rows) {
+		$return = $this->insertMulti(array_merge(array($data), $rows));
 		if (!$return) {
 			return false;
 		}
@@ -374,11 +373,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string ...$moreColumns
 	* @return $this fluent interface
 	*/
-	function select($columns) {
+	function select($columns, ...$moreColumns) {
 		$this->__destruct();
 		if ($columns != "") {
-			foreach (func_get_args() as $columns) {
-				$this->select[] = $columns;
+			foreach (array_merge(array($columns), $moreColumns) as $column) {
+				$this->select[] = $column;
 			}
 		} else {
 			$this->select = array();
@@ -392,7 +391,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param mixed ...$moreParameters scalar values
 	* @return $this fluent interface
 	*/
-	function where($condition, $parameters = array()) {
+	function where($condition, $parameters = array(), ...$moreParameters) {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
@@ -495,7 +494,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param mixed ...$moreParameters
 	* @return $this fluent interface
 	*/
-	function __invoke($where, $parameters = array()) {
+	function __invoke($where, $parameters = array(), ...$moreParameters) {
 		$args = func_get_args();
 		return $this->whereOperator("AND", $args);
 	}
@@ -505,10 +504,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param string ...$moreColumns
 	* @return $this fluent interface
 	*/
-	function order($columns) {
+	function order($columns, ...$moreColumns) {
 		$this->rows = null;
 		if ($columns != "") {
-			$columns = (is_array($columns) ? $columns : func_get_args());
+			$columns = (is_array($columns) ? $columns : array_merge(array($columns), $moreColumns));
 			foreach ($columns as $column) {
 				if ($this->union) {
 					$this->unionOrder[] = $column;
