@@ -25,7 +25,7 @@ class MultiResult extends Result {
 		return $this;
 	}
 	
-	function insert_multi(array $rows) {
+	function insertMulti(array $rows) {
 		$args = array();
 		foreach ($rows as $data) {
 			if ($data instanceof \Traversable && !$data instanceof Result) {
@@ -36,12 +36,12 @@ class MultiResult extends Result {
 			}
 			$args[] = $data;
 		}
-		return parent::insert_multi($args);
+		return parent::insertMulti($args);
 	}
 	
-	function insert_update(array $unique, array $insert, array $update = array()) {
+	function insertUpdate(array $unique, array $insert, array $update = array()) {
 		$unique[$this->column] = $this->active;
-		return parent::insert_update($unique, $insert, $update);
+		return parent::insertUpdate($unique, $insert, $update);
 	}
 	
 	protected function single() {

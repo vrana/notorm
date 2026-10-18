@@ -199,7 +199,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array
 	* @return int number of affected rows or false in case of an error
 	*/
-	function insert_multi(array $rows) {
+	function insertMulti(array $rows) {
 		if ($this->notORM->freeze) {
 			return false;
 		}
@@ -250,7 +250,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	*/
 	function insert($data) {
 		$rows = func_get_args();
-		$return = $this->insert_multi($rows);
+		$return = $this->insertMulti($rows);
 		if (!$return) {
 			return false;
 		}
@@ -300,7 +300,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @param array ($column => $value), empty array means use $insert
 	* @return int number of affected rows or false in case of an error
 	*/
-	function insert_update(array $unique, array $insert, array $update = array()) {
+	function insertUpdate(array $unique, array $insert, array $update = array()) {
 		if (!$update) {
 			$update = $insert;
 		}
@@ -347,7 +347,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Get last insert ID
 	* @return string number
 	*/
-	function insert_id() {
+	function insertId() {
 		return $this->notORM->connection->lastInsertId();
 	}
 	
