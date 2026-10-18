@@ -19,7 +19,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          extensions: pdo_mysql
+          extensions: pdo_mysql, pdo_sqlite
           ini-values: pdo_mysql.default_socket=/var/run/mysqld/mysqld.sock # tests/connect.inc.php connects to localhost
           tools: composer
       - run: composer install --no-interaction --no-progress
@@ -31,3 +31,4 @@ jobs:
           mysql -uroot -proot -e "CREATE DATABASE software; CREATE USER '$user'@'localhost' IDENTIFIED BY '$password'; GRANT ALL ON software.* TO '$user'@'localhost'"
           mysql -uroot -proot software < tests/software.sql
       - run: composer test
+      - run: composer test sqlite
