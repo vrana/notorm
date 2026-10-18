@@ -18,7 +18,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	protected string|Literal $having = "";
 	protected ?bool $lock = null;
 
-	/** @var list<string> */ protected array $union = [];
+	/** @var list<Literal> */ protected array $union = [];
 	/** @var list<string|Literal> */ protected array $unionOrder = [];
 	protected ?int $unionLimit = null;
 	protected ?int $unionOffset = null;
@@ -248,7 +248,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$data = reset($rows);
 		$parameters = [];
 		if ($data instanceof Result) {
-			$parameters = $data->parameters; //! other parameters
+			$parameters = $data->queryParameters();
 			$data = (string) $data;
 		} elseif ($data instanceof \Traversable) {
 			$data = iterator_to_array($data);
@@ -507,7 +507,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 					$clone->single();
 				}
 				$condition .= " IN ($clone)";
-				$this->parameters = array_merge($this->parameters, $clone->parameters);
+				$this->parameters = array_merge($this->parameters, $clone->queryParameters());
 			} else {
 				$in = [];
 				foreach ($clone as $row) {
@@ -635,8 +635,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	* @return $this fluent interface
 	*/
 	function union(Result $result, bool $all = false): static {
-		$this->union[] = " UNION " . ($all ? "ALL " : "") . $this->unionPart((string) $result);
-		$this->parameters = array_merge($this->parameters, $result->parameters);
+		$this->union[] = new Literal(" UNION " . ($all ? "ALL " : "") . $this->unionPart((string) $result), ...$result->queryParameters());
 		return $this;
 	}
 
@@ -680,17 +679,25 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return $this->aggregation("SUM($column)");
 	}
 
+	/** Get parameters of the query in the order of their placeholders
+	* @return mixed[]
+	*/
+	protected function queryParameters(): array {
+		$return = [];
+		foreach (array_merge($this->select, [$this, $this->group, $this->having], $this->order, $this->union, $this->unionOrder) as $val) {
+			if (($val instanceof Literal || $val instanceof self) && $val->parameters) {
+				$return = array_merge($return, $val->parameters);
+			}
+		}
+		return $return;
+	}
+
 	/** Execute the built query */
 	protected function execute(): void {
 		if (!isset($this->rows)) {
 			$result = false;
 			$exception = null;
-			$parameters = [];
-			foreach (array_merge($this->select, [$this, $this->group, $this->having], $this->order, $this->unionOrder) as $val) {
-				if (($val instanceof Literal || $val instanceof self) && $val->parameters) {
-					$parameters = array_merge($parameters, $val->parameters);
-				}
-			}
+			$parameters = $this->queryParameters();
 			try {
 				$result = $this->query($this->__toString(), $parameters);
 			} catch (\PDOException $exception) {
