@@ -4,7 +4,7 @@ Session cache
 <?php
 $_SESSION = []; // not session_start() - headers already sent
 require_once __DIR__ . "/connect.inc.php";
-$cache = new NotORM\NotORM($connection, null, new NotORM\Cache\Session);
+$cache = new NotORM\NotORM($connection, cache: new NotORM\Cache\Session);
 
 $applications = $cache->application();
 $application = $applications->fetch();

@@ -91,7 +91,7 @@
 	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch"/>
 	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch"/>
 	<rule ref="SlevomatCodingStandard.Functions.DisallowArrowFunction"/>
-	<rule ref="SlevomatCodingStandard.Functions.DisallowNamedArguments"/>
+	<rule ref="SlevomatCodingStandard.Functions.NamedArgumentSpacing"/>
 	<rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure"/>
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>

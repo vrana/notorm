@@ -8,7 +8,7 @@ foreach ([NotORM\Cache\File::class, NotORM\Cache\IncludeFile::class] as $class) 
 	$filename = sys_get_temp_dir() . "/notorm-" . getmypid() . ".php";
 	@unlink($filename); // @ - file may not exist
 	foreach (["not exists", "exists"] as $state) {
-		$cache = new NotORM\NotORM($connection, null, new $class($filename));
+		$cache = new NotORM\NotORM($connection, cache: new $class($filename));
 		$applications = $cache->application();
 		$application = $applications->fetch();
 		$application["title"];
