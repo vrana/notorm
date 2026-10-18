@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: pdo_mysql
+          ini-values: pdo_mysql.default_socket=/var/run/mysqld/mysqld.sock # tests/connect.inc.php connects to localhost
+          tools: composer
+      - run: composer install --no-interaction --no-progress
+      - run: composer check
+      - name: Create the test database
+        run: |
+          sudo systemctl start mysql.service
+          read -r user password < <(sed -n 's/.*new PDO("mysql:dbname=software", "\([^"]*\)", "\([^"]*\)").*/\1 \2/p' tests/connect.inc.php)
+          mysql -uroot -proot -e "CREATE DATABASE software; CREATE USER '$user'@'localhost' IDENTIFIED BY '$password'; GRANT ALL ON software.* TO '$user'@'localhost'"
+          mysql -uroot -proot -e "SET PERSIST sql_mode = REPLACE(@@GLOBAL.sql_mode, 'ONLY_FULL_GROUP_BY,', '')" # needed by tests/13-join.phpt
+          mysql -uroot -proot software < tests/software.sql
+      - run: composer test
