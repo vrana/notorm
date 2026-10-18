@@ -10,10 +10,10 @@
 namespace NotORM;
 
 /** Database representation
-* @property-write bool|callable $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
-* @property-write bool $freeze = false Disable persistence
-* @property-write class-string<Row> $rowClass = 'NotORM\Row' Class used for created objects
-* @property-write bool $jsonAsArray = false Use array instead of object in Result JSON serialization
+* @property bool|callable $debug = false Enable debugging queries, true for error_log($query), callback($query, $parameters) otherwise
+* @property bool $freeze = false Disable persistence
+* @property class-string<Row> $rowClass = 'NotORM\Row' Class used for created objects
+* @property bool $jsonAsArray = false Use array instead of object in Result JSON serialization
 * @property-write string $transaction Assign 'BEGIN', 'COMMIT' or 'ROLLBACK' to start or stop transaction
 */
 class NotORM extends Base {
