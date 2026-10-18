@@ -9,8 +9,6 @@ namespace NotORM;
 class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable {
 	/** @var array<string, mixed> */ private array $modified = [];
 
-	protected mixed $id = null;
-
 	/** @access protected must be public because it is called from Result
 	* @param array<string, mixed> $row
 	*/
@@ -76,7 +74,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
 		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
-		$return->where("$table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : [$this[$this->result->primary]])); // rows are null after insert
+		$return->where("$table.$column", ($this->result->rows !== null ? $this->result->ids() : [$this[$this->result->primary]])); // rows are null after insert
 		if ($args) {
 			$return->where(...$args);
 		}
@@ -109,8 +107,11 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	protected function access(string|int|null $key, bool $delete = false): void {
 		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
-			$id = $this->id ?? $this->row;
-			$this->row = $this->result[$id]->row;
+			$row = $this->result[$this->id ?? $this->row];
+			if ($this->id !== null && $row?->id != $this->id) { // the result is a list
+				$row = $this->result[$this->row];
+			}
+			$this->row = $row->row;
 		}
 	}
 

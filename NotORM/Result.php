@@ -729,21 +729,28 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 					throw $exception;
 				}
 			}
-			$this->rows = [];
+			$rows = [];
 			if ($result) {
 				$result->setFetchMode(\PDO::FETCH_ASSOC);
-				foreach ($result as $key => $row) {
-					if (isset($row[$this->primary])) {
-						$key = $row[$this->primary];
-						if (!is_string($this->access)) {
-							$this->access[$this->primary] = true;
-						}
+				foreach ($result as $row) {
+					if (isset($row[$this->primary]) && !is_string($this->access)) {
+						$this->access[$this->primary] = true;
 					}
-					$this->rows[$key] = new $this->notORM->rowClass($row, $this);
+					$rows[] = new $this->notORM->rowClass($row, $this);
 				}
 			}
+			$this->rows = $this->index($rows);
 			$this->data = $this->rows;
 		}
+	}
+
+	/** Index rows by their primary key
+	* @param list<Row> $rows
+	* @return array<Row> $rows if some primary key is missing or duplicate (e.g. from a backwards join)
+	*/
+	protected function index(array $rows): array {
+		$ids = array_map(fn ($row) => $row->id, $rows);
+		return (in_array(null, $ids, true) || count(array_unique($ids)) < count($ids) ? $rows : array_combine($ids, $rows));
 	}
 
 	/** Fetch next row of result

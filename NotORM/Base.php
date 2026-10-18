@@ -13,6 +13,7 @@ abstract class Base {
 	protected string $table;
 	protected string $primary;
 	/** @var array<Row>|null */ protected ?array $rows = null;
+	protected mixed $id = null; // primary key of Row
 	/** @var array<string, Result|array{}> */ protected array $referenced = [];
 
 	/** @var bool|callable */ protected $debug = false;
@@ -23,6 +24,19 @@ abstract class Base {
 
 	/** @return bool|void Result returns bool, Row nothing */
 	protected function access(string|int|null $key, bool $delete = false) {
+	}
+
+	/** Get primary keys of rows in Result
+	* @return list<int|string> distinct values, not the keys of $rows which can be a list
+	*/
+	protected function ids(): array {
+		$return = [];
+		foreach ($this->rows ?? [] as $row) {
+			if ($row->id !== null) {
+				$return[$row->id] = null;
+			}
+		}
+		return array_keys($return);
 	}
 
 }

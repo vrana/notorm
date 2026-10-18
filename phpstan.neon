@@ -32,6 +32,7 @@ parameters:
 		- "~^Variable \\$backtrace might not be defined\\.$~" # debug_backtrace() contains at least query()
 		- "~^Access to protected property \\$this\\(NotORM\\\\Result\\)\\|NotORM\\\\Literal::\\$parameters\\.$~" # Result can access it, PHPStan checks the union as a whole
 		- "~^Variable \\$(aggregation|referencing|referenced) in isset\\(\\) always exists and is not nullable\\.$~" # a reference to a missing element creates it as null
+		- "~^Offset array<string, mixed> does not exist on NotORM\\\\Result\\.$~" # offsetGet() accepts conditions, ArrayAccess has one key type for all methods
 
 	paths:
 		- NotORM/

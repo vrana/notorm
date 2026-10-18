@@ -20,7 +20,7 @@ class MultiResult extends Result {
 	function via(string $column): static {
 		$this->column = $column;
 		$this->conditions[0] = "$this->table.$column AND";
-		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? array_keys($this->result->rows) : [$this->active])) . ")"; // rows are null after insert
+		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? $this->result->ids() : [$this->active])) . ")"; // rows are null after insert
 		return $this;
 	}
 
@@ -133,9 +133,10 @@ class MultiResult extends Result {
 					$this->rows = $result->rows;
 				}
 				$referencing = [];
-				foreach ($this->rows as $key => $row) {
-					$referencing[$row[$this->column]][$key] = $row;
+				foreach ($this->rows as $row) {
+					$referencing[$row[$this->column]][] = $row;
 				}
+				$referencing = array_map(fn ($rows) => $this->index($rows), $referencing);
 				$this->data = null; // all rows from parent::execute()
 			}
 			$this->data ??= $referencing[$this->active] ?? []; // a copy, the pointer of each instance is separate
