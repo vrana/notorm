@@ -183,14 +183,14 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			if ($this->unionOrder && $this->notORM->driver == "oci") {
 				$return = "SELECT * FROM ($return)"; // Oracle doesn't find the columns of the SELECT * parts in ORDER BY
 			}
+			$top = $this->topString($this->unionLimit, $this->unionOffset);
+			if ($top) {
+				$return = "SELECT$top * FROM ($return) t"; // ORDER BY outside, MS SQL doesn't allow it in a derived table without TOP
+			}
 			if ($this->unionOrder) {
 				$return .= " ORDER BY " . implode(", ", $this->unionOrder);
 			}
 			$return .= $this->limitString($this->unionLimit, $this->unionOffset);
-			$top = $this->topString($this->unionLimit, $this->unionOffset);
-			if ($top) {
-				$return = "SELECT$top * FROM ($return) t";
-			}
 		}
 		return $return;
 	}
