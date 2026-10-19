@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 IN with NULL value
 --FILE--

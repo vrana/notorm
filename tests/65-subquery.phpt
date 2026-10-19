@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Subquery with more columns and without rows
 --SKIPIF--

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Insert from a query and from a Traversable
 --FILE--

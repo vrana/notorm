@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 GROUP BY selects the grouped columns
 --FILE--

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Update and delete by a multi-column primary key (bug #78)
 --FILE--

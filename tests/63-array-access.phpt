@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Check and remove columns of rows and rows of results
 --FILE--

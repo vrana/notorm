@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Duplicate or missing primary keys (bug #80)
 --FILE--

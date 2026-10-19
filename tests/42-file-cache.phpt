@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 File caches starting without the file
 --FILE--

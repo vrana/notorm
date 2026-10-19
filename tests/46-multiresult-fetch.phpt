@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 fetch() from more instances of the same MultiResult (bug #59)
 --FILE--

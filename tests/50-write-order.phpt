@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 UPDATE and DELETE with ORDER BY and LIMIT (bug #136)
 --FILE--

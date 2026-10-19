@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Update the referencing rows of one row
 --FILE--

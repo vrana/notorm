@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Default fetch mode (bug #108)
 --FILE--

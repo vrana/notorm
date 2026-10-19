@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Cache in a database table
 --FILE--

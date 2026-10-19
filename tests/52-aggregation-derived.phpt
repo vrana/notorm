@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Aggregation with UNION, GROUP BY and LIMIT (bug #79)
 --FILE--

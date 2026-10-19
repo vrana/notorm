@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Convention with a table format and Discovery with a cache
 --FILE--

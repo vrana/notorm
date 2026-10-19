@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Debug and debugTimer
 --FILE--
@@ -34,5 +35,5 @@ echo "$queries queries\n";
 --EXPECTF--
 SELECT * FROM author WHERE (name = ?) -- Jakub Vrana
 0
-55-debug.phpt:18:SELECT * FROM author WHERE (name = ?); -- 'Jakub Vrana'
+55-debug.phpt:19:SELECT * FROM author WHERE (name = ?); -- 'Jakub Vrana'
 2 queries

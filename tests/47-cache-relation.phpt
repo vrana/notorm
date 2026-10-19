@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Relation with a column not in the cache (bug #63)
 --FILE--

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Cache without a nonexistent column and with all columns after iterating a row
 --FILE--

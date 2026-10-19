@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 insertUpdate() without data to update and with an error
 --FILE--

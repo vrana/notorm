@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Parameters in MultiResult with limit (bug #23)
 --FILE--

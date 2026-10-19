@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Relations of an inserted row (bug #77)
 --FILE--

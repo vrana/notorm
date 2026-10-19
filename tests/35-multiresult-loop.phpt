@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Using the same MultiResult several times (bug #12)
 --FILE--

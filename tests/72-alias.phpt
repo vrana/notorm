@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Main table with a different name than the table (bug #83)
 --FILE--

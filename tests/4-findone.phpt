@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Find one item by title
 --FILE--

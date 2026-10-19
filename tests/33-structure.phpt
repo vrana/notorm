@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 --TEST--
 Structure for non-conventional column
 --FILE--
