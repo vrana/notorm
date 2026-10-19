@@ -658,18 +658,37 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Execute aggregation function */
 	function aggregation(string $function): string|int|float|null {
-		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
-		$query = "SELECT $function FROM $this->table" . implode($join);
-		if ($this->where) {
-			$query .= " WHERE " . implode($this->where);
+		if ($this->union || $this->group || isset($this->limit)) { // aggregate the rows of the whole query
+			$derived = $this->derived();
+			$result = $this->query("SELECT $function FROM ($derived) t", $derived->queryParameters());
+		} else {
+			$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
+			$query = "SELECT $function FROM $this->table" . implode($join);
+			if ($this->where) {
+				$query .= " WHERE " . implode($this->where);
+			}
+			$result = $this->query($query, $this->parameters);
 		}
-		$result = $this->query($query, $this->parameters);
 		if ($result) {
 			foreach ($result->fetch() as $return) {
 				return $return;
 			}
 		}
 		return null;
+	}
+
+	/** Clone the query for use as a derived table */
+	protected function derived(): static {
+		$return = clone $this;
+		$return->rows = null; // don't save the accessed columns to the cache
+		$return->accessed = ''; // all columns
+		if (!isset($return->limit)) {
+			$return->order = []; // MS SQL doesn't allow ORDER BY in a derived table without TOP or OFFSET
+		}
+		if (!isset($return->unionLimit)) {
+			$return->unionOrder = [];
+		}
+		return $return;
 	}
 
 	/** Count number of rows */

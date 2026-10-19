@@ -86,17 +86,24 @@ class MultiResult extends Result {
 	}
 
 	function aggregation(string $function): string|int|float|null {
-		$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
-		$column = ($join ? "$this->table." : "") . $this->column;
-		$query = "SELECT $function, $column FROM $this->table" . implode($join);
-		if ($this->where) {
-			$query .= " WHERE " . implode($this->where);
+		if ($this->union || $this->group || isset($this->limit)) { // aggregate the rows of the whole query
+			$derived = $this->limited()->derived();
+			$query = "SELECT $function, $this->column FROM ($derived) t GROUP BY $this->column";
+			$parameters = $derived->queryParameters();
+		} else {
+			$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
+			$column = ($join ? "$this->table." : "") . $this->column;
+			$query = "SELECT $function, $column FROM $this->table" . implode($join);
+			if ($this->where) {
+				$query .= " WHERE " . implode($this->where);
+			}
+			$query .= " GROUP BY $column";
+			$parameters = $this->parameters;
 		}
-		$query .= " GROUP BY $column";
 		$aggregation = &$this->result->aggregation[$query];
 		if (!isset($aggregation)) {
 			$aggregation = [];
-			$result = $this->query($query, $this->parameters);
+			$result = $this->query($query, $parameters);
 			if ($result) {
 				$result->setFetchMode(\PDO::FETCH_ASSOC);
 				foreach ($result as $row) {
@@ -110,27 +117,37 @@ class MultiResult extends Result {
 		return null;
 	}
 
+	/** Get the query with LIMIT for each row of the referenced table */
+	protected function limited(): self {
+		if (!$this->limit || count($this->result->rows ?? []) <= 1 || $this->union) { // rows are null after insert
+			return $this;
+		}
+		//! doesn't work with union
+		$return = clone $this;
+		$first = true;
+		foreach ($this->result->rows ?? [] as $val) {
+			if ($first) {
+				$return->where[0] = "$this->column = " . $this->quote($val);
+				$first = false;
+			} else {
+				$clone = clone $this;
+				$clone->where[0] = "$this->column = " . $this->quote($val);
+				$return->union($clone);
+			}
+		}
+		return $return;
+	}
+
 	protected function execute(): void {
 		if (!isset($this->rows)) {
 			$referencing = &$this->result->referencing[$this->__toString()];
 			if (!isset($referencing)) {
-				if (!$this->limit || count($this->result->rows ?? []) <= 1 || $this->union) { // rows are null after insert
+				$limited = $this->limited();
+				if ($limited === $this) {
 					parent::execute();
-				} else { //! doesn't work with union
-					$result = clone $this;
-					$first = true;
-					foreach ($this->result->rows ?? [] as $val) {
-						if ($first) {
-							$result->where[0] = "$this->column = " . $this->quote($val);
-							$first = false;
-						} else {
-							$clone = clone $this;
-							$clone->where[0] = "$this->column = " . $this->quote($val);
-							$result->union($clone);
-						}
-					}
-					$result->execute();
-					$this->rows = $result->rows;
+				} else {
+					$limited->execute();
+					$this->rows = $limited->rows;
 				}
 				$referencing = [];
 				foreach ($this->rows as $row) {
