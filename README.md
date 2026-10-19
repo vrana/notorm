@@ -30,5 +30,4 @@ foreach ($software->application()->order("title") as $application) { // get all 
 
 ## Development
 - `composer check` - Checks the code by PHP_CodeSniffer and PHPStan
-- `composer test` - Runs the tests in `tests/` on MySQL, in-memory SQLite and PostgreSQL, the servers need an empty database `software` accessible with the credentials from `tests/connect.inc.php`
-- `composer test mysql` - Runs the tests only on MySQL, similarly `sqlite` and `pgsql`
+- `composer test` - Runs the tests, see [tests/README.md](tests/README.md) for setting up the databases
