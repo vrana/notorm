@@ -51,11 +51,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** Save data to cache and empty result */
 	function __destruct() {
 		if ($this->notORM->cache && !$this->select && !$this->group && isset($this->rows)) {
+			$key = Cache::VERSION . ";$this->table;" . implode(",", $this->conditions);
 			$access = $this->access;
 			if (is_array($access)) {
 				$access = array_filter($access);
+				$cached = $this->notORM->cache->load($key); // results with other values of the same conditions could use other columns
+				if (is_array($cached)) {
+					$access = $cached + $access;
+				} elseif ($cached === '') { // all columns
+					$access = '';
+				}
 			}
-			$this->notORM->cache->save(Cache::VERSION . ";$this->table;" . implode(",", $this->conditions), $access);
+			$this->notORM->cache->save($key, $access);
 		}
 		$this->rows = null;
 		unset($this->data);
