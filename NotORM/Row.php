@@ -58,7 +58,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	/** Store referenced value */
 	function __set(string $name, ?Row $value = null): void {
 		$column = $this->result->notORM->structure->getReferencedColumn($name, $this->result->table);
-		$this[$column] = $value;
+		$this[$column] = $value?->id;
 	}
 
 	/** Remove referenced column from data */
@@ -179,6 +179,11 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function offsetSet(mixed $offset, mixed $value): void {
 		$this->row[$offset] = $value;
 		$this->modified[$offset] = $value;
+		foreach ($this->result->referenced as $name => $referenced) {
+			if ($this->result->notORM->structure->getReferencedColumn($name, $this->result->table) == $offset) {
+				unset($this->result->referenced[$name]); // loaded without the new value
+			}
+		}
 	}
 
 	/** Remove column from data
