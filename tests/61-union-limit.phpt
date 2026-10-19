@@ -11,5 +11,5 @@ echo $ids($union->limit(2)) . "\n";
 echo $ids($union->limit(2, 3)) . "\n";
 ?>
 --EXPECTF--
-1, 2
-4, 21
+21, 22
+31, 32

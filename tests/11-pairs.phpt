@@ -11,15 +11,15 @@ print_r($software->application()->order("id")->fetchPairs("id", "id"));
 --EXPECTF--
 Array
 (
-    [1] => Adminer
-    [4] => Dibi
-    [2] => JUSH
-    [3] => Nette
+    [31] => Adminer
+    [34] => Dibi
+    [32] => JUSH
+    [33] => Nette
 )
 Array
 (
-    [1] => 1
-    [2] => 2
-    [3] => 3
-    [4] => 4
+    [31] => 31
+    [32] => 32
+    [33] => 33
+    [34] => 34
 )

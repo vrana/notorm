@@ -20,7 +20,7 @@ foreach ($slogans as $id => $slogan) {
 ?>
 --EXPECTF--
 2 rows updated
-1: Updated
-2: Updated
-3: Nette Framework for PHP 5
-4: Database Abstraction Library for PHP 5
+31: Updated
+32: Updated
+33: Nette Framework for PHP 5
+34: Database Abstraction Library for PHP 5

@@ -5,7 +5,7 @@ insertUpdate() without data to update and with an error
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-echo $software->application_tag()->insertUpdate(["application_id" => 1, "tag_id" => 21], []) . "\n"; // duplicate key with nothing to update
+echo $software->application_tag()->insertUpdate(["application_id" => 31, "tag_id" => 21], []) . "\n"; // duplicate key with nothing to update
 
 $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 var_dump($software->tag()->insertUpdate(["id" => 24], ["nonexistent" => 1]));

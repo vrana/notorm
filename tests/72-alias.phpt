@@ -35,6 +35,6 @@ Adminer
 JUSH
 2
 2
-1, 3, 4
+31, 33, 34
 Jakub Vrana: Adminer, JUSH (2)
 David Grudl: Dibi, Nette (2)

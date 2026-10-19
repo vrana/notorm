@@ -16,5 +16,5 @@ $applications = $software->application()->order("id");
 echo $applications[$where]["id"] . "\n";
 ?>
 --EXPECTF--
-2
-2
+32
+32

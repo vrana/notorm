@@ -6,11 +6,11 @@ INSERT or UPDATE
 require_once __DIR__ . "/connect.inc.php";
 
 for ($i=0; $i < 2; $i++) {
-	echo $software->application()->insertUpdate(["id" => 5], ["author_id" => 12, "title" => "Texy", "web" => "", "slogan" => "$i"]) . "\n";
+	echo $software->application()->insertUpdate(["id" => 35], ["author_id" => 12, "title" => "Texy", "web" => "", "slogan" => "$i"]) . "\n";
 }
-$application = $software->application[5];
+$application = $software->application[35];
 echo $application->application_tag()->insertUpdate(["tag_id" => 21], []) . "\n";
-$software->application("id", 5)->delete();
+$software->application("id", 35)->delete();
 ?>
 --EXPECTF--
 1

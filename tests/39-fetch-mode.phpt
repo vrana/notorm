@@ -12,7 +12,7 @@ foreach ($software->author() as $author) {
 }
 
 $discovery = new NotORM\NotORM($connection, new NotORM\Structure\Discovery($connection));
-echo $discovery->application[1]->author_id["name"] . "\n";
+echo $discovery->application[31]->author_id["name"] . "\n";
 
 $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 ?>

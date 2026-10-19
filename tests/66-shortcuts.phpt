@@ -13,12 +13,12 @@ echo $software->application()->order("title")->order("") . "\n";
 var_dump(str_contains((string) $software->application()->select("id")->union($software->tag()->select("id"))->order("id")->order(""), "ORDER BY"));
 echo $software->tag("id", 21)->update([]) . "\n";
 echo $software->tag()->insertMulti([]) . "\n";
-echo $software->application[2]->application_tag("tag_id", 21)->count("*") . "\n";
+echo $software->application[32]->application_tag("tag_id", 21)->count("*") . "\n";
 ?>
 --EXPECTF--
 2
-1
-1, 2, 3, 4
+31
+31, 32, 33, 34
 SELECT * FROM application
 SELECT * FROM application
 bool(false)

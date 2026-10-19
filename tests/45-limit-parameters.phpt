@@ -12,7 +12,7 @@ foreach ($software->application()->order("id") as $application) {
 }
 ?>
 --EXPECTF--
-1: 22
-2: 23
-3: 21
-4: 22
+31: 22
+32: 23
+33: 21
+34: 22

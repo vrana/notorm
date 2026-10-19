@@ -15,7 +15,7 @@ class SoftwareConvention extends NotORM\Structure\Convention {
 }
 
 $convention = new NotORM\NotORM($connection, new SoftwareConvention);
-$maintainer = $convention->application[1]->maintainer;
+$maintainer = $convention->application[31]->maintainer;
 echo $maintainer['name'] . "\n";
 foreach ($maintainer->application()->via('maintainer_id') as $application) {
 	echo "\t$application[title]\n";

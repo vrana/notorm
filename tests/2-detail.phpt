@@ -5,13 +5,13 @@ Single row detail
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$application = $software->application[1];
+$application = $software->application[31];
 foreach ($application as $key => $val) {
 	echo "$key: $val\n";
 }
 ?>
 --EXPECTF--
-id: 1
+id: 31
 author_id: 11
 maintainer_id: 11
 title: Adminer

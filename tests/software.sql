@@ -34,10 +34,10 @@ CREATE TABLE application (
 
 CREATE INDEX application_title ON application (title);
 
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (1, 11, 11, 'Adminer', 'http://www.adminer.org/', 'Database management in single PHP file');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (2, 11, NULL, 'JUSH', 'http://jush.sourceforge.net/', 'JavaScript Syntax Highlighter');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (3, 12, 12, 'Nette', 'http://nettephp.com/', 'Nette Framework for PHP 5');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (4, 12, 12, 'Dibi', 'http://dibiphp.com/', 'Database Abstraction Library for PHP 5');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (31, 11, 11, 'Adminer', 'http://www.adminer.org/', 'Database management in single PHP file');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (32, 11, NULL, 'JUSH', 'http://jush.sourceforge.net/', 'JavaScript Syntax Highlighter');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (33, 12, 12, 'Nette', 'http://nettephp.com/', 'Nette Framework for PHP 5');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (34, 12, 12, 'Dibi', 'http://dibiphp.com/', 'Database Abstraction Library for PHP 5');
 
 CREATE TABLE application_tag (
   application_id int NOT NULL,
@@ -47,12 +47,12 @@ CREATE TABLE application_tag (
   CONSTRAINT application_tag_application FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE
 );
 
-INSERT INTO application_tag (application_id, tag_id) VALUES (1, 21);
-INSERT INTO application_tag (application_id, tag_id) VALUES (3, 21);
-INSERT INTO application_tag (application_id, tag_id) VALUES (4, 21);
-INSERT INTO application_tag (application_id, tag_id) VALUES (1, 22);
-INSERT INTO application_tag (application_id, tag_id) VALUES (4, 22);
-INSERT INTO application_tag (application_id, tag_id) VALUES (2, 23);
+INSERT INTO application_tag (application_id, tag_id) VALUES (31, 21);
+INSERT INTO application_tag (application_id, tag_id) VALUES (33, 21);
+INSERT INTO application_tag (application_id, tag_id) VALUES (34, 21);
+INSERT INTO application_tag (application_id, tag_id) VALUES (31, 22);
+INSERT INTO application_tag (application_id, tag_id) VALUES (34, 22);
+INSERT INTO application_tag (application_id, tag_id) VALUES (32, 23);
 
 CREATE TABLE setting (
   site_name varchar(50) NOT NULL,

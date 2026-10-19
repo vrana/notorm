@@ -5,7 +5,7 @@ fetch() from more instances of the same MultiResult (bug #59)
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$application = $software->application[1];
+$application = $software->application[31];
 $tags1 = $application->application_tag()->order("tag_id");
 $tags2 = $application->application_tag()->order("tag_id");
 echo $tags1->fetch("tag_id") . "\n";

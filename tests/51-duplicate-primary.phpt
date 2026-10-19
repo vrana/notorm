@@ -11,7 +11,7 @@ foreach ($authors as $key => $author) {
 }
 echo "\n";
 
-foreach ($software->application("id", [1, 2])->select("title, CASE WHEN id = 1 THEN 1 END AS id")->order("title") as $key => $application) {
+foreach ($software->application("id", [31, 32])->select("title, CASE WHEN id = 31 THEN 1 END AS id")->order("title") as $key => $application) {
 	echo "$key: $application[title]\n";
 }
 echo "\n";

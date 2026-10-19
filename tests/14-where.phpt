@@ -6,27 +6,27 @@ WHERE
 require_once __DIR__ . "/connect.inc.php";
 
 $results = [
-	$software->application("id", 4),
-	$software->application("id < ?", 4),
-	$software->application("id < ?", [4]),
-	$software->application("id", [1, 2]),
+	$software->application("id", 34),
+	$software->application("id < ?", 34),
+	$software->application("id < ?", [34]),
+	$software->application("id", [31, 32]),
 	$software->application("id", null),
 	$software->application("id", $software->application()),
-	$software->application("id < ?", 4)->where("maintainer_id IS NOT NULL"),
+	$software->application("id < ?", 34)->where("maintainer_id IS NOT NULL"),
 	$software->application("NOT maintainer_id", null),
-	$software->application(["id < ?" => 4, "author_id" => 12]),
+	$software->application(["id < ?" => 34, "author_id" => 12]),
 ];
 foreach ($results as $result) {
 	echo implode(", ", array_keys(iterator_to_array($result->order("id")))) . "\n"; // aggregation("GROUP_CONCAT(id)") is not available in all drivers
 }
 ?>
 --EXPECTF--
-4
-1, 2, 3
-1, 2, 3
-1, 2
+34
+31, 32, 33
+31, 32, 33
+31, 32
 
-1, 2, 3, 4
-1, 3
-1, 3, 4
-3
+31, 32, 33, 34
+31, 33
+31, 33, 34
+33

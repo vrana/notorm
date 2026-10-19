@@ -5,7 +5,7 @@ Insert, update, delete
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$id = 5; // auto_increment is disabled in demo
+$id = 35; // auto_increment is disabled in demo
 $application = $software->application()->insert([
 	"id" => $id,
 	"author_id" => $software->author[12],
@@ -23,7 +23,7 @@ $application["web"] = "http://texy.info/";
 echo $application->update() . " row updated.\n";
 echo $software->application[$id]["web"] . "\n";
 
-$software->application_tag("application_id", 5)->delete(); // foreign keys may be disabled
+$software->application_tag("application_id", 35)->delete(); // foreign keys may be disabled
 echo $application->delete() . " row deleted.\n";
 echo count($software->application("id", $id)) . " rows found.\n";
 ?>

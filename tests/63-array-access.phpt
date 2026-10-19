@@ -5,7 +5,7 @@ Check and remove columns of rows and rows of results
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$application = $software->application[2];
+$application = $software->application[32];
 var_dump(isset($application->author), isset($application->maintainer));
 var_dump(isset($application["title"]), isset($application["nonexistent"]));
 var_dump(@$application["nonexistent"]); // @ - undefined column

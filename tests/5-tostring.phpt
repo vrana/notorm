@@ -10,7 +10,7 @@ foreach ($software->application() as $application) {
 }
 ?>
 --EXPECTF--
-1
-2
-3
-4
+31
+32
+33
+34

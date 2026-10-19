@@ -12,10 +12,10 @@ foreach ($applications->union($tags)->order("id DESC") as $row) {
 }
 ?>
 --EXPECTF--
+34
+33
+32
+31
 23
 22
 21
-4
-3
-2
-1

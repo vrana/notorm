@@ -11,10 +11,10 @@ $logo = function (NotORM\Row $application): ?string {
 };
 
 foreach ([gzencode("NotORM"), "\0NotORM"] as $data) { // not UTF-8, UTF-8 with a NUL byte
-	$software->application("id", 1)->update(["logo" => $data]);
-	var_dump($logo($software->application[1]) === $data);
+	$software->application("id", 31)->update(["logo" => $data]);
+	var_dump($logo($software->application[31]) === $data);
 }
-$software->application("id", 1)->update(["logo" => null]);
+$software->application("id", 31)->update(["logo" => null]);
 ?>
 --EXPECTF--
 bool(true)

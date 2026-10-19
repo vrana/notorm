@@ -5,7 +5,7 @@ Limit and offset
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$application = $software->application[1];
+$application = $software->application[31];
 foreach ($application->application_tag()->order("tag_id")->limit(1, 1) as $application_tag) {
 	echo $application_tag->tag["name"] . "\n";
 }

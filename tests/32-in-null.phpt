@@ -10,5 +10,5 @@ foreach ($software->application("maintainer_id", [11, null])->order("id") as $ap
 }
 ?>
 --EXPECTF--
-1
-2
+31
+32

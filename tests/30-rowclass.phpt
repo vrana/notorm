@@ -19,7 +19,7 @@ class TestRow extends NotORM\Row {
 
 $software->rowClass = 'TestRow';
 
-$application = $software->application[1];
+$application = $software->application[31];
 echo "$application[test_title]\n";
 echo $application->author["test_name"] . "\n";
 

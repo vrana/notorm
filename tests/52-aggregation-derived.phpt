@@ -24,8 +24,8 @@ PHP
 6
 2
 1
-3
-5
+63
+65
 
-Jakub Vrana: 2, 1, 2
-David Grudl: 1, 3, 4
+Jakub Vrana: 2, 31, 32
+David Grudl: 1, 33, 34
