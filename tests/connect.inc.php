@@ -19,14 +19,14 @@ if ($driver == "sqlite") {
 		$connection->exec("ALTER SESSION SET CURRENT_SCHEMA = software");
 	}
 	if ($driver == "oci" || $driver == "firebird") {
-		foreach (["application_tag", "application", "tag", "author"] as $table) {
+		foreach (["application_tag", "application", "tag", "author", "notorm", "setting"] as $table) {
 			try {
 				$connection->exec("DROP TABLE $table"); // IF EXISTS is not supported in Oracle 21 and Firebird 5
 			} catch (PDOException $exception) {
 			}
 		}
 	} else {
-		$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author");
+		$connection->exec("DROP TABLE IF EXISTS application_tag, application, tag, author, notorm, setting");
 	}
 	if ($driver == "mysql") {
 		$connection->exec("SET default_storage_engine = InnoDB"); // foreign keys

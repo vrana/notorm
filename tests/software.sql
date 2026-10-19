@@ -52,3 +52,16 @@ INSERT INTO application_tag (application_id, tag_id) VALUES (4, 21);
 INSERT INTO application_tag (application_id, tag_id) VALUES (1, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (4, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (2, 23);
+
+CREATE TABLE setting (
+  site_name varchar(50) NOT NULL,
+  per_page int NOT NULL
+);
+
+INSERT INTO setting (site_name, per_page) VALUES ('Software', 10);
+
+CREATE TABLE notorm (
+  id varchar(255) NOT NULL,
+  data varchar(4000) NOT NULL,
+  PRIMARY KEY (id)
+);
