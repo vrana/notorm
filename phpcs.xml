@@ -94,6 +94,7 @@
 	<rule ref="SlevomatCodingStandard.Functions.ArrowFunctionDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.NamedArgumentSpacing"/>
 	<rule ref="SlevomatCodingStandard.Functions.RequireArrowFunction"/>
+	<rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInCall"/>
 	<rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure"/>
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>
