@@ -777,17 +777,17 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Fetch next row of result
 	* @param string $column column name to return or an empty string for the whole row
-	* @return mixed value with $column, Row without $column, false if there is no row
+	* @return mixed value with $column, Row without $column, null if there is no row
 	*/
 	function fetch(string $column = ''): mixed {
 		// no $this->select($column) because next calls can access different columns
 		$this->execute();
 		$return = current($this->data);
 		next($this->data);
-		if ($return && $column != '') {
-			return $return[$column];
+		if ($return === false) { // no more rows
+			return null;
 		}
-		return $return;
+		return ($column != '' ? $return[$column] : $return);
 	}
 
 	/** Fetch all rows as associative array

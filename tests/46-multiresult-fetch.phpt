@@ -18,4 +18,4 @@ var_dump($tags1->fetch());
 21
 22
 22
-bool(false)
+NULL

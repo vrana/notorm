@@ -9,7 +9,9 @@ foreach ($application->application_tag("tag_id", 21) as $application_tag) {
 	echo $application_tag->tag["name"] . "\n";
 }
 echo $software->application("title", "Adminer")->fetch("slogan") . "\n";
+echo ($software->application("title", "Texy")->fetch("slogan") ?? "No such application") . "\n";
 ?>
 --EXPECTF--
 PHP
 Database management in single PHP file
+No such application
