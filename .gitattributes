@@ -1,3 +1,9 @@
+/.editorconfig export-ignore
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
+/CLAUDE.md export-ignore
+/phpcs.xml export-ignore
+/phpstan.neon export-ignore
+/tests export-ignore
+/upgrade/tests export-ignore
