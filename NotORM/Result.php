@@ -326,7 +326,8 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			return $return;
 		}
 		$sequence = $this->notORM->structure->getSequence($this->table);
-		if (!isset($data[$this->primary]) && $sequence !== false && $this->notORM->driver != "oci" && ($id = $this->notORM->connection->lastInsertId($sequence))) { // not supported by oci
+		// lastInsertId() is not supported by oci
+		if (is_string($this->primary) && !isset($data[$this->primary]) && $sequence !== false && $this->notORM->driver != "oci" && ($id = $this->notORM->connection->lastInsertId($sequence))) {
 			$data[$this->primary] = $id;
 		}
 		return new $this->notORM->rowClass($data, $this);
@@ -752,8 +753,10 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			if ($result) {
 				$result->setFetchMode(\PDO::FETCH_ASSOC);
 				foreach ($result as $row) {
-					if (isset($row[$this->primary]) && !is_string($this->access)) {
-						$this->access[$this->primary] = true;
+					foreach ((array) $this->primary as $column) {
+						if (isset($row[$column]) && !is_string($this->access)) {
+							$this->access[$column] = true;
+						}
 					}
 					$rows[] = new $this->notORM->rowClass($row, $this);
 				}
@@ -765,11 +768,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** Index rows by their primary key
 	* @param list<Row> $rows
-	* @return array<Row> $rows if some primary key is missing or duplicate (e.g. from a backwards join)
+	* @return array<Row> $rows if the primary key has more columns or some is missing or duplicate (e.g. from a backwards join)
 	*/
 	protected function index(array $rows): array {
 		$ids = array_map(fn ($row) => $row->id, $rows);
-		return (in_array(null, $ids, true) || count(array_unique($ids)) < count($ids) ? $rows : array_combine($ids, $rows));
+		return (is_array($this->primary) || in_array(null, $ids, true) || count(array_unique($ids)) < count($ids) ? $rows : array_combine($ids, $rows));
 	}
 
 	/** Fetch next row of result

@@ -5,8 +5,10 @@ namespace NotORM;
 /** Information about tables and columns structure */
 interface Structure {
 
-	/** Get primary key of a table in $db->$table() */
-	function getPrimary(string $table): string;
+	/** Get primary key of a table in $db->$table()
+	* @return string|non-empty-list<string> column or columns of a multi-column primary key
+	*/
+	function getPrimary(string $table): string|array;
 
 	/** Get column holding foreign key in $table[$id]->$name() */
 	function getReferencingColumn(string $name, string $table): string;

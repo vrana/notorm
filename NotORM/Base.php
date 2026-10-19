@@ -11,9 +11,9 @@ abstract class Base {
 
 	protected NotORM $notORM;
 	protected string $table;
-	protected string $primary;
+	/** @var string|non-empty-list<string> */ protected string|array $primary;
 	/** @var array<Row>|null */ protected ?array $rows = null;
-	protected mixed $id = null; // primary key of Row
+	protected mixed $id = null; // primary key of Row, [$column => $value] for a multi-column primary key
 	/** @var array<string, Result|array{}> */ protected array $referenced = [];
 
 	/** @var bool|callable */ protected $debug = false;

@@ -34,11 +34,16 @@ class Discovery implements \NotORM\Structure {
 		$this->cache?->save("structure", $this->structure);
 	}
 
-	function getPrimary(string $table): string {
+	/** @return string|non-empty-list<string> */
+	function getPrimary(string $table): string|array {
 		$return = &$this->structure["primary"][$table];
 		if (!isset($return)) {
 			$columns = $this->driver->primaryColumns($table);
-			$return = (count($columns) == 1 ? $columns[0] : ""); // multi-column primary key is not supported
+			$return = match (count($columns)) {
+				0 => "", // no primary key
+				1 => $columns[0],
+				default => $columns,
+			};
 		}
 		return $return;
 	}
@@ -47,7 +52,8 @@ class Discovery implements \NotORM\Structure {
 		$name = strtolower($name);
 		$return = &$this->structure["referencing"][$table];
 		if (!isset($return[$name])) {
-			foreach ($this->driver->referencingColumns($table, $this->getPrimary($table)) as $row) {
+			$primary = $this->getPrimary($table);
+			foreach (is_string($primary) ? $this->driver->referencingColumns($table, $primary) : [] as $row) { // multi-column foreign keys are not supported
 				$return[strtolower($row[0])] = $row[1];
 			}
 		}
@@ -74,7 +80,8 @@ class Discovery implements \NotORM\Structure {
 	}
 
 	function getSequence(string $table): string|null|false {
-		$this->structure["sequence"][$table] ??= $this->driver->sequence($table, $this->getPrimary($table));
+		$primary = $this->getPrimary($table);
+		$this->structure["sequence"][$table] ??= (is_string($primary) ? $this->driver->sequence($table, $primary) : false); // false - a multi-column primary key isn't generated
 		return $this->structure["sequence"][$table];
 	}
 

@@ -2,7 +2,7 @@
 
 namespace NotORM\Structure\Discovery;
 
-/** Reading primary and foreign keys from the database metadata, only single-column keys are supported */
+/** Reading primary and foreign keys from the database metadata, multi-column foreign keys are not supported */
 abstract class Driver {
 	function __construct(
 		protected \PDO $connection,

@@ -16,12 +16,13 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		protected array $row,
 		protected Result $result,
 	) {
-		$this->id = $row[$result->primary] ?? null;
+		$this->id = $this->primaryValue($row);
 	}
 
-	/** Get primary key value */
+	/** Get primary key value, the values of a multi-column primary key are separated by comma */
 	function __toString(): string {
-		return (string) $this[$this->result->primary]; // (string) - PostgreSQL returns int
+		$id = $this->primaryValue($this);
+		return (is_array($id) ? implode(",", $id) : (string) $id); // (string) - PostgreSQL returns int
 	}
 
 	/** Get referenced row
@@ -89,8 +90,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 		// update is an SQL keyword
 		$data ??= $this->modified;
 		$result = new Result($this->result->table, $this->result->notORM);
-		$return = $result->where($this->result->primary, $this->id)->update($data);
-		$this->id = $this[$this->result->primary];
+		$return = $this->wherePrimary($result)->update($data);
+		$this->id = $this->primaryValue($this);
 		return $return;
 	}
 
@@ -100,9 +101,28 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function delete(): int|false {
 		// delete is an SQL keyword
 		$result = new Result($this->result->table, $this->result->notORM);
-		$return = $result->where($this->result->primary, $this->id)->delete();
-		$this->id = $this[$this->result->primary];
+		$return = $this->wherePrimary($result)->delete();
+		$this->id = $this->primaryValue($this);
 		return $return;
+	}
+
+	/** Get primary key value, [$column => $value] for a multi-column primary key
+	* @param array<string, mixed>|Row $row
+	*/
+	private function primaryValue(array|Row $row): mixed {
+		if (!is_array($this->result->primary)) {
+			return $row[$this->result->primary] ?? null;
+		}
+		$return = [];
+		foreach ($this->result->primary as $column) {
+			$return[$column] = $row[$column] ?? null;
+		}
+		return $return;
+	}
+
+	/** Restrict $result to this row */
+	private function wherePrimary(Result $result): Result {
+		return (is_array($this->id) ? $result->where($this->id) : $result->where($this->result->primary, $this->id));
 	}
 
 	protected function access(string|int|null $key, bool $delete = false): void {
