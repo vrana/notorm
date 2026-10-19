@@ -51,7 +51,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			if (is_array($access)) {
 				$access = array_filter($access);
 			}
-			$this->notORM->cache->save("$this->table;" . implode(",", $this->conditions), $access);
+			$this->notORM->cache->save(Cache::VERSION . ";$this->table;" . implode(",", $this->conditions), $access);
 		}
 		$this->rows = null;
 		unset($this->data);
@@ -165,7 +165,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$return = "SELECT" . $this->topString($this->limit, $this->offset) . " ";
 		$join = $this->createJoins(implode(",", $this->conditions) . "," . implode(",", $this->select) . ",$this->group,$this->having," . implode(",", $this->order));
 		if (!isset($this->rows) && $this->notORM->cache && !is_string($this->accessed)) {
-			$this->accessed = $this->notORM->cache->load("$this->table;" . implode(",", $this->conditions));
+			$this->accessed = $this->notORM->cache->load(Cache::VERSION . ";$this->table;" . implode(",", $this->conditions));
 			$this->access = $this->accessed;
 		}
 		if ($this->select) {

@@ -5,6 +5,9 @@ namespace NotORM;
 /** Loading and saving data, it's only cache so load() does not need to block until save() */
 interface Cache {
 
+	/** Version of the stored data, the keys start with it so that data stored by other versions are not used */
+	const VERSION = 2;
+
 	/** Load stored data
 	* @return mixed null if not found
 	*/

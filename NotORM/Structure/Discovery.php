@@ -26,12 +26,12 @@ class Discovery implements \NotORM\Structure {
 		$name = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 		$class = self::$drivers[$name] ?? throw new \InvalidArgumentException("Discovery doesn't support the PDO driver $name.");
 		$this->driver = new $class($connection);
-		$this->structure = $cache?->load("structure") ?? [];
+		$this->structure = $cache?->load(\NotORM\Cache::VERSION . ";structure") ?? [];
 	}
 
 	/** Save data to cache */
 	function __destruct() {
-		$this->cache?->save("structure", $this->structure);
+		$this->cache?->save(\NotORM\Cache::VERSION . ";structure", $this->structure);
 	}
 
 	/** @return string|non-empty-list<string> */

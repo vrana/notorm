@@ -19,6 +19,7 @@
 		<exclude name="PSR12.Classes.ClassInstantiation.MissingParentheses"/>
 		<exclude name="PSR12.Files.FileHeader.IncorrectOrder"/><!-- the file-level doc-comment after <?php declare(strict_types=1); -->
 		<exclude name="PSR12.Files.OpenTag.NotAlone"/><!-- <?php declare(strict_types=1); -->
+		<exclude name="PSR12.Properties.ConstantVisibility.NotFound"/>
 		<exclude name="Squiz.Scope.MethodScope.Missing"/>
 
 		<!-- More readable. -->
