@@ -15,6 +15,7 @@ class Discovery implements \NotORM\Structure {
 	];
 	protected Discovery\Driver $driver;
 	/** @var array<string, array<string, mixed>> */ protected array $structure;
+
 	/** Create autodisovery structure
 	* @param string $foreign use "%s_id" to access $name . "_id" column in $row->$name
 	*/

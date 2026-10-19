@@ -81,6 +81,8 @@
 	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
 	<rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
 
+	<rule ref="SlevomatCodingStandard.Classes.ClassMemberSpacing"/>
+	<rule ref="SlevomatCodingStandard.Classes.MethodSpacing"/>
 	<rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion"/>
 	<rule ref="SlevomatCodingStandard.Classes.RequireMultiLineMethodSignature">
 		<properties>
