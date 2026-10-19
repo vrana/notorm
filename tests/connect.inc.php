@@ -32,8 +32,13 @@ if ($driver == "sqlite") {
 	}
 }
 
+$blob = match ($driver) {
+	"pgsql" => "bytea",
+	"sqlsrv" => "varbinary(max)",
+	default => "blob",
+};
 foreach (preg_split('~;\r?\n~', file_get_contents(__DIR__ . "/software.sql"), flags: PREG_SPLIT_NO_EMPTY) as $query) {
-	$connection->exec($query);
+	$connection->exec(preg_replace('~\bblob\b~', $blob, $query));
 }
 
 $structure = ($driver == "pgsql" ? new NotORM\Structure\Convention(sequence: '') : null); // no table has a sequence

@@ -26,6 +26,7 @@ CREATE TABLE application (
   title varchar(50) NOT NULL,
   web varchar(100),
   slogan varchar(100) NOT NULL,
+  logo blob,
   PRIMARY KEY (id),
   CONSTRAINT application_author FOREIGN KEY (author_id) REFERENCES author (id),
   CONSTRAINT application_maintainer FOREIGN KEY (maintainer_id) REFERENCES author (id)

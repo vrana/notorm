@@ -248,6 +248,15 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		if (is_int($val) || $val instanceof Literal) { // number or SQL code - for example "NOW()"
 			return (string) $val;
 		}
+		if (is_string($val) && (!preg_match('~~u', $val) || str_contains($val, "\0"))) { // binary data, PDO::quote() fails or mangles it
+			$hex = bin2hex($val);
+			return match ($this->notORM->driver) {
+				"pgsql" => "decode('$hex', 'hex')",
+				"oci" => "HEXTORAW('$hex')", // up to 2000 bytes
+				"dblib", "mssql", "sqlsrv" => "0x$hex",
+				default => "X'$hex'",
+			};
+		}
 		return $this->notORM->connection->quote((string) $val); // (string) - Row
 	}
 

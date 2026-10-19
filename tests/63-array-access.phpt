@@ -24,6 +24,6 @@ bool(false)
 bool(true)
 bool(false)
 NULL
-6 columns
-id, maintainer_id, title, slogan
+7 columns
+id, maintainer_id, title, slogan, logo
 21, 23, 24
