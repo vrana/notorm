@@ -132,7 +132,7 @@ class MultiResult extends Result {
 			} else {
 				$clone = clone $this;
 				$clone->where[0] = "$this->column = " . $this->quote($val);
-				$return->union($clone);
+				$return->union($clone, true); // the parts don't overlap, UNION would compare all columns, which Oracle doesn't support for BLOB
 			}
 		}
 		return $return;
