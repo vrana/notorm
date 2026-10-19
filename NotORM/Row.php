@@ -47,7 +47,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 				$referenced = [];
 			}
 		}
-		return $referenced[$value] ?? null; // referenced row may not exist
+		return ($value === null ? null : $referenced[$value] ?? null); // referenced row may not exist
 	}
 
 	/** Test if referenced row exists */
@@ -126,7 +126,7 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	}
 
 	protected function access(string|int|null $key, bool $delete = false): void {
-		if ($this->result->notORM->cache && !isset($this->modified[$key]) && $this->result->access($key, $delete)) {
+		if ($this->result->notORM->cache && ($key === null || !isset($this->modified[$key])) && $this->result->access($key, $delete)) {
 			$row = $this->result[$this->id ?? $this->row];
 			if ($this->id !== null && $row?->id != $this->id) { // the result is a list
 				$row = $this->result[$this->row];
