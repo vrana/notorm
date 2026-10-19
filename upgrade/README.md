@@ -22,7 +22,7 @@ The script uses [PHP-Parser](https://github.com/nikic/PHP-Parser), which a plain
 - Renamed method calls.
 
 ## What to check yourself
-- NotORM 2 requires PHP 8.0.
+- NotORM 2 requires PHP 8.0+.
 - `group()` without `select()` selects the grouped columns instead of `*`.
 - An undefined method of `NotORM\Result` throws PHP's `Error`.
 - `insertUpdate()` returns `false` on an error.
