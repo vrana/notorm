@@ -5,6 +5,7 @@
 	<arg name="parallel" value="8"/>
 	<config name="php_version" value="80000"/><!-- the minimal version, e.g. for the native types -->
 	<arg name="cache"/><!-- PHP_CodeSniffer stores the cache in the system temp directory -->
+	<arg name="extensions" value="php,phpt"/>
 
 	<file>NotORM/</file>
 	<file>tests/</file>
@@ -33,12 +34,21 @@
 
 	<rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
 		<exclude-pattern>upgrade/upgrade.php</exclude-pattern><!-- the script declares its functions also for its tests -->
+		<exclude-pattern>tests/</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+		<exclude-pattern>*.phpt</exclude-pattern>
+	</rule>
+	<rule ref="PSR12.Files.FileHeader.SpacingAfterDeclareBlock">
+		<exclude-pattern>*.phpt</exclude-pattern>
 	</rule>
 
 	<rule ref="Generic.Files.LineLength">
 		<properties>
 			<property name="lineLimit" value="200"/>
 		</properties>
+		<exclude-pattern>*.phpt</exclude-pattern><!-- the expected SQL -->
 	</rule>
 
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
@@ -62,7 +72,9 @@
 	<rule ref="Generic.PHP.ForbiddenFunctions"/>
 	<rule ref="Generic.Strings.UnnecessaryHeredoc"/>
 	<rule ref="Generic.VersionControl.GitMergeConflict"/>
-	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent">
+		<exclude-pattern>*.phpt</exclude-pattern><!-- the expected print_r() -->
+	</rule>
 	<rule ref="Generic.WhiteSpace.LanguageConstructSpacing"/>
 
 	<rule ref="Squiz.Arrays.ArrayBracketSpacing"/>
@@ -79,7 +91,11 @@
 	<rule ref="Squiz.Scope.StaticThisUsage"/>
 	<rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace"/>
 	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
-	<rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
+	<rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing">
+		<properties>
+			<property name="ignoreNewlines" value="true"/><!-- a fluent call on more lines -->
+		</properties>
+	</rule>
 
 	<rule ref="SlevomatCodingStandard.Classes.ClassMemberSpacing"/>
 	<rule ref="SlevomatCodingStandard.Classes.MethodSpacing"/>
@@ -116,6 +132,9 @@
 			<property name="declareOnFirstLine" value="true"/>
 			<property name="spacesCountAroundEqualsSign" value="0"/>
 		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceAfterDeclare">
+		<exclude-pattern>*.phpt</exclude-pattern><!-- the text of the tests follows ?> -->
 	</rule>
 	<rule ref="SlevomatCodingStandard.TypeHints.LongTypeHints"/>
 	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">

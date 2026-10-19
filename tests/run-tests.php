@@ -17,12 +17,12 @@ if (!isset($argv[1])) {
 require_once __DIR__ . "/connect.inc.php"; // the tests share its variables, their require_once doesn't include it again
 
 // each test in its own scope so that it can't overwrite the variables of this file or of the other tests
-$run = function (string $filename): string {
+function run(string $filename): string {
 	global $connection, $software, $driver; // used by the tests
 	ob_start();
 	require $filename;
 	return ob_get_clean();
-};
+}
 
 $start = microtime(true);
 
@@ -30,7 +30,7 @@ $tests = glob(__DIR__ . "/*.phpt", GLOB_NOSORT);
 natsort($tests);
 $failures = 0;
 foreach ($tests as $filename) {
-	if (!preg_match("~^--TEST--\n(.*?)\n(?:--SKIPIF--\n(.*\n)?)?--FILE--\n(.*\n)?--EXPECTF--\n(.*)~s", str_replace("\r\n", "\n", $run($filename)), $match)) {
+	if (!preg_match("~^--TEST--\n(.*?)\n(?:--SKIPIF--\n(.*\n)?)?--FILE--\n(.*\n)?--EXPECTF--\n(.*)~s", str_replace("\r\n", "\n", run($filename)), $match)) {
 		echo "wrong test in $filename\n";
 		$failures++;
 	} elseif ($match[2]) {

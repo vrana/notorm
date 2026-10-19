@@ -36,7 +36,7 @@ composer test
 - To run one test, execute it directly and compare its printed output against its `--EXPECTF--` block by eye: `php tests/1-basic.phpt`.
 - Tests that write (`10-update`, `22-insert-update`, …) must leave the fixture data as they found it, since later tests depend on it.
 - Many tests assert generated SQL by echoing a result object (`echo "$applications"` → `NotORM\Result::__toString()`); expected output therefore pins exact query text. Without `ORDER BY` the row order is not guaranteed.
-- New tests take the next free number: `tests/NN-name.phpt`.
+- New tests take the next free number: `tests/NN-name.phpt`. They start with `<?php declare(strict_types=1); ?>` directly followed by `--TEST--`, and `composer check` checks them too.
 
 ## Architecture
 
