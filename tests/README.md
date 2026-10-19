@@ -62,3 +62,12 @@ Add an alias to `databases.conf`, e.g. `software = /data/software.fdb`, then in 
 CREATE USER ODBC PASSWORD 'ODBC';
 CREATE DATABASE 'localhost:software' USER 'ODBC' PASSWORD 'ODBC';
 ```
+
+## Coverage
+
+[coverage.php](coverage.php) prints the coverage of each file in `NotORM/` with the lines the tests didn't execute.
+It needs Xdebug and runs the tests on one database, because the run on all databases starts the other processes without Xdebug:
+
+```sh
+php -d zend_extension=xdebug -d xdebug.mode=coverage -d auto_prepend_file=tests/coverage.php tests/run-tests.php sqlite
+```
