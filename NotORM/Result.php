@@ -818,6 +818,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$keys = (array) $key;
 		$return = [];
 		$clone = clone $this;
+		$clone->rows = null; // the rows already fetched by $this don't have the key first
 		if ($value != "") {
 			$clone->select = [];
 			$clone->select(implode(", ", (in_array($value, $keys, true) ? $keys : [...$keys, $value]))); // MultiResult adds its column, MS SQL doesn't allow ORDER BY a column selected twice
