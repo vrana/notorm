@@ -79,7 +79,16 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	protected function removeExtraDots(string $expression): string {
-		return preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $expression); // rewrite tab1.tab2.col
+		// rewrite tab1.tab2.col to tab2.col
+		return preg_replace_callback('~(\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)([.:])([a-z_*])~i', function (array $match): string {
+			[, $path, $name, $delimiter, $column] = $match;
+			return ($path != "" || $delimiter == ":" ? $this->joinAlias($name) : $name) . ".$column";
+		}, $expression);
+	}
+
+	/** Alias of a joined table, a join to the main table needs another one */
+	protected function joinAlias(string $name): string {
+		return ($name == $this->alias ? "{$name}2" : $name);
 	}
 
 	protected function whereString(): string {
@@ -156,8 +165,9 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 						$column = $structure->getReferencedColumn($name, $parentTable);
 						$primary = $structure->getPrimary($table);
 					}
-					$return[$name] = " LEFT JOIN " . $this->tableAlias($table, $name) . " ON $parent.$column = $name.$primary"; //! a name used on more places needs a unique alias
-					$parent = $name;
+					$alias = $this->joinAlias($name);
+					$return[$alias] = " LEFT JOIN " . $this->tableAlias($table, $alias) . " ON $parent.$column = $alias.$primary"; //! a name used on more places needs a unique alias
+					$parent = $alias;
 					$parentTable = $table;
 				}
 			}

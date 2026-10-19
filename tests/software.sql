@@ -54,6 +54,20 @@ INSERT INTO application_tag (application_id, tag_id) VALUES (31, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (34, 22);
 INSERT INTO application_tag (application_id, tag_id) VALUES (32, 23);
 
+CREATE TABLE category (
+  id int NOT NULL,
+  name varchar(30) NOT NULL,
+  parent_id int,
+  PRIMARY KEY (id),
+  CONSTRAINT category_parent FOREIGN KEY (parent_id) REFERENCES category (id)
+);
+
+INSERT INTO category (id, name, parent_id) VALUES (41, 'Database', NULL);
+INSERT INTO category (id, name, parent_id) VALUES (42, 'Web', NULL);
+INSERT INTO category (id, name, parent_id) VALUES (43, 'Administration', 41);
+INSERT INTO category (id, name, parent_id) VALUES (44, 'Library', 41);
+INSERT INTO category (id, name, parent_id) VALUES (45, 'Framework', 42);
+
 CREATE TABLE setting (
   site_name varchar(50) NOT NULL,
   per_page int NOT NULL

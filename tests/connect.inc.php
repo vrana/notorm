@@ -15,7 +15,7 @@ $connection = new PDO("$driver:$dsn", "ODBC", "ODBC");
 $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 
-$tables = ["application_tag", "application", "tag", "author", "notorm", "setting"];
+$tables = ["application_tag", "application", "tag", "author", "category", "notorm", "setting"];
 if ($driver == "sqlite") {
 	$connection->exec("PRAGMA foreign_keys = ON"); // ON DELETE CASCADE in software.sql
 } elseif ($driver == "oci" || $driver == "firebird") {
