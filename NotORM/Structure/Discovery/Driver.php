@@ -26,9 +26,9 @@ abstract class Driver {
 	abstract function referencedTables(string $table): array;
 
 	/** Get sequence of the primary key, used by insert
-	* @return string|null|false null if the name is not needed, false if there is none
+	* @return ?string null if the name is not needed, '' if there is none
 	*/
-	function sequence(string $table, string $primary): string|false|null {
+	function sequence(string $table, string $primary): ?string {
 		return null;
 	}
 

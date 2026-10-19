@@ -79,9 +79,9 @@ class Discovery implements \NotORM\Structure {
 		return $return[$column];
 	}
 
-	function getSequence(string $table): string|null|false {
+	function getSequence(string $table): ?string {
 		$primary = $this->getPrimary($table);
-		$this->structure["sequence"][$table] ??= (is_string($primary) ? $this->driver->sequence($table, $primary) : false); // false - a multi-column primary key isn't generated
+		$this->structure["sequence"][$table] ??= (is_string($primary) ? $this->driver->sequence($table, $primary) : ''); // '' - a multi-column primary key isn't generated
 		return $this->structure["sequence"][$table];
 	}
 

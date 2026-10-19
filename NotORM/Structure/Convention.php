@@ -9,14 +9,14 @@ class Convention implements \NotORM\Structure {
 	* @param string $foreign %1$s stands for key used after ->, %2$s for table name
 	* @param string $table %1$s stands for key used after ->, %2$s for table name
 	* @param string $prefix prefix for all tables
-	* @param string|null|false $sequence %s stands for table name, e.g. "%s_id_seq" in PostgreSQL; null if the name is not needed, false to not get the inserted ID
+	* @param ?string $sequence %s stands for table name, e.g. "%s_id_seq" in PostgreSQL; null if the name is not needed, '' to not get the inserted ID
 	*/
 	function __construct(
 		protected string $primary = 'id',
 		protected string $foreign = '%s_id',
 		protected string $table = '%s',
 		protected string $prefix = '',
-		protected string|null|false $sequence = null,
+		protected ?string $sequence = null,
 	) {
 	}
 
@@ -40,7 +40,7 @@ class Convention implements \NotORM\Structure {
 		return $this->prefix . sprintf($this->table, $name, $table);
 	}
 
-	function getSequence(string $table): string|false|null {
+	function getSequence(string $table): ?string {
 		return (is_string($this->sequence) ? sprintf($this->sequence, $table) : $this->sequence);
 	}
 

@@ -23,8 +23,8 @@ interface Structure {
 	function getReferencedTable(string $name, string $table): string;
 
 	/** Get sequence name, used by insert
-	* @return string|null|false null if the name is not needed, false to not get the inserted ID
+	* @return ?string null if the name is not needed, '' to not get the inserted ID
 	*/
-	function getSequence(string $table): string|false|null;
+	function getSequence(string $table): ?string;
 
 }

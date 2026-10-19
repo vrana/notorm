@@ -32,7 +32,7 @@ if ($driver == "sqlite") {
 		$connection->exec("SET default_storage_engine = InnoDB"); // foreign keys
 	}
 }
-$structure = ($driver == "pgsql" ? new NotORM\Structure\Convention(sequence: false) : null); // no table has a sequence
+$structure = ($driver == "pgsql" ? new NotORM\Structure\Convention(sequence: '') : null); // no table has a sequence
 foreach (preg_split('~;\r?\n~', file_get_contents(__DIR__ . "/software.sql"), flags: PREG_SPLIT_NO_EMPTY) as $query) {
 	$connection->exec($query);
 }
