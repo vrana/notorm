@@ -1,0 +1,9 @@
+{
+	"description": "The dependency of upgrade.php, installed by it on the first run",
+	"require": {
+		"nikic/php-parser": "5.9.0"
+	},
+	"config": {
+		"lock": false
+	}
+}

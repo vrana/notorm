@@ -12,6 +12,8 @@
 composer require vrana/notorm
 ```
 
+Upgrading from NotORM 1: see [upgrade/README.md](upgrade/README.md).
+
 ## Usage
 ```php
 <?php

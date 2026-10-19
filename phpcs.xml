@@ -8,6 +8,8 @@
 
 	<file>NotORM/</file>
 	<file>tests/</file>
+	<file>upgrade/upgrade.php</file>
+	<file>upgrade/tests/run-tests.php</file>
 
 	<rule ref="PSR12">
 		<exclude name="Generic.WhiteSpace.DisallowTabIndent"/><!-- Replaced by: Generic.WhiteSpace.DisallowSpaceIndent -->
@@ -27,6 +29,10 @@
 		<exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
 		<exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
 		<exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
+	</rule>
+
+	<rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+		<exclude-pattern>upgrade/upgrade.php</exclude-pattern><!-- the script declares its functions also for its tests -->
 	</rule>
 
 	<rule ref="Generic.Files.LineLength">
