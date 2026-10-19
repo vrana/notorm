@@ -33,7 +33,7 @@ class NotORM extends Base {
 
 	/** Get table data to use as $db->table[1] */
 	function __get(string $table): Result {
-		return new Result($this->structure->getReferencingTable($table, ''), $this, true);
+		return new Result($this->structure->getReferencingTable($table, ''), $this, true, $table);
 	}
 
 	/** Set write-only properties */
@@ -60,7 +60,7 @@ class NotORM extends Base {
 	* @param list<mixed> $where arguments passed to Result::where()
 	*/
 	function __call(string $table, array $where): Result {
-		$return = new Result($this->structure->getReferencingTable($table, ''), $this);
+		$return = new Result($this->structure->getReferencingTable($table, ''), $this, alias: $table);
 		if ($where) {
 			$return->where(...$where);
 		}

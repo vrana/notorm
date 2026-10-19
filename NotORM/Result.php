@@ -29,17 +29,21 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	/** @var array<bool>|''|null */ protected array|string|null $accessed = null;
 	/** @var array<bool>|''|null */ protected array|string|null $access = null;
 	/** @var list<string|int> */ protected array $keys = [];
+	protected string $alias; // name of the table in the query, e.g. without a prefix
 
 	/** Create table result
 	* @param bool $single single row
+	* @param ?string $alias name of the table in the query, $table by default
 	* @access protected must be public because it is called from NotORM
 	*/
 	function __construct(
 		string $table,
 		NotORM $notORM,
 		protected bool $single = false,
+		?string $alias = null,
 	) {
 		$this->table = $table;
+		$this->alias = $alias ?? $table;
 		$this->notORM = $notORM;
 		$this->primary = $notORM->structure->getPrimary($table);
 	}
@@ -104,6 +108,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** WHERE for UPDATE and DELETE */
 	protected function writeString(): string {
+		//! the main table has no alias here, so conditions can't use its name if it differs from the table
 		if ($this->notORM->driver == "mysql") { // supports ORDER BY and LIMIT in UPDATE and DELETE
 			return $this->whereString();
 		}
@@ -135,7 +140,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		$return = [];
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_*]~i', $val, $matches);
 		foreach ($matches[1] as $names) {
-			$parent = $this->table; // alias
+			$parent = $this->alias;
 			$parentTable = $this->table;
 			if ($names != "$parent.") { // case-sensitive
 				preg_match_all('~\\b([a-z_][a-z0-9_]*)([.:])~i', $names, $matches, PREG_SET_ORDER);
@@ -151,13 +156,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 						$column = $structure->getReferencedColumn($name, $parentTable);
 						$primary = $structure->getPrimary($table);
 					}
-					$return[$name] = " LEFT JOIN $table" . ($table != $name ? " AS $name" : "") . " ON $parent.$column = $name.$primary"; // should use alias if the table is used on more places
+					$return[$name] = " LEFT JOIN " . $this->tableAlias($table, $name) . " ON $parent.$column = $name.$primary"; //! a name used on more places needs a unique alias
 					$parent = $name;
 					$parentTable = $table;
 				}
 			}
 		}
 		return $return;
+	}
+
+	/** Table with an alias if they differ, Oracle doesn't support AS */
+	protected function tableAlias(string $table, string $alias): string {
+		return $table . ($table != $alias ? " $alias" : "");
 	}
 
 	/** Get SQL query */
@@ -173,11 +183,11 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		} elseif ($this->group) { // other columns are not allowed with ONLY_FULL_GROUP_BY and in other databases
 			$return .= $this->removeExtraDots((string) $this->group); // (string) - Literal
 		} elseif ($this->accessed) {
-			$return .= ($join ? "$this->table." : "") . implode(", " . ($join ? "$this->table." : ""), array_keys($this->accessed));
+			$return .= ($join ? "$this->alias." : "") . implode(", " . ($join ? "$this->alias." : ""), array_keys($this->accessed));
 		} else {
-			$return .= ($join ? "$this->table." : "") . "*";
+			$return .= ($join ? "$this->alias." : "") . "*";
 		}
-		$return .= " FROM $this->table" . implode($join) . $this->whereString();
+		$return .= " FROM " . $this->tableAlias($this->table, $this->alias) . implode($join) . $this->whereString();
 		if ($this->union) {
 			$return = $this->unionPart($return) . implode($this->union);
 			if ($this->unionOrder && $this->notORM->driver == "oci") {
@@ -673,7 +683,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			$result = $this->query("SELECT $function FROM ($derived) t", $derived->queryParameters());
 		} else {
 			$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
-			$query = "SELECT $function FROM $this->table" . implode($join);
+			$query = "SELECT $function FROM " . $this->tableAlias($this->table, $this->alias) . implode($join);
 			if ($this->where) {
 				$query .= " WHERE " . implode($this->where);
 			}
@@ -814,7 +824,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		} elseif ($clone->select) {
 			array_unshift($clone->select, implode(", ", $keys));
 		} else {
-			$clone->select = [implode(", ", $keys) . ", $this->table.*"];
+			$clone->select = [implode(", ", $keys) . ", $this->alias.*"];
 		}
 		$index = array_search($value, $keys, true);
 		$index = ($index === false ? count($keys) : $index); // position of $value

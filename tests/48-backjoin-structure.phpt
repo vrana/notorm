@@ -12,6 +12,6 @@ $discovery = new NotORM\NotORM($connection, new NotORM\Structure\Discovery($conn
 echo $discovery->author()->where("application:title", "Adminer")->fetch("name") . "\n";
 ?>
 --EXPECTF--
-SELECT prefix_author.* FROM prefix_author LEFT JOIN prefix_application AS application ON prefix_author.id = application.author_id WHERE (application.title = 'Adminer')
-SELECT prefix_author.* FROM prefix_author LEFT JOIN prefix_application AS application ON prefix_author.id = application.author_id LEFT JOIN prefix_application_tag AS application_tag ON application.id = application_tag.application_id WHERE (application_tag.tag_id = 21)
+SELECT author.* FROM prefix_author author LEFT JOIN prefix_application application ON author.id = application.author_id WHERE (application.title = 'Adminer')
+SELECT author.* FROM prefix_author author LEFT JOIN prefix_application application ON author.id = application.author_id LEFT JOIN prefix_application_tag application_tag ON application.id = application_tag.application_id WHERE (application_tag.tag_id = 21)
 Jakub Vrana

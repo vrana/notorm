@@ -9,4 +9,4 @@ $applications = $prefix->application("author.name", "Jakub Vrana");
 echo "$applications\n";
 ?>
 --EXPECTF--
-SELECT prefix_application.* FROM prefix_application LEFT JOIN prefix_author AS author ON prefix_application.author_id = author.id WHERE (author.name = 'Jakub Vrana')
+SELECT application.* FROM prefix_application application LEFT JOIN prefix_author author ON application.author_id = author.id WHERE (author.name = 'Jakub Vrana')

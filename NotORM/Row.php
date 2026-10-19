@@ -74,8 +74,8 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 	function __call(string $name, array $args): MultiResult {
 		$table = $this->result->notORM->structure->getReferencingTable($name, $this->result->table);
 		$column = $this->result->notORM->structure->getReferencingColumn($table, $this->result->table);
-		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary]);
-		$return->where("$table.$column", ($this->result->rows !== null ? $this->result->ids() : [$this[$this->result->primary]])); // rows are null after insert
+		$return = new MultiResult($table, $this->result, $column, $this[$this->result->primary], $name);
+		$return->where("$name.$column", ($this->result->rows !== null ? $this->result->ids() : [$this[$this->result->primary]])); // rows are null after insert
 		if ($args) {
 			$return->where(...$args);
 		}

@@ -10,8 +10,9 @@ class MultiResult extends Result {
 		private Result $result,
 		private string $column,
 		private mixed $active,
+		?string $alias = null,
 	) {
-		parent::__construct($table, $result->notORM);
+		parent::__construct($table, $result->notORM, alias: $alias);
 	}
 
 	/** Specify referencing column
@@ -19,8 +20,8 @@ class MultiResult extends Result {
 	*/
 	function via(string $column): static {
 		$this->column = $column;
-		$this->conditions[0] = "$this->table.$column AND";
-		$this->where[0] = "(" . $this->whereIn("$this->table.$column", ($this->result->rows !== null ? $this->result->ids() : [$this->active])) . ")"; // rows are null after insert
+		$this->conditions[0] = "$this->alias.$column AND";
+		$this->where[0] = "(" . $this->whereIn("$this->alias.$column", ($this->result->rows !== null ? $this->result->ids() : [$this->active])) . ")"; // rows are null after insert
 		return $this;
 	}
 
@@ -64,23 +65,23 @@ class MultiResult extends Result {
 	}
 
 	function select(string|Literal $columns, string|Literal ...$moreColumns): static {
-		if (!$this->select && !array_intersect([$columns, ...$moreColumns], [$this->column, "$this->table.$this->column"])) { // MS SQL doesn't allow ORDER BY a column selected twice
-			return parent::select("$this->table.$this->column", $columns, ...$moreColumns);
+		if (!$this->select && !array_intersect([$columns, ...$moreColumns], [$this->column, "$this->alias.$this->column"])) { // MS SQL doesn't allow ORDER BY a column selected twice
+			return parent::select("$this->alias.$this->column", $columns, ...$moreColumns);
 		}
 		return parent::select($columns, ...$moreColumns);
 	}
 
 	function order(string|Literal|array $columns, string|Literal ...$moreColumns): static {
-		$column = '~^(' . preg_quote("$this->table.") . ')?' . preg_quote($this->column) . '(\s+(ASC|DESC))?$~i';
+		$column = '~^(' . preg_quote("$this->alias.") . ')?' . preg_quote($this->column) . '(\s+(ASC|DESC))?$~i';
 		if (!$this->order && !preg_grep($column, (is_array($columns) ? $columns : [$columns, ...$moreColumns]))) { // improve index utilization, MS SQL doesn't allow ORDER BY a column twice
-			$this->order[] = "$this->table.$this->column" . (preg_match('~\\bDESC$~i', (is_array($columns) ? implode(", ", $columns) : (string) $columns)) ? " DESC" : "");
+			$this->order[] = "$this->alias.$this->column" . (preg_match('~\\bDESC$~i', (is_array($columns) ? implode(", ", $columns) : (string) $columns)) ? " DESC" : "");
 		}
 		return parent::order($columns, ...$moreColumns);
 	}
 
 	function group(string|Literal $columns, string|Literal $having = ""): static {
 		if ($columns != "") { // group separately for each row of the referenced table
-			$columns = "$this->table.$this->column, $columns";
+			$columns = "$this->alias.$this->column, $columns";
 		}
 		return parent::group($columns, $having);
 	}
@@ -92,8 +93,8 @@ class MultiResult extends Result {
 			$parameters = $derived->queryParameters();
 		} else {
 			$join = $this->createJoins(implode(",", $this->conditions) . ",$function");
-			$column = ($join ? "$this->table." : "") . $this->column;
-			$query = "SELECT $function, $column FROM $this->table" . implode($join);
+			$column = ($join ? "$this->alias." : "") . $this->column;
+			$query = "SELECT $function, $column FROM " . $this->tableAlias($this->table, $this->alias) . implode($join);
 			if ($this->where) {
 				$query .= " WHERE " . implode($this->where);
 			}
