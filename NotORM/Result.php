@@ -595,29 +595,33 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 
 	/** @param mixed[] $parameters */
 	protected function whereIn(string $condition, array $parameters): string {
+		$not = preg_match('~^NOT\s+(.+)~is', $condition, $match);
+		$column = ($not ? $match[1] : $condition);
+		$null = in_array(null, $parameters, true);
+		$parameters = array_values(array_filter($parameters, fn ($val) => $val !== null)); // NULL in IN never matches
 		if (!$parameters) {
+			if ($null) {
+				return "$column IS" . ($not ? " NOT" : "") . " NULL";
+			}
 			// IN () is not supported, it would be NULL for NULL and false otherwise
-			$condition = (preg_match('~^NOT\s+(.+)~is', $condition, $match)
-				? "$match[1] IS NOT NULL" // NOT is not applicable to other types than bool in PostgreSQL
-				: "($condition) IS NOT NULL AND $condition IS NULL"
+			return ($not
+				? "$column IS NOT NULL" // NOT is not applicable to other types than bool in PostgreSQL
+				: "($column) IS NOT NULL AND $column IS NULL"
 			);
-		} else {
-			$column = $condition;
-			if ($this->notORM->driver != "oci") {
-				$condition .= " IN " . $this->quote($parameters);
-			} else { // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
-				$or = [];
-				for ($i=0; $i < count($parameters); $i += 1000) {
-					$or[] = "$column IN " . $this->quote(array_slice($parameters, $i, 1000));
-				}
-				$condition = implode(" OR ", $or);
-			}
-			$nulls = array_filter($parameters, 'is_null');
-			if ($nulls) {
-				$condition = "$condition OR $column IS NULL";
-			}
 		}
-		return $condition;
+		$or = [];
+		$chunks = ($this->notORM->driver == "oci" ? array_chunk($parameters, 1000) : [$parameters]); // https://docs.oracle.com/cd/B19306_01/server.102/b14200/expressions014.htm
+		foreach ($chunks as $values) {
+			$or[] = "$column IN " . $this->quote($values);
+		}
+		if ($null) {
+			$or[] = "$column IS NULL";
+		}
+		$return = implode(" OR ", $or);
+		if ($not) {
+			$return = (count($or) > 1 ? "NOT ($return)" : "NOT $return");
+		}
+		return $return;
 	}
 
 	/** Shortcut for where()
