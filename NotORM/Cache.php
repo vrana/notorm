@@ -6,7 +6,7 @@ namespace NotORM;
 interface Cache {
 
 	/** Version of the stored data, the keys start with it so that data stored by other versions are not used */
-	const VERSION = 2;
+	const VERSION = 3;
 
 	/** Load stored data
 	* @return mixed null if not found

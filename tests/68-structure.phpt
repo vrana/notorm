@@ -17,4 +17,4 @@ echo implode(", ", array_keys($_SESSION["NotORM"])) . "\n";
 --EXPECTF--
 SELECT applications.* FROM applications LEFT JOIN authors author ON applications.author_id = author.author_id WHERE (author.name = 'Jakub Vrana')
 string(0) ""
-2;structure
+3;structure

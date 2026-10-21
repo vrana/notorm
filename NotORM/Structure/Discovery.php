@@ -54,8 +54,12 @@ class Discovery implements \NotORM\Structure {
 		$return = &$this->structure["referencing"][$table];
 		if (!isset($return[$name])) {
 			$primary = $this->getPrimary($table);
+			$conventional = strtolower($this->getReferencedColumn($table, '')); // e.g. author_id for $author->application() with "%s_id"
 			foreach (is_string($primary) ? $this->driver->referencingColumns($table, $primary) : [] as $row) { // multi-column foreign keys are not supported
-				$return[strtolower($row[0])] = $row[1];
+				$referencing = strtolower($row[0]);
+				if (strtolower($return[$referencing] ?? '') != $conventional) { // application.author_id and maintainer_id reference author, prefer the first
+					$return[$referencing] = $row[1];
+				}
 			}
 		}
 		return $return[$name];
