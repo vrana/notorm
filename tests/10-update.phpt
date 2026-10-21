@@ -19,7 +19,7 @@ $application_tag = $application->application_tag()->insert(["tag_id" => 21]);
 $application = $software->application[$id];
 echo $application["title"] . "\n";
 
-$application["web"] = "http://texy.info/";
+$application["web"] = "https://texy.info/";
 echo $application->update() . " row updated.\n";
 echo $software->application[$id]["web"] . "\n";
 
@@ -30,6 +30,6 @@ echo count($software->application("id", $id)) . " rows found.\n";
 --EXPECTF--
 Texy
 1 row updated.
-http://texy.info/
+https://texy.info/
 1 row deleted.
 0 rows found.

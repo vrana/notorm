@@ -22,5 +22,5 @@ foreach ($slogans as $id => $slogan) {
 2 rows updated
 31: Updated
 32: Updated
-33: Nette Framework for PHP 5
-34: Database Abstraction Library for PHP 5
+33: Comfortable and Safe Web Development in PHP
+34: Dibi - smart database abstraction layer

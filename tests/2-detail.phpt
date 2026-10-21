@@ -15,6 +15,6 @@ id: 31
 author_id: 11
 maintainer_id: 11
 title: Adminer
-web: http://www.adminer.org/
-slogan: Database management in single PHP file
+web: https://www.adminer.org/
+slogan: Database management in a single PHP file
 logo: 

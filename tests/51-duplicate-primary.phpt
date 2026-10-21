@@ -56,8 +56,8 @@ foreach (["name", "web"] as $column) {
 2: David Grudl
 3: David Grudl
 
-0: http://www.vrana.cz/
-1: http://www.vrana.cz/
-2: http://davidgrudl.com/
-3: http://davidgrudl.com/
+0: https://www.vrana.cz/
+1: https://www.vrana.cz/
+2: https://davidgrudl.com/
+3: https://davidgrudl.com/
 

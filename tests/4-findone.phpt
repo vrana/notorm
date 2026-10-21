@@ -14,5 +14,5 @@ echo ($software->application("title", "Texy")->fetch("slogan") ?? "No such appli
 ?>
 --EXPECTF--
 PHP
-Database management in single PHP file
+Database management in a single PHP file
 No such application

@@ -6,8 +6,8 @@ CREATE TABLE author (
   PRIMARY KEY (id)
 );
 
-INSERT INTO author (id, name, web, born) VALUES (11, 'Jakub Vrana', 'http://www.vrana.cz/', NULL);
-INSERT INTO author (id, name, web, born) VALUES (12, 'David Grudl', 'http://davidgrudl.com/', NULL);
+INSERT INTO author (id, name, web, born) VALUES (11, 'Jakub Vrana', 'https://www.vrana.cz/', NULL);
+INSERT INTO author (id, name, web, born) VALUES (12, 'David Grudl', 'https://davidgrudl.com/', NULL);
 
 CREATE TABLE tag (
   id int NOT NULL,
@@ -34,10 +34,10 @@ CREATE TABLE application (
 
 CREATE INDEX application_title ON application (title);
 
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (31, 11, 11, 'Adminer', 'http://www.adminer.org/', 'Database management in single PHP file');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (32, 11, NULL, 'JUSH', 'http://jush.sourceforge.net/', 'JavaScript Syntax Highlighter');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (33, 12, 12, 'Nette', 'http://nettephp.com/', 'Nette Framework for PHP 5');
-INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (34, 12, 12, 'Dibi', 'http://dibiphp.com/', 'Database Abstraction Library for PHP 5');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (31, 11, 11, 'Adminer', 'https://www.adminer.org/', 'Database management in a single PHP file');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (32, 11, NULL, 'JUSH', 'https://jush.sourceforge.io/', 'JavaScript Syntax Highlighter');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (33, 12, 12, 'Nette', 'https://nette.org/', 'Comfortable and Safe Web Development in PHP');
+INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES (34, 12, 12, 'Dibi', 'https://dibi.nette.org/', 'Dibi - smart database abstraction layer');
 
 CREATE TABLE application_tag (
   application_id int NOT NULL,
