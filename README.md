@@ -18,10 +18,10 @@ Upgrading from NotORM 1: see [upgrade/README.md](upgrade/README.md).
 ```php
 <?php
 require "vendor/autoload.php";
-$connection = new PDO("mysql:dbname=software");
-$software = new NotORM\NotORM($connection);
+$pdo = new PDO("mysql:dbname=software");
+$db = new NotORM\NotORM($pdo);
 
-foreach ($software->application()->order("title") as $application) { // get all applications ordered by title
+foreach ($db->application()->order("title") as $application) { // get all applications ordered by title
     echo "$application[title]\n"; // print application title
     echo $application->author["name"] . "\n"; // print name of the application author
     foreach ($application->application_tag() as $application_tag) { // get all tags of $application
