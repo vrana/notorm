@@ -26,6 +26,13 @@ abstract class Base {
 	protected function access(string|int|null $key, bool $delete = false) {
 	}
 
+	/** Get the first row of Result with these values
+	* @param array<string, mixed> $values
+	*/
+	protected function find(array $values): ?Row {
+		return null;
+	}
+
 	/** Get primary keys of rows in Result
 	* @return list<int|string> distinct values, not the keys of $rows which can be a list
 	*/

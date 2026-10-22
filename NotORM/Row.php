@@ -127,9 +127,10 @@ class Row extends Base implements \IteratorAggregate, \ArrayAccess, \Countable, 
 
 	protected function access(string|int|null $key, bool $delete = false): void {
 		if ($this->result->notORM->cache && ($key === null || !isset($this->modified[$key])) && $this->result->access($key, $delete)) {
-			$row = $this->result[$this->id ?? $this->row];
+			$id = $this->id ?? $this->row;
+			$row = (is_array($id) ? $this->result->find($id) : $this->result[$id]);
 			if ($this->id !== null && $row?->id != $this->id) { // the result is a list
-				$row = $this->result[$this->row];
+				$row = $this->result->find($this->row);
 			}
 			$this->row = $row->row;
 		}

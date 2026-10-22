@@ -1,20 +1,24 @@
 <?php declare(strict_types=1); ?>
 --TEST--
-Array offset
+Array offset is rejected
 --FILE--
 <?php
 require_once __DIR__ . "/connect.inc.php";
 
-$where = [
-	"author_id" => "11",
-	"maintainer_id" => null,
-];
+$where = ["1) OR (1" => "1"]; // ?id[1) OR (1]=1
 
-echo $software->application[$where]["id"] . "\n";
+try {
+	$software->application[$where];
+} catch (InvalidArgumentException $exception) {
+	echo $exception->getMessage() . "\n";
+}
 
-$applications = $software->application()->order("id");
-echo $applications[$where]["id"] . "\n";
+try {
+	isset($software->application()->order("id")[$where]);
+} catch (InvalidArgumentException $exception) {
+	echo $exception->getMessage() . "\n";
+}
 ?>
 --EXPECTF--
-32
-32
+Row offset must be an ID, use where()->fetch() for conditions.
+Row offset must be an ID, use where()->fetch() for conditions.

@@ -885,6 +885,19 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 		return false;
 	}
 
+	protected function find(array $values): ?Row {
+		$this->execute();
+		foreach ($this->data as $row) {
+			foreach ($values as $key => $value) {
+				if ((isset($value) && $row[$key] !== null ? $row[$key] != $value : $row[$key] !== $value)) {
+					continue 2;
+				}
+			}
+			return $row;
+		}
+		return null;
+	}
+
 	protected function single(): void {
 	}
 
@@ -917,7 +930,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	// ArrayAccess implementation
 
 	/** Test if row exists
-	* @param string|int|array<string, mixed> $offset row ID or array for where conditions
+	* @param string|int $offset row ID
 	*/
 	function offsetExists(mixed $offset): bool {
 		$row = $this->offsetGet($offset);
@@ -925,37 +938,18 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Get specified row
-	* @param string|int|array<string, mixed> $offset row ID or array for where conditions
+	* @param string|int $offset row ID
 	* @return Row|null null if there is no such row
 	*/
 	function offsetGet(mixed $offset): mixed {
-		if ($this->single && !isset($this->data)) {
-			$clone = clone $this;
-			if (is_array($offset)) {
-				$clone->where($offset)->limit(1);
-			} else {
-				$clone->where($this->primary, $offset);
-			}
-			$return = $clone->fetch();
-			if ($return) {
-				return $return;
-			}
-		} else {
-			$this->execute();
-			if (is_array($offset)) {
-				foreach ($this->data as $row) {
-					foreach ($offset as $k => $v) {
-						if ((isset($v) && $row[$k] !== null ? $row[$k] != $v : $row[$k] !== $v)) {
-							continue 2;
-						}
-					}
-					return $row;
-				}
-			} else {
-				return $this->data[$offset] ?? null;
-			}
+		if (is_array($offset)) { // conditions from an unchecked $_GET['id'] would allow SQL injection
+			throw new \InvalidArgumentException("Row offset must be an ID, use where()->fetch() for conditions.");
 		}
-		return null;
+		if ($this->single && !isset($this->data)) {
+			return (clone $this)->where($this->primary, $offset)->fetch();
+		}
+		$this->execute();
+		return $this->data[$offset] ?? null;
 	}
 
 	/** Mimic row
