@@ -19,7 +19,7 @@ class Database implements \NotORM\Cache {
 		if (!$return) {
 			return null;
 		}
-		return unserialize($return);
+		return unserialize($return, ['allowed_classes' => false]); // NotORM stores no objects
 	}
 
 	function save(string $key, mixed $data): void {

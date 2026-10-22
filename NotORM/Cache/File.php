@@ -9,7 +9,7 @@ class File implements \NotORM\Cache {
 	function __construct(
 		private string $filename,
 	) {
-		$data = unserialize((string) @file_get_contents($filename)); // @ - file may not exist
+		$data = unserialize((string) @file_get_contents($filename), ['allowed_classes' => false]); // @ - file may not exist
 		$this->data = (is_array($data) ? $data : []); // the file doesn't exist or is not readable
 	}
 
