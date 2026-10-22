@@ -362,8 +362,7 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 			return $return;
 		}
 		$sequence = $this->notORM->structure->getSequence($this->table);
-		// lastInsertId() is not supported by oci
-		if (is_string($this->primary) && !isset($data[$this->primary]) && $sequence !== '' && $this->notORM->driver != "oci" && ($id = $this->notORM->connection->lastInsertId($sequence))) {
+		if (is_string($this->primary) && !isset($data[$this->primary]) && $sequence !== '' && ($id = $this->insertId($sequence))) {
 			$data[$this->primary] = $id;
 		}
 		return new $this->notORM->rowClass($data, $this);
@@ -462,10 +461,19 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 	}
 
 	/** Get last insert ID
+	* @param ?string $sequence null if the name is not needed, Oracle has no ID without it
 	* @return string|false number
 	*/
-	function insertId(): string|false {
-		return $this->notORM->connection->lastInsertId();
+	function insertId(?string $sequence = null): string|false {
+		if ($this->notORM->driver != "oci") {
+			return $this->notORM->connection->lastInsertId($sequence);
+		}
+		if ($sequence === null) {
+			return false;
+		}
+		// PDO_OCI doesn't implement lastInsertId() until https://github.com/php/pecl-database-pdo_oci/pull/47
+		$return = $this->query("SELECT $sequence.CURRVAL FROM DUAL", []);
+		return ($return ? (string) $return->fetchColumn() : false);
 	}
 
 	/** Delete all rows in result set

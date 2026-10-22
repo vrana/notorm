@@ -2,8 +2,17 @@
 
 namespace NotORM\Structure\Discovery;
 
-/** Keys from Oracle all_constraints of the current schema, the names are lowercased */
+/** Keys from Oracle all_constraints and identity columns of the current schema, the names are lowercased */
 class Oracle extends Driver {
+
+	function sequence(string $table, string $primary): ?string {
+		$rows = $this->rows("
+			SELECT sequence_name
+			FROM all_tab_identity_cols
+			WHERE owner = SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AND table_name = UPPER(?) AND column_name = UPPER(?)
+		", $table, $primary); // since Oracle 12c
+		return ($rows ? $rows[0][0] : ''); // e.g. ISEQ$$_80934, its name changes when the table is created again
+	}
 
 	function primaryColumns(string $table): array {
 		return $this->column($this->rows("
