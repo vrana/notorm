@@ -36,3 +36,12 @@ function firstTitle($result) {
 	$row = $result->fetch();
 	return ($row !== false ? $row["title"] : "");
 }
+
+$adminer = $software->application->where(["title" => "Adminer"])->fetch();
+echo $software->application->where(array("title" => "Adminer", "web" => new \NotORM\Literal("web")))->fetch()["id"] . "\n";
+$where = ["author_id" => 11, "maintainer_id" => null];
+echo $software->application->where($where)->fetch()["id"] . "\n";
+if (isset($software->application[$where])) {
+	echo $applications[$where]["id"] . "\n";
+}
+echo $software->application[$_GET["id"]]["title"] . "\n";

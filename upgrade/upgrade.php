@@ -307,6 +307,26 @@ function upgradeCode(string $code, array $ast, array $tokens, array $classes): a
 		}
 	}
 
+	// an array offset of Result isn't supported, PHP arrays don't accept it so it's surely NotORM's
+	foreach ($finder->findInstanceOf($ast, Expr\ArrayDimFetch::class) as $fetch) {
+		$dim = $fetch->dim;
+		$assigned = ($dim instanceof Expr\Variable ? upgradeAssigned($dim, $ast) : []);
+		if (!$dim instanceof Expr\Array_ && !($assigned && !array_filter($assigned, fn (Expr $expr): bool => !$expr instanceof Expr\Array_))) {
+			continue;
+		}
+		$parent = $fetch->getAttribute('parent');
+		$read = !($parent instanceof Expr\Isset_ || $parent instanceof Expr\Empty_ || $parent instanceof Stmt\Unset_
+			|| (($parent instanceof Expr\Assign || $parent instanceof Expr\AssignRef || $parent instanceof Expr\AssignOp) && $parent->var === $fetch));
+		$var = $fetch->var;
+		if ($read && ($var instanceof Expr\PropertyFetch || $var instanceof Expr\NullsafePropertyFetch) && !($var->var instanceof Expr\Variable && $var->var->name === 'this')) {
+			// $db->table is a new result each time
+			$edits[] = [$var->getEndFilePos() + 1, $dim->getStartFilePos(), "->where("]; // the array itself can be upgraded too
+			$edits[] = [$dim->getEndFilePos() + 1, $fetch->getEndFilePos() + 1, ")->fetch()"];
+		} else {
+			$messages[] = [$fetch->getStartLine(), "warning: an array offset of Result throws, use where()->fetch() on a new result"];
+		}
+	}
+
 	// signatures of methods and properties in the descendants of NotORM classes
 	foreach ($finder->findInstanceOf($ast, Stmt\Class_::class) as $class) {
 		$ancestors = upgradeAncestors(upgradeParents($class), $classes);

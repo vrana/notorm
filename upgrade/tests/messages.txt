@@ -7,3 +7,5 @@ index.php:2: warning: load NotORM by Composer's autoload: require 'vendor/autolo
 index.php:17: notice: insert_update() renamed to insertUpdate(), check that it is called on NotORM
 index.php:18: notice: insert_id() renamed to insertId(), check that it is called on NotORM
 index.php:37: warning: fetch() returns null instead of false after the last row, check this comparison
+index.php:44: warning: an array offset of Result throws, use where()->fetch() on a new result
+index.php:45: warning: an array offset of Result throws, use where()->fetch() on a new result
