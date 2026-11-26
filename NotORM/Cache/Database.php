@@ -23,8 +23,13 @@ class Database implements \NotORM\Cache {
 	}
 
 	function save(string $key, mixed $data): void {
-		// REPLACE is not supported by PostgreSQL and MS SQL
 		$parameters = [serialize($data), $key];
+		if ($this->connection->getAttribute(\PDO::ATTR_DRIVER_NAME) == "pgsql") { // a failed INSERT would abort the transaction
+			$result = $this->connection->prepare("INSERT INTO notorm (data, id) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET data = excluded.data");
+			$result->execute($parameters);
+			return;
+		}
+		// REPLACE is not supported by PostgreSQL and MS SQL
 		$result = $this->connection->prepare("UPDATE notorm SET data = ? WHERE id = ?");
 		$result->execute($parameters);
 		if (!$result->rowCount()) {
