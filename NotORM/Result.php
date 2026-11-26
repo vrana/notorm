@@ -420,18 +420,31 @@ class Result extends Base implements \Iterator, \ArrayAccess, \Countable, \JsonS
 				$parameters = array_merge($parameters, $val->parameters);
 			}
 		}
-		if ($this->notORM->driver == "mysql") {
-			$set = [];
-			if (!$update) {
+		if ($this->notORM->driver == "mysql" || $this->notORM->driver == "pgsql") {
+			if (!$update && $this->notORM->driver == "mysql") {
 				$update = $unique;
 			}
+			$set = [];
 			foreach ($update as $key => $val) {
 				$set[] = "$key = " . $this->quote($val);
 				if ($val instanceof Literal) {
 					$parameters = array_merge($parameters, $val->parameters);
 				}
 			}
-			return $this->insertQuery("$query ON DUPLICATE KEY UPDATE " . implode(", ", $set), $parameters);
+			if ($this->notORM->driver == "mysql") {
+				return $this->insertQuery("$query ON DUPLICATE KEY UPDATE " . implode(", ", $set), $parameters);
+			}
+			// a failed INSERT would abort the transaction in PostgreSQL, $unique must be a unique key
+			$query .= " ON CONFLICT (" . implode(", ", array_keys($unique)) . ")";
+			if (!$set) {
+				return $this->insertQuery("$query DO NOTHING", $parameters);
+			}
+			$return = $this->query("$query DO UPDATE SET " . implode(", ", $set) . " RETURNING CASE WHEN xmax = 0 THEN 1 ELSE 2 END", $parameters); // xmax = 0 in an inserted row
+			if (!$return) {
+				return false;
+			}
+			$this->rows = null;
+			return (int) $return->fetchColumn();
 		} else {
 			$connection = $this->notORM->connection;
 			$errorMode = $connection->getAttribute(\PDO::ATTR_ERRMODE);
